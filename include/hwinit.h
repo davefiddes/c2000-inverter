@@ -22,6 +22,8 @@
 #ifndef HWINIT_H_INCLUDED
 #define HWINIT_H_INCLUDED
 
+#include "hwdefs.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C"
