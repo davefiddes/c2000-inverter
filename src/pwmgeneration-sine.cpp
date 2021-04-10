@@ -36,14 +36,14 @@
 
 void PwmGeneration::Run()
 {
-   if (opmode == MOD_MANUAL || opmode == MOD_RUN || opmode == MOD_SINE)
+   if (opmode == Modes::MANUAL || opmode == Modes::RUN || opmode == Modes::SINE)
    {
       int dir = Param::GetInt(Param::dir);
 
       Encoder::UpdateRotorAngle(dir);
       s32fp ampNomLimited = LimitCurrent();
 
-      if (opmode == MOD_SINE)
+      if (opmode == Modes::SINE)
          CalcNextAngleConstant(dir);
       else
          CalcNextAngleAsync(dir);
@@ -71,11 +71,11 @@ void PwmGeneration::Run()
       timer_set_oc_value(PWM_TIMER, TIM_OC2, SineCore::DutyCycles[1] >> shiftForTimer);
       timer_set_oc_value(PWM_TIMER, TIM_OC3, SineCore::DutyCycles[2] >> shiftForTimer);
    }
-   else if (opmode == MOD_BOOST || opmode == MOD_BUCK)
+   else if (opmode == Modes::BOOST || opmode == Modes::BUCK)
    {
       Charge();
    }
-   else if (opmode == MOD_ACHEAT)
+   else if (opmode == Modes::ACHEAT)
    {
       AcHeat();
    }
@@ -149,7 +149,7 @@ void PwmGeneration::PwmInit()
    slipIncr = FRQ_TO_ANGLE(fslip);
    Encoder::SetPwmFrequency(pwmfrq);
 
-   if (opmode == MOD_ACHEAT)
+   if (opmode == Modes::ACHEAT)
       AcHeatTimerSetup();
 }
 
@@ -248,7 +248,7 @@ s32fp PwmGeneration::ProcessCurrents()
    {
       Param::SetFlt(Param::il1rms, rms);
 
-      if (opmode != MOD_BOOST || opmode != MOD_BUCK)
+      if (opmode != Modes::BOOST || opmode != Modes::BUCK)
       {
          //rough approximation as we do not take power factor into account
          s32fp idc = (SineCore::GetAmp() * rms) / SineCore::MAXAMP;

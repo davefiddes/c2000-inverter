@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include "my_fp.h"
 #include "anain.h"
+#include "params.h"
 
 class PwmGeneration
 {
@@ -29,7 +30,7 @@ class PwmGeneration
       static void Run();
       static uint16_t GetAngle();
       static bool Tripped();
-      static void SetOpmode(int opmode);
+      static void SetOpmode(Modes opmode);
       static void SetAmpnom(s32fp amp);
       static void SetFslip(s32fp fslip);
       static void SetTorquePercent(s32fp torque);
@@ -69,7 +70,7 @@ class PwmGeneration
       static s32fp fslip;
       static s32fp frq;
       static uint8_t shiftForTimer;
-      static int opmode;
+      static Modes opmode;
       static s32fp ilofs[2];
       static int polePairRatio;
 };

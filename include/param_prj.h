@@ -278,13 +278,14 @@
 #define VERSTR STRINGIFY(4=VER-foc)
 #endif // CONTROL
 
-enum cruisemodes
+enum class CruiseModes
 {
-   CRUISE_BUTTON = 0,
-   CRUISE_SWITCH = 1,
-   CRUISE_CAN = 2
+   BUTTON = 0,
+   SWITCH = 1,
+   CAN = 2
 };
 
+// Bitfield
 enum _potmodes
 {
    POTMODE_REGENADJ = 0,
@@ -292,40 +293,40 @@ enum _potmodes
    POTMODE_CAN = 2
 };
 
-enum _pwmfuncs
+enum class PWMFuncs
 {
-   PWM_FUNC_TMPM = 0,
-   PWM_FUNC_TMPHS,
-   PWM_FUNC_SPEED,
-   PWM_FUNC_SPEEDFRQ
+   TMPM = 0,
+   TMPHS,
+   SPEED,
+   SPEEDFRQ
 };
 
-enum _idlemodes
+enum class IdleModes
 {
-   IDLE_MODE_ALWAYS = 0,
-   IDLE_MODE_NOBRAKE,
-   IDLE_MODE_CRUISE,
-   IDLE_MODE_OFF
+   ALWAYS = 0,
+   NOBRAKE,
+   CRUISE,
+   OFF
 };
 
-enum _modes
+enum class Modes
 {
-   MOD_OFF = 0,
-   MOD_RUN,
-   MOD_MANUAL,
-   MOD_BOOST,
-   MOD_BUCK,
-   MOD_SINE,
-   MOD_ACHEAT,
-   MOD_LAST
+   OFF = 0,
+   RUN,
+   MANUAL,
+   BOOST,
+   BUCK,
+   SINE,
+   ACHEAT,
+   LAST
 };
 
-enum _tripmodes
+enum class TripModes
 {
-   TRIP_ALLOFF = 0,
-   TRIP_DCSWON,
-   TRIP_PRECHARGEON,
-   TRIP_AUTORESUME
+   ALLOFF = 0,
+   DCSWON,
+   PRECHARGEON,
+   AUTORESUME
 };
 
 enum _dirmodes
@@ -336,6 +337,7 @@ enum _dirmodes
    DIR_DEFAULTFORWARD = 4
 };
 
+// Bitfield
 enum _canio
 {
    CAN_IO_CRUISE = 1,
@@ -346,6 +348,7 @@ enum _canio
    CAN_IO_BMS = 32
 };
 
+// Bitfield
 enum _swap
 {
    SWAP_CURRENTS = 1,
@@ -354,6 +357,7 @@ enum _swap
    SWAP_PWM23 = 8
 };
 
+// Bitfield
 enum status
 {
    STAT_NONE = 0,

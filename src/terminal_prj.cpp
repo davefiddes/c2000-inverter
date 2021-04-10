@@ -155,10 +155,11 @@ static void StartInverter(Terminal* term, char *arg)
    term = term;
    arg = my_trim(arg);
    int val = my_atoi(arg);
-   if (val < MOD_LAST)
+   if (val < static_cast<int>(Modes::LAST))
    {
-      Param::SetInt(Param::opmode, val);
-      PwmGeneration::SetOpmode(FP_TOINT(val));
+      Modes newmode = static_cast<Modes>(val);
+      Param::SetEnum(Param::opmode, newmode);
+      PwmGeneration::SetOpmode(newmode);
       printf("Inverter started\r\n");
    }
    else

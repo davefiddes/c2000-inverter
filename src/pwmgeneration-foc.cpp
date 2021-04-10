@@ -46,7 +46,7 @@ static PiController fwController;
 
 void PwmGeneration::Run()
 {
-   if (opmode == MOD_MANUAL || opmode == MOD_RUN)
+   if (opmode == Modes::MANUAL || opmode == Modes::RUN)
    {
       static s32fp frqFiltered = 0, idcFiltered = 0;
       int dir = Param::GetInt(Param::dir);
@@ -66,12 +66,12 @@ void PwmGeneration::Run()
 
       ProcessCurrents(id, iq);
 
-      if (opmode == MOD_RUN && initwait == 0)
+      if (opmode == Modes::RUN && initwait == 0)
       {
          s32fp fwIdRef = idref <= 0 ? fwController.Run(iq) : 0;
          dController.SetRef(idref + fwIdRef);
       }
-      else if (opmode == MOD_MANUAL)
+      else if (opmode == Modes::MANUAL)
       {
          idref = Param::Get(Param::manualid);
          dController.SetRef(idref);
@@ -113,12 +113,12 @@ void PwmGeneration::Run()
          timer_set_oc_value(PWM_TIMER, ocChannels[i], FOC::DutyCycles[i] >> shiftForTimer);
       }
    }
-   else if (opmode == MOD_BOOST || opmode == MOD_BUCK)
+   else if (opmode == Modes::BOOST || opmode == Modes::BUCK)
    {
       initwait = 0;
       Charge();
    }
-   else if (opmode == MOD_ACHEAT)
+   else if (opmode == Modes::ACHEAT)
    {
       initwait = 0;
       AcHeat();
@@ -223,7 +223,7 @@ void PwmGeneration::PwmInit()
       ocChannels[2] = TIM_OC3;
    }
 
-   if (opmode == MOD_ACHEAT)
+   if (opmode == Modes::ACHEAT)
       AcHeatTimerSetup();
 }
 

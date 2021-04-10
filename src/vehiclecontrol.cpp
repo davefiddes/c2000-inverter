@@ -42,7 +42,7 @@ int VehicleControl::udcFiltered = 0;
 
 void VehicleControl::PostErrorIfRunning(ERROR_MESSAGE_NUM err)
 {
-   if (Param::GetInt(Param::opmode) == MOD_RUN)
+   if (Param::GetEnum<Modes>(Param::opmode) == Modes::RUN)
    {
       ErrorMessage::Post(err);
    }
@@ -57,7 +57,7 @@ void VehicleControl::CruiseControl()
    }
    else
    {
-      if (Param::GetInt(Param::cruisemode) == CRUISE_BUTTON)
+      if (Param::GetEnum<CruiseModes>(Param::cruisemode) == CruiseModes::BUTTON)
       {
          //Enable/update cruise control when button is pressed
          if (Param::GetBool(Param::din_cruise))
@@ -65,7 +65,7 @@ void VehicleControl::CruiseControl()
             Throttle::cruiseSpeed = Encoder::GetSpeed();
          }
       }
-      else if (Param::GetInt(Param::cruisemode) == CRUISE_SWITCH)
+      else if (Param::GetEnum<CruiseModes>(Param::cruisemode) == CruiseModes::SWITCH)
       {
          //Enable/update cruise control when switch is toggled on
          if (Param::GetBool(Param::din_cruise) && !lastCruiseSwitchState)
@@ -79,13 +79,13 @@ void VehicleControl::CruiseControl()
             Throttle::cruiseSpeed = -1;
          }
       }
-      else if (Param::GetInt(Param::cruisemode) == CRUISE_CAN)
+      else if (Param::GetEnum<CruiseModes>(Param::cruisemode) == CruiseModes::CAN)
       {
          Throttle::cruiseSpeed = Param::GetInt(Param::cruisespeed);
       }
    }
 
-   if (Param::GetInt(Param::cruisemode) != CRUISE_CAN)
+   if (Param::GetEnum<CruiseModes>(Param::cruisemode) != CruiseModes::CAN)
    {
       Param::SetInt(Param::cruisespeed, Throttle::cruiseSpeed);
    }
@@ -188,17 +188,17 @@ void VehicleControl::SetContactorsOffState()
 {
    if (PwmGeneration::Tripped())
    {
-      switch (Param::GetInt(Param::tripmode))
+      switch (Param::GetEnum<TripModes>(Param::tripmode))
       {
          default:
-         case TRIP_ALLOFF:
+         case TripModes::ALLOFF:
             DigIo::dcsw_out.Clear();
             break;
-         case TRIP_AUTORESUME:
-         case TRIP_DCSWON:
+         case TripModes::AUTORESUME:
+         case TripModes::DCSWON:
             //do nothing
             break;
-         case TRIP_PRECHARGEON:
+         case TripModes::PRECHARGEON:
             DigIo::dcsw_out.Clear();
             DigIo::prec_out.Set();
             break;
@@ -243,7 +243,7 @@ void VehicleControl::CalcAndOutputTemp()
 {
    s32fp pwmgain = Param::Get(Param::pwmgain);
    int pwmofs = Param::GetInt(Param::pwmofs);
-   int pwmfunc = Param::GetInt(Param::pwmfunc);
+   PWMFuncs pwmfunc = Param::GetEnum<PWMFuncs>(Param::pwmfunc);
    int tmpout = 0;
    s32fp tmphs = 0, tmpm = 0;
 
@@ -255,16 +255,16 @@ void VehicleControl::CalcAndOutputTemp()
    switch (pwmfunc)
    {
       default:
-      case PWM_FUNC_TMPM:
+      case PWMFuncs::TMPM:
          tmpout = FP_TOINT(FP_MUL(tmpm, pwmgain)) + pwmofs;
          break;
-      case PWM_FUNC_TMPHS:
+      case PWMFuncs::TMPHS:
          tmpout = FP_TOINT(FP_MUL(tmphs, pwmgain)) + pwmofs;
          break;
-      case PWM_FUNC_SPEED:
+      case PWMFuncs::SPEED:
          tmpout = FP_TOINT(FP_MUL(Param::Get(Param::speed), pwmgain)) + pwmofs;
          break;
-      case PWM_FUNC_SPEEDFRQ:
+      case PWMFuncs::SPEEDFRQ:
          //Handled in 1ms task
          break;
    }
@@ -311,7 +311,7 @@ s32fp VehicleControl::ProcessUdc()
          DigIo::prec_out.Clear();  //and precharge
       }
 
-      Param::SetInt(Param::opmode, MOD_OFF);
+      Param::SetEnum(Param::opmode, Modes::OFF);
       DigIo::err_out.Set();
       ErrorMessage::Post(ERR_OVERVOLTAGE);
    }
@@ -532,9 +532,9 @@ void VehicleControl::GetCruiseCreepCommand(s32fp& finalSpnt, s32fp throtSpnt)
 
    finalSpnt = throtSpnt; //assume no regulation
 
-   if (Param::GetInt(Param::idlemode) == IDLE_MODE_ALWAYS ||
-      (Param::GetInt(Param::idlemode) == IDLE_MODE_NOBRAKE && !brake) ||
-      (Param::GetInt(Param::idlemode) == IDLE_MODE_CRUISE && !brake && Param::GetBool(Param::din_cruise)))
+   if (Param::GetEnum<IdleModes>(Param::idlemode) == IdleModes::ALWAYS ||
+      (Param::GetEnum<IdleModes>(Param::idlemode) == IdleModes::NOBRAKE && !brake) ||
+      (Param::GetEnum<IdleModes>(Param::idlemode) == IdleModes::CRUISE && !brake && Param::GetBool(Param::din_cruise)))
    {
       finalSpnt = MAX(throtSpnt, idleSpnt);
    }

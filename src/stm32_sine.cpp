@@ -109,9 +109,9 @@ static void RunCharger(s32fp udc)
 static void Ms10Task(void)
 {
    static int initWait = 0;
-   int opmode = Param::GetInt(Param::opmode);
-   int chargemode = Param::GetInt(Param::chargemode);
-   int newMode = MOD_OFF;
+   Modes opmode = Param::GetEnum<Modes>(Param::opmode);
+   Modes chargemode = Param::GetEnum<Modes>(Param::chargemode);
+   Modes newMode = Modes::OFF;
    int stt = STAT_NONE;
    s32fp udc = VehicleControl::ProcessUdc();
 
@@ -122,11 +122,11 @@ static void Ms10Task(void)
    s32fp torquePercent = VehicleControl::ProcessThrottle();
    Param::SetInt(Param::speed, Encoder::GetSpeed());
 
-   if (MOD_RUN == opmode && initWait == -1)
+   if (Modes::RUN == opmode && initWait == -1)
    {
       PwmGeneration::SetTorquePercent(torquePercent);
    }
-   else if ((MOD_BOOST == opmode || MOD_BUCK == opmode) && initWait == -1)
+   else if ((Modes::BOOST == opmode || Modes::BUCK == opmode) && initWait == -1)
    {
       RunCharger(udc);
    }
@@ -153,10 +153,10 @@ static void Ms10Task(void)
       if (Param::GetBool(Param::din_forward) &&
           Param::GetBool(Param::din_reverse) &&
          !Param::GetBool(Param::din_bms) &&
-          chargemode >= MOD_BOOST)
+          chargemode >= Modes::BOOST)
       {
          //In buck mode we precharge to a different voltage
-         if ((chargemode == MOD_BUCK && udc >= Param::Get(Param::udcswbuck)) || chargemode == MOD_BOOST)
+         if ((chargemode == Modes::BUCK && udc >= Param::Get(Param::udcswbuck)) || chargemode == Modes::BOOST)
          {
             newMode = chargemode;
 
@@ -169,36 +169,36 @@ static void Ms10Task(void)
          }
       }
       else if (Param::GetBool(Param::din_start) ||
-              (Param::GetInt(Param::tripmode) == TRIP_AUTORESUME && PwmGeneration::Tripped()))
+              (Param::GetEnum<TripModes>(Param::tripmode) == TripModes::AUTORESUME && PwmGeneration::Tripped()))
       {
-         newMode = MOD_RUN;
+         newMode = Modes::RUN;
       }
-      stt |= opmode != MOD_OFF ? STAT_NONE : STAT_WAITSTART;
+      stt |= opmode != Modes::OFF ? STAT_NONE : STAT_WAITSTART;
    }
 
    Param::SetInt(Param::status, stt);
 
-   if (newMode != MOD_OFF)
+   if (newMode != Modes::OFF)
    {
       DigIo::dcsw_out.Set();
       DigIo::err_out.Clear();
       DigIo::prec_out.Clear();
-      Param::SetInt(Param::opmode, newMode);
+      Param::SetEnum(Param::opmode, newMode);
       ErrorMessage::UnpostAll();
    }
 
-   if (hwRev != HW_TESLA && opmode >= MOD_BOOST && Param::GetBool(Param::din_bms))
+   if (hwRev != HW_TESLA && opmode >= Modes::BOOST && Param::GetBool(Param::din_bms))
    {
-      opmode = MOD_OFF;
-      Param::SetInt(Param::opmode, opmode);
+      opmode = Modes::OFF;
+      Param::SetEnum(Param::opmode, opmode);
    }
 
-   if (MOD_OFF == opmode)
+   if (Modes::OFF == opmode)
    {
       initWait = 50;
 
       VehicleControl::SetContactorsOffState();
-      PwmGeneration::SetOpmode(MOD_OFF);
+      PwmGeneration::SetOpmode(Modes::OFF);
       Throttle::cruiseSpeed = -1;
    }
    else if (0 == initWait)
@@ -233,7 +233,7 @@ static void Ms1Task(void)
 {
    static int speedCnt = 0;
 
-   if (Param::GetInt(Param::pwmfunc) == PWM_FUNC_SPEEDFRQ)
+   if (Param::GetEnum<PWMFuncs>(Param::pwmfunc) == PWMFuncs::SPEEDFRQ)
    {
       int speed = Param::GetInt(Param::speed);
       if (speedCnt == 0 && speed != 0)
@@ -317,7 +317,7 @@ extern void parm_Change(Param::PARAM_NUM paramNum)
 
          if (hwRev != HW_BLUEPILL)
          {
-            if (Param::GetInt(Param::pwmfunc) == PWM_FUNC_SPEEDFRQ)
+            if (Param::GetEnum<PWMFuncs>(Param::pwmfunc) == PWMFuncs::SPEEDFRQ)
                gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, GPIO9);
             else
                gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO9);

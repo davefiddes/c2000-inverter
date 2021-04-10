@@ -43,7 +43,7 @@ uint16_t PwmGeneration::slipIncr;
 s32fp    PwmGeneration::fslip;
 s32fp    PwmGeneration::frq;
 uint8_t  PwmGeneration::shiftForTimer;
-int      PwmGeneration::opmode;
+Modes    PwmGeneration::opmode;
 s32fp    PwmGeneration::ilofs[2];
 int      PwmGeneration::polePairRatio;
 
@@ -108,12 +108,12 @@ static void ConfigureChargeController()
    chargeController.PreloadIntegrator(pwmin);
 }
 
-void PwmGeneration::SetOpmode(int _opmode)
+void PwmGeneration::SetOpmode(Modes _opmode)
 {
    if (opmode == _opmode) return;
    opmode = _opmode;
 
-   if (opmode != MOD_OFF)
+   if (opmode != Modes::OFF)
    {
       tripped = false;
       pwmdigits = MIN_PWM_DIGITS + Param::GetInt(Param::pwmfrq);
@@ -124,31 +124,31 @@ void PwmGeneration::SetOpmode(int _opmode)
    switch (opmode)
    {
       default:
-      case MOD_OFF:
+      case Modes::OFF:
          DisableOutput();
          execTicks = 0;
          break;
-      case MOD_ACHEAT:
+      case Modes::ACHEAT:
          DisableOutput();
          timer_enable_oc_output(PWM_TIMER, TIM_OC2N);
          timer_enable_oc_output(PWM_TIMER, TIM_OC2);
          timer_enable_break_main_output(PWM_TIMER);
          break;
-      case MOD_BOOST:
+      case Modes::BOOST:
          DisableOutput();
          EnableChargeOutput();
          timer_enable_break_main_output(PWM_TIMER);
          ConfigureChargeController();
          break;
-      case MOD_BUCK:
+      case Modes::BUCK:
          DisableOutput();
          EnableChargeOutput();
          timer_enable_break_main_output(PWM_TIMER);
          ConfigureChargeController();
          break;
-      case MOD_MANUAL:
-      case MOD_RUN:
-      case MOD_SINE:
+      case Modes::MANUAL:
+      case Modes::RUN:
+      case Modes::SINE:
          EnableOutput();
          break;
    }
@@ -166,7 +166,7 @@ extern "C" void tim1_brk_isr(void)
       ErrorMessage::Post(ERR_OVERCURRENT);
 
    timer_disable_irq(PWM_TIMER, TIM_DIER_BIE);
-   Param::SetInt(Param::opmode, MOD_OFF);
+   Param::SetEnum(Param::opmode, Modes::OFF);
    DigIo::err_out.Set();
    tripped = true;
 }
@@ -230,18 +230,18 @@ void PwmGeneration::EnableChargeOutput()
       //Disable other PWM source.
       timer_disable_oc_output(OVER_CUR_TIMER, TIM_OC4);
 
-      if (opmode == MOD_BOOST)
+      if (opmode == Modes::BOOST)
          timer_set_oc_polarity_low(PWM_TIMER, TIM_OC2N);
-      else if (opmode == MOD_BUCK)
+      else if (opmode == Modes::BUCK)
          timer_set_oc_polarity_high(PWM_TIMER, TIM_OC2N);
 
       timer_enable_oc_output(PWM_TIMER, TIM_OC2N);
    }
    else
    {
-      if (opmode == MOD_BOOST)
+      if (opmode == Modes::BOOST)
          timer_enable_oc_output(PWM_TIMER, TIM_OC2N);
-      else if (opmode == MOD_BUCK)
+      else if (opmode == Modes::BUCK)
          timer_enable_oc_output(PWM_TIMER, TIM_OC2);
    }
 }
@@ -307,7 +307,7 @@ void PwmGeneration::Charge()
 
    int dc = chargeController.Run(iFlt);
 
-   if (opmode == MOD_BOOST)
+   if (opmode == Modes::BOOST)
       Param::SetFlt(Param::idc, FP_MUL((FP_FROMINT(100) - ampnom), iFlt) / 100);
    else
       Param::SetFlt(Param::idc, iFlt);
