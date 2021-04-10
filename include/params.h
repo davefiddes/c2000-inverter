@@ -60,13 +60,27 @@ namespace Param
       uint32_t id;
    } Attributes;
 
-   int Set(PARAM_NUM ParamNum, s32fp ParamVal);
    s32fp  Get(PARAM_NUM ParamNum);
    int    GetInt(PARAM_NUM ParamNum);
    s32fp  GetScl(PARAM_NUM ParamNum);
    bool   GetBool(PARAM_NUM ParamNum);
+
+   template <class T>
+   T GetEnum(PARAM_NUM ParamNum)
+   {
+       return static_cast<T>(GetInt(ParamNum));
+   }
+
+   int  Set(PARAM_NUM ParamNum, s32fp ParamVal);
    void SetInt(PARAM_NUM ParamNum, int ParamVal);
    void SetFlt(PARAM_NUM ParamNum, s32fp ParamVal);
+
+   template <class T>
+   void SetEnum(PARAM_NUM ParamNum, T ParamVal)
+   {
+       SetInt(ParamNum, static_cast<int>(ParamVal));
+   }
+
    PARAM_NUM NumFromString(const char *name);
    PARAM_NUM NumFromId(uint32_t id);
    const Attributes *GetAttrib(PARAM_NUM ParamNum);
