@@ -22,6 +22,7 @@
 #define ABS(a)   ((a) < 0?(-a) : (a))
 #define MIN(a,b) ((a) < (b)?(a):(b))
 #define MAX(a,b) ((a) > (b)?(a):(b))
+#define CLAMP(a,low,high) ((a) > (high)?(high):((a) < (low)? (low):(a)))
 #define RAMPUP(current, target, rate) ((target < current || (current + rate) > target) ? target : current + rate)
 #define RAMPDOWN(current, target, rate) ((target > current || (current - rate) < target) ? target : current - rate)
 #define IIRFILTER(l,n,c) (((n) + ((l) << (c)) - (l)) >> (c))
