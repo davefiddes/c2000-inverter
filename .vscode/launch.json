@@ -36,6 +36,14 @@
             ],
             "externalConsole": false,
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Debug OpenInverterTest",
+            "type": "gdb",
+            "request": "launch",
+            "target": "./build/newtest/OpenInverterTest",
+            "cwd": "${workspaceRoot}",
+            "valuesFormatting": "parseText"
         }
     ]
 }
