@@ -269,7 +269,7 @@ void VehicleControl::CalcAndOutputTemp()
          break;
    }
 
-   tmpout = MIN(0xFFFF, MAX(0, tmpout));
+   tmpout = CLAMP(tmpout,0, 0xFFFF);
 
    timer_set_oc_value(OVER_CUR_TIMER, TIM_OC4, tmpout);
 

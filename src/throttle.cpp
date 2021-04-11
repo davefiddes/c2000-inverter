@@ -105,8 +105,7 @@ s32fp Throttle::CalcThrottle(s32fp potnom, s32fp pot2nom, bool brkpedal)
 
 s32fp Throttle::RampThrottle(s32fp potnom)
 {
-   potnom = MIN(potnom, throtmax);
-   potnom = MAX(potnom, throtmin);
+   potnom = CLAMP(potnom, throtmin, throtmax);
 
    if (potnom >= throttleRamped)
    {
