@@ -2,6 +2,7 @@
  * This file is part of the stm32-sine project.
  *
  * Copyright (C) 2015 Johannes Huebner <dev@johanneshuebner.com>
+ * Copyright (C) 2021 David J. Fiddes <D.J@fiddes.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,60 +20,26 @@
 #ifndef PWMGENERATION_H
 #define PWMGENERATION_H
 
-#include <stdint.h>
-#include "my_fp.h"
-#include "anain.h"
-#include "params.h"
+#if CONTROL == CTRL_SINE
+#include "sinepwmgeneration.h"
+#elif CONTROL == CTRL_FOC
+#include "focpwmgeneration.h"
+#endif
 
-class PwmGeneration
-{
-   public:
-      static void Run();
-      static uint16_t GetAngle();
-      static bool Tripped();
-      static void SetOpmode(Modes opmode);
-      static void SetAmpnom(s32fp amp);
-      static void SetFslip(s32fp fslip);
-      static void SetTorquePercent(s32fp torque);
-      static void SetCurrentOffset(int offset1, int offset2);
-      static void SetCurrentLimitThreshold(s32fp ocurlim);
-      static void SetControllerGains(int kp, int ki, int fwkp);
-      static int GetCpuLoad();
-      static void SetChargeCurrent(s32fp cur);
-      static void SetPolePairRatio(int ratio) { polePairRatio = ratio; }
+#ifdef STM32F1
 
-   private:
-      enum EdgeType { NoEdge, PosEdge, NegEdge };
+#include "stm32pwmdriver.h"
 
-      static void PwmInit();
-      static void EnableOutput();
-      static void DisableOutput();
-      static void EnableChargeOutput();
-      static uint16_t TimerSetup(uint16_t deadtime, bool activeLow);
-      static void AcHeatTimerSetup();
-      static s32fp ProcessCurrents();
-      static s32fp ProcessCurrents(s32fp& id, s32fp& iq);
-      static void CalcNextAngleSync(int dir);
-      static void CalcNextAngleAsync(int dir);
-      static void CalcNextAngleConstant(int dir);
-      static void Charge();
-      static void AcHeat();
-      static s32fp GetIlMax(s32fp il1, s32fp il2);
-      static s32fp GetCurrent(AnaIn& input, s32fp offset, s32fp gain);
-      static s32fp LimitCurrent();
-      static EdgeType CalcRms(s32fp il, EdgeType& lastEdge, s32fp& max, s32fp& rms, int& samples, s32fp prevRms);
-      static void RunOffsetCalibration();
+#if CONTROL == CTRL_SINE
 
-      static uint16_t pwmfrq;
-      static uint16_t angle;
-      static s32fp ampnom;
-      static uint16_t slipIncr;
-      static s32fp fslip;
-      static s32fp frq;
-      static uint8_t shiftForTimer;
-      static Modes opmode;
-      static s32fp ilofs[2];
-      static int polePairRatio;
-};
+using PwmGeneration = SinePwmGeneration<STM32PwmDriver>;
+
+#elif CONTROL == CTRL_FOC
+
+using PwmGeneration = FocPwmGeneration<STM32PwmDriver>;
+
+#endif
+
+#endif
 
 #endif // PWMGENERATION_H
