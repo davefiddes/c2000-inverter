@@ -20,7 +20,6 @@
 #ifndef PWMGENERATIONBASE_H
 #define PWMGENERATIONBASE_H
 
-#include "anain.h"
 #include "errormessage.h"
 #include "my_fp.h"
 #include "my_math.h"
@@ -29,7 +28,7 @@
 #include "sine_core.h"
 #include <stdint.h>
 
-template <typename PwmModeT, typename PwmDriverT>
+template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
 class PwmGenerationBase
 {
 public:
@@ -175,9 +174,9 @@ protected:
     {
         static s32fp iFlt;
         s32fp        il1 =
-            GetCurrent(AnaIn::il1, ilofs[0], Param::Get(Param::il1gain));
+            GetCurrent(AnaInT::il1, ilofs[0], Param::Get(Param::il1gain));
         s32fp il2 =
-            GetCurrent(AnaIn::il2, ilofs[1], Param::Get(Param::il2gain));
+            GetCurrent(AnaInT::il2, ilofs[1], Param::Get(Param::il2gain));
 
         il1 = ABS(il1);
         il2 = ABS(il2);
@@ -201,7 +200,7 @@ protected:
         PwmDriverT::SetChargeCurrent(dc);
     }
 
-    static s32fp GetCurrent(AnaIn& input, s32fp offset, s32fp gain)
+    static s32fp GetCurrent(AnaInT& input, s32fp offset, s32fp gain)
     {
         s32fp il = FP_FROMINT(input.Get());
         il -= offset;
@@ -251,43 +250,43 @@ protected:
 };
 
 // Instances of each member variable
-template <typename PwmModeT, typename PwmDriverT>
-uint16_t PwmGenerationBase<PwmModeT, PwmDriverT>::pwmfrq;
+template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
+uint16_t PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::pwmfrq;
 
-template <typename PwmModeT, typename PwmDriverT>
-uint16_t PwmGenerationBase<PwmModeT, PwmDriverT>::angle;
+template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
+uint16_t PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::angle;
 
-template <typename PwmModeT, typename PwmDriverT>
-s32fp PwmGenerationBase<PwmModeT, PwmDriverT>::ampnom;
+template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
+s32fp PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::ampnom;
 
-template <typename PwmModeT, typename PwmDriverT>
-uint16_t PwmGenerationBase<PwmModeT, PwmDriverT>::slipIncr;
+template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
+uint16_t PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::slipIncr;
 
-template <typename PwmModeT, typename PwmDriverT>
-s32fp PwmGenerationBase<PwmModeT, PwmDriverT>::fslip;
+template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
+s32fp PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::fslip;
 
-template <typename PwmModeT, typename PwmDriverT>
-s32fp PwmGenerationBase<PwmModeT, PwmDriverT>::frq;
+template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
+s32fp PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::frq;
 
-template <typename PwmModeT, typename PwmDriverT>
-uint8_t PwmGenerationBase<PwmModeT, PwmDriverT>::shiftForTimer;
+template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
+uint8_t PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::shiftForTimer;
 
-template <typename PwmModeT, typename PwmDriverT>
-Modes PwmGenerationBase<PwmModeT, PwmDriverT>::opmode;
+template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
+Modes PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::opmode;
 
-template <typename PwmModeT, typename PwmDriverT>
-s32fp PwmGenerationBase<PwmModeT, PwmDriverT>::ilofs[2];
+template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
+s32fp PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::ilofs[2];
 
-template <typename PwmModeT, typename PwmDriverT>
-int PwmGenerationBase<PwmModeT, PwmDriverT>::polePairRatio;
+template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
+int PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::polePairRatio;
 
-template <typename PwmModeT, typename PwmDriverT>
-bool PwmGenerationBase<PwmModeT, PwmDriverT>::tripped;
+template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
+bool PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::tripped;
 
-template <typename PwmModeT, typename PwmDriverT>
-uint8_t PwmGenerationBase<PwmModeT, PwmDriverT>::pwmdigits;
+template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
+uint8_t PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::pwmdigits;
 
-template <typename PwmModeT, typename PwmDriverT>
-PiController PwmGenerationBase<PwmModeT, PwmDriverT>::chargeController;
+template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
+PiController PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::chargeController;
 
 #endif // PWMGENERATIONBASE_H

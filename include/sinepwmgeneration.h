@@ -20,9 +20,7 @@
 #ifndef SINEPWMGENERATIONFOC_H
 #define SINEPWMGENERATIONFOC_H
 
-#include "anain.h"
 #include "fu.h"
-#include "inc_encoder.h"
 #include "my_fp.h"
 #include "my_math.h"
 #include "params.h"
@@ -30,11 +28,16 @@
 #include "sine_core.h"
 #include <stdint.h>
 
-template <typename PwmDriverT>
-class SinePwmGeneration
-: public PwmGenerationBase<SinePwmGeneration<PwmDriverT>, PwmDriverT>
+template <typename AnaInT, typename EncoderT, typename PwmDriverT>
+class SinePwmGeneration : public PwmGenerationBase<
+                              SinePwmGeneration<AnaInT, EncoderT, PwmDriverT>,
+                              AnaInT,
+                              PwmDriverT>
 {
-    using BaseT = PwmGenerationBase<SinePwmGeneration<PwmDriverT>, PwmDriverT>;
+    using BaseT = PwmGenerationBase<
+        SinePwmGeneration<AnaInT, EncoderT, PwmDriverT>,
+        AnaInT,
+        PwmDriverT>;
 
 public:
     static void Run()
@@ -44,7 +47,7 @@ public:
         {
             int dir = Param::GetInt(Param::dir);
 
-            Encoder::UpdateRotorAngle(dir);
+            EncoderT::UpdateRotorAngle(dir);
             s32fp ampNomLimited = LimitCurrent();
 
             if (BaseT::opmode == Modes::SINE)
@@ -138,10 +141,10 @@ public:
             ampnomLocal = -torque;
 
             fslipspnt = -fslipmin;
-            if (Encoder::GetRotorFrequency() < brkrampstr)
+            if (EncoderT::GetRotorFrequency() < brkrampstr)
             {
                 ampnomLocal = FP_TOINT(
-                    FP_DIV(Encoder::GetRotorFrequency(), brkrampstr) *
+                    FP_DIV(EncoderT::GetRotorFrequency(), brkrampstr) *
                     ampnomLocal);
             }
         }
@@ -171,13 +174,13 @@ private:
 private:
     static void PwmInit()
     {
-        BaseT::SetCurrentOffset(AnaIn::il1.Get(), AnaIn::il2.Get());
+        BaseT::SetCurrentOffset(AnaInT::il1.Get(), AnaInT::il2.Get());
         BaseT::pwmfrq = PwmDriverT::TimerSetup(
             Param::GetInt(Param::deadtime),
             Param::GetInt(Param::pwmpol),
             BaseT::pwmdigits);
         BaseT::slipIncr = BaseT::FrqToAngle(BaseT::fslip);
-        Encoder::SetPwmFrequency(BaseT::pwmfrq);
+        EncoderT::SetPwmFrequency(BaseT::pwmfrq);
 
         PwmDriverT::DriverInit();
 
@@ -193,9 +196,9 @@ private:
         static EdgeType lastEdge[2] = { PosEdge, PosEdge };
 
         s32fp il1 = BaseT::GetCurrent(
-            AnaIn::il1, BaseT::ilofs[0], Param::Get(Param::il1gain));
+            AnaInT::il1, BaseT::ilofs[0], Param::Get(Param::il1gain));
         s32fp il2 = BaseT::GetCurrent(
-            AnaIn::il2, BaseT::ilofs[1], Param::Get(Param::il2gain));
+            AnaInT::il2, BaseT::ilofs[1], Param::Get(Param::il2gain));
         s32fp    rms;
         s32fp    il1PrevRms = Param::Get(Param::il1rms);
         s32fp    il2PrevRms = Param::Get(Param::il2rms);
@@ -235,10 +238,10 @@ private:
     static void CalcNextAngleAsync(int dir)
     {
         static uint16_t slipAngle = 0;
-        uint16_t        rotorAngle = Encoder::GetRotorAngle();
+        uint16_t        rotorAngle = EncoderT::GetRotorAngle();
 
         BaseT::frq =
-            BaseT::polePairRatio * Encoder::GetRotorFrequency() + BaseT::fslip;
+            BaseT::polePairRatio * EncoderT::GetRotorFrequency() + BaseT::fslip;
         slipAngle += dir * BaseT::slipIncr;
 
         if (BaseT::frq < 0)

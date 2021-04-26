@@ -21,17 +21,20 @@
 #define FOCPWMGENERATION_H
 
 #include "foc.h"
-#include "inc_encoder.h"
 #include "my_fp.h"
 #include "picontroller.h"
-#include "anain.h"
 #include "pwmgenerationbase.h"
 
-template <typename PwmDriverT>
-class FocPwmGeneration
-: public PwmGenerationBase<FocPwmGeneration<PwmDriverT>, PwmDriverT>
+template <typename AnaInT, typename EncoderT, typename PwmDriverT>
+class FocPwmGeneration : public PwmGenerationBase<
+                             FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>,
+                             AnaInT,
+                             PwmDriverT>
 {
-    using BaseT = PwmGenerationBase<FocPwmGeneration<PwmDriverT>, PwmDriverT>;
+    using BaseT = PwmGenerationBase<
+        FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>,
+        AnaInT,
+        PwmDriverT>;
 
 public:
     static void SetControllerGains(int kp, int ki, int fwkp)
@@ -51,7 +54,7 @@ public:
             int          kifrqgain = Param::GetInt(Param::curkifrqgain);
             s32fp        id, iq;
 
-            Encoder::UpdateRotorAngle(dir);
+            EncoderT::UpdateRotorAngle(dir);
 
             CalcNextAngleSync(dir);
 
@@ -141,7 +144,7 @@ public:
 
         if (torquePercent < 0)
         {
-            direction = Encoder::GetRotorDirection();
+            direction = EncoderT::GetRotorDirection();
         }
 
         int32_t is = FP_TOINT(
@@ -188,7 +191,7 @@ private:
             Param::GetInt(Param::pwmpol),
             BaseT::pwmdigits);
         BaseT::slipIncr = BaseT::FrqToAngle(BaseT::fslip);
-        Encoder::SetPwmFrequency(BaseT::pwmfrq);
+        EncoderT::SetPwmFrequency(BaseT::pwmfrq);
         initwait = BaseT::pwmfrq / 2; // 0.5s
         idref = 0;
         qController.ResetIntegrator();
@@ -218,9 +221,9 @@ private:
         }
 
         s32fp il1 = BaseT::GetCurrent(
-            AnaIn::il1, BaseT::ilofs[0], Param::Get(Param::il1gain));
+            AnaInT::il1, BaseT::ilofs[0], Param::Get(Param::il1gain));
         s32fp il2 = BaseT::GetCurrent(
-            AnaIn::il2, BaseT::ilofs[1], Param::Get(Param::il2gain));
+            AnaInT::il2, BaseT::ilofs[1], Param::Get(Param::il2gain));
 
         if ((Param::GetInt(Param::pinswap) & SWAP_CURRENTS) > 0)
             FOC::ParkClarke(il2, il1, BaseT::angle);
@@ -239,17 +242,17 @@ private:
 
     static void CalcNextAngleSync(int dir)
     {
-        if (Encoder::SeenNorthSignal())
+        if (EncoderT::SeenNorthSignal())
         {
             uint16_t syncOfs = Param::GetInt(Param::syncofs);
-            uint16_t rotorAngle = Encoder::GetRotorAngle();
+            uint16_t rotorAngle = EncoderT::GetRotorAngle();
 
             // Compensate rotor movement that happened between sampling and
             // processing
             syncOfs += FP_TOINT(dir * BaseT::frq * 10);
 
             BaseT::angle = BaseT::polePairRatio * rotorAngle + syncOfs;
-            BaseT::frq = BaseT::polePairRatio * Encoder::GetRotorFrequency();
+            BaseT::frq = BaseT::polePairRatio * EncoderT::GetRotorFrequency();
         }
         else
         {
@@ -265,8 +268,8 @@ private:
 
         if (samples < offsetSamples)
         {
-            il1Avg += AnaIn::il1.Get();
-            il2Avg += AnaIn::il2.Get();
+            il1Avg += AnaInT::il1.Get();
+            il2Avg += AnaInT::il2.Get();
         }
         else
         {
@@ -292,25 +295,25 @@ private:
 };
 
 // Instances of each member variable
-template <typename PwmDriverT>
-int FocPwmGeneration<PwmDriverT>::initwait;
+template <typename AnaInT, typename EncoderT, typename PwmDriverT>
+int FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>::initwait;
 
-template <typename PwmDriverT>
-int FocPwmGeneration<PwmDriverT>::fwBaseGain;
+template <typename AnaInT, typename EncoderT, typename PwmDriverT>
+int FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>::fwBaseGain;
 
-template <typename PwmDriverT>
-s32fp FocPwmGeneration<PwmDriverT>::idref;
+template <typename AnaInT, typename EncoderT, typename PwmDriverT>
+s32fp FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>::idref;
 
-template <typename PwmDriverT>
-int FocPwmGeneration<PwmDriverT>::curki;
+template <typename AnaInT, typename EncoderT, typename PwmDriverT>
+int FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>::curki;
 
-template <typename PwmDriverT>
-PiController FocPwmGeneration<PwmDriverT>::qController;
+template <typename AnaInT, typename EncoderT, typename PwmDriverT>
+PiController FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>::qController;
 
-template <typename PwmDriverT>
-PiController FocPwmGeneration<PwmDriverT>::dController;
+template <typename AnaInT, typename EncoderT, typename PwmDriverT>
+PiController FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>::dController;
 
-template <typename PwmDriverT>
-PiController FocPwmGeneration<PwmDriverT>::fwController;
+template <typename AnaInT, typename EncoderT, typename PwmDriverT>
+PiController FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>::fwController;
 
 #endif // FOCPWMGENERATION_H

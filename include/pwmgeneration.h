@@ -26,17 +26,20 @@
 #include "focpwmgeneration.h"
 #endif
 
+#include "anain.h"
+#include "inc_encoder.h"
+
 #ifdef STM32F1
 
 #include "stm32pwmdriver.h"
 
 #if CONTROL == CTRL_SINE
 
-using PwmGeneration = SinePwmGeneration<STM32PwmDriver>;
+using PwmGeneration = SinePwmGeneration<AnaIn, Encoder, STM32PwmDriver>;
 
 #elif CONTROL == CTRL_FOC
 
-using PwmGeneration = FocPwmGeneration<STM32PwmDriver>;
+using PwmGeneration = FocPwmGeneration<AnaIn, Encoder, STM32PwmDriver>;
 
 #endif
 
