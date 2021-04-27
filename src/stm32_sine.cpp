@@ -262,7 +262,7 @@ extern void parm_Change(Param::PARAM_NUM paramNum)
          break;
    #endif
       case Param::canspeed:
-         can->SetBaudrate((Can::baudrates)Param::GetInt(Param::canspeed));
+         can->SetBaudrate(Param::GetEnum<Can::baudrates>(Param::canspeed));
          break;
       case Param::throtmax:
       case Param::throtmin:
@@ -287,7 +287,7 @@ extern void parm_Change(Param::PARAM_NUM paramNum)
          Encoder::SwapSinCos((Param::GetInt(Param::pinswap) & SWAP_RESOLVER) > 0);
          #endif // CONTROL
 
-         Encoder::SetMode((enum Encoder::mode)Param::GetInt(Param::encmode));
+         Encoder::SetMode(Param::GetEnum<Encoder::mode>(Param::encmode));
          Encoder::SetImpulsesPerTurn(Param::GetInt(Param::numimp));
          Encoder::SetSinCosOffset(Param::GetInt(Param::sincosofs));
 
@@ -370,7 +370,7 @@ extern "C" int main(void)
 
    Stm32Scheduler s(hwRev == HW_BLUEPILL ? TIM4 : TIM2); //We never exit main so it's ok to put it on stack
    scheduler = &s;
-   Can c(CAN1, (Can::baudrates)Param::GetInt(Param::canspeed));
+   Can c(CAN1, Param::GetEnum<Can::baudrates>(Param::canspeed));
    can = &c;
    VehicleControl::SetCan(can);
 

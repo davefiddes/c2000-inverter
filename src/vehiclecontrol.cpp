@@ -412,8 +412,8 @@ void VehicleControl::GetTemps(s32fp& tmphs, s32fp &tmpm)
    }
    else
    {
-      TempMeas::Sensors snshs = (TempMeas::Sensors)Param::GetInt(Param::snshs);
-      TempMeas::Sensors snsm = (TempMeas::Sensors)Param::GetInt(Param::snsm);
+      TempMeas::Sensors snshs = Param::GetEnum<TempMeas::Sensors>(Param::snshs);
+      TempMeas::Sensors snsm = Param::GetEnum<TempMeas::Sensors>(Param::snsm);
 
       int tmphsi = AnaIn::tmphs.Get();
       int tmpmi = AnaIn::tmpm.Get();
