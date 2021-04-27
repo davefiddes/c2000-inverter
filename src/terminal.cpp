@@ -300,7 +300,7 @@ void Terminal::Send(const char *str)
 }
 
 //Backward compatibility for printf
-extern "C" void putchar(int c)
+extern "C" void putchar(char c)
 {
    Terminal::defaultTerminal->PutChar(c);
 }
