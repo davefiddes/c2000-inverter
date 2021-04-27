@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug",
+            "name": "Debug Sine",
             "type": "cppdbg",
             "request": "launch",
             "miDebuggerPath": "arm-none-eabi-gdb",
@@ -32,6 +32,39 @@
                 },
                 {
                     "text": "load ${workspaceFolder}/stm32_sine"
+                }
+            ],
+            "externalConsole": false,
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Debug FOC",
+            "type": "cppdbg",
+            "request": "launch",
+            "miDebuggerPath": "arm-none-eabi-gdb",
+            "targetArchitecture": "arm",
+            "program": "${workspaceFolder}/stm32_foc",
+            "setupCommands": [
+                {
+                    "text": "set target-async off"
+                },
+                {
+                    "text": "file ${workspaceFolder}/stm32_foc"
+                },
+                {
+                    "text": "set remote hardware-breakpoint-limit 6"
+                },
+                {
+                    "text": "set remote hardware-watchpoint-limit 4"
+                },
+                {
+                    "text": "target extended-remote localhost:3333"
+                },
+                {
+                    "text": "monitor arm semihosting enable"
+                },
+                {
+                    "text": "load ${workspaceFolder}/stm32_foc"
                 }
             ],
             "externalConsole": false,
