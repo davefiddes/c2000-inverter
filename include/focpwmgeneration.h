@@ -36,6 +36,9 @@ class FocPwmGeneration : public PwmGenerationBase<
         AnaInT,
         PwmDriverT>;
 
+    // We need to allow PwmGenerationBase to call PwmInit
+    friend BaseT;
+
 public:
     static void SetControllerGains(int kp, int ki, int fwkp)
     {
@@ -182,7 +185,7 @@ public:
         idref = FP_FROMINT(id);
     }
 
-private:
+protected:
     static void PwmInit()
     {
         int32_t maxVd = FOC::GetMaximumModulationIndex() - 2000;
@@ -212,6 +215,7 @@ private:
             PwmDriverT::AcHeatTimerSetup();
     }
 
+private:
     static s32fp ProcessCurrents(s32fp& id, s32fp& iq)
     {
 

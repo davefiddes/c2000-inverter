@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
 project(my_project)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
 # GoogleTest requires at least C++11
 set(CMAKE_CXX_STANDARD 14)
 
@@ -13,5 +15,7 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+add_subdirectory(libopeninv)
+
 # The unit tests
-add_subdirectory (newtest)
+add_subdirectory(newtest)

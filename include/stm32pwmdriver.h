@@ -20,12 +20,17 @@
 #ifndef STM32PWMDRIVER_H
 #define STM32PWMDRIVER_H
 
+#include "hwdefs.h" // Needed for MIN_PWM_DIGITS
+#include "my_fp.h"
 #include "params.h"
 #include <libopencm3/stm32/timer.h> // Needed for tim_oc_id
 #include <stdint.h>
 
 class STM32PwmDriver
 {
+public:
+    static const uint16_t MinPwmDigits = MIN_PWM_DIGITS;
+
 public:
     static void DriverInit();
     static void EnableMasterOutput();

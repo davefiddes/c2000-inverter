@@ -39,6 +39,9 @@ class SinePwmGeneration : public PwmGenerationBase<
         AnaInT,
         PwmDriverT>;
 
+    // We need to allow PwmGenerationBase to call PwmInit
+    friend BaseT;
+
 public:
     static void Run()
     {
@@ -171,7 +174,7 @@ private:
     static const uint16_t SHIFT_180DEG = 32768;
     static const uint16_t SHIFT_90DEG = 16384;
 
-private:
+protected:
     static void PwmInit()
     {
         BaseT::SetCurrentOffset(AnaInT::il1.Get(), AnaInT::il2.Get());
@@ -188,6 +191,7 @@ private:
             PwmDriverT::AcHeatTimerSetup();
     }
 
+private:
     static s32fp ProcessCurrents()
     {
         static s32fp    currentMax[2];

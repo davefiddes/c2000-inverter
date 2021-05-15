@@ -225,6 +225,9 @@ void STM32PwmDriver::EnableACHeatOutput()
  */
 void STM32PwmDriver::SetOverCurrentLimits(int limNeg, int limPos)
 {
+    limNeg = MAX(0, limNeg);
+    limPos = MIN(OCURMAX, limPos);
+
     timer_set_oc_value(OVER_CUR_TIMER, OVER_CUR_NEG, limNeg);
     timer_set_oc_value(OVER_CUR_TIMER, OVER_CUR_POS, limPos);
 }
@@ -360,7 +363,7 @@ void STM32PwmDriver::AcHeat(s32fp ampnom)
 }
 
 /**
- * Set teh charge current target
+ * Set the charge current target
  * \param dc    Target current
  */
 void STM32PwmDriver::SetChargeCurrent(int dc)

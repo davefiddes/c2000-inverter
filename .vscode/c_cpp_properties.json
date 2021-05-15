@@ -5,7 +5,9 @@
             "includePath": [
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/libopeninv/include",
-                "${workspaceFolder}/libopencm3/include"
+                "${workspaceFolder}/libopencm3/include",
+                "${workspaceFolder}/build/_deps/googletest-src/googlemock/include/",
+                "${workspaceFolder}/build/_deps/googletest-src/googletest/include/"
             ],
             "defines": [
                 "STM32F1",

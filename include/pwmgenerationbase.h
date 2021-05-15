@@ -56,9 +56,9 @@ public:
         if (opmode != Modes::OFF)
         {
             tripped = false;
-            pwmdigits = MIN_PWM_DIGITS + Param::GetInt(Param::pwmfrq);
+            pwmdigits = PwmDriverT::MinPwmDigits + Param::GetInt(Param::pwmfrq);
             shiftForTimer = SineCore::BITS - pwmdigits;
-            PwmDriverT::DriverInit();
+            PwmModeT::PwmInit();
         }
 
         switch (opmode)
@@ -138,8 +138,6 @@ public:
         ocurlim = FP_MUL(igain, ocurlim);
         int limNeg = FP_TOINT(iofs - ocurlim);
         int limPos = FP_TOINT(iofs + ocurlim);
-        limNeg = MAX(0, limNeg);
-        limPos = MIN(OCURMAX, limPos);
 
         PwmDriverT::SetOverCurrentLimits(limNeg, limPos);
     }
@@ -224,7 +222,6 @@ protected:
 
     static int FrqToAngle(s32fp frq)
     {
-
         return FP_TOINT((frq << SineCore::BITS) / pwmfrq);
     }
 
