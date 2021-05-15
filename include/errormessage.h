@@ -44,10 +44,12 @@ class ErrorMessage
    public:
       static void SetTime(uint32_t time);
       static void Post(ERROR_MESSAGE_NUM err);
+      static void ResetAll();
       static void UnpostAll();
       static void PrintAllErrors();
       static void PrintNewErrors();
       static ERROR_MESSAGE_NUM GetLastError();
+      static bool HasErrorBeenPosted(ERROR_MESSAGE_NUM err);
    protected:
    private:
       static void PrintError(uint32_t time, ERROR_MESSAGE_NUM err);

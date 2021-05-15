@@ -83,6 +83,18 @@ void ErrorMessage::Post(ERROR_MESSAGE_NUM msg)
    }
 }
 
+/** Reset the error buffer and unpost all error messages. Useful for testing */
+void ErrorMessage::ResetAll()
+{
+   lastError = ERROR_NONE;
+   for (uint32_t i = 0; i < ERROR_BUF_SIZE; i++)
+   {
+      errorBuffer[i].msg = ERROR_MESSAGE_LAST;
+      errorBuffer[i].time = 0;
+   }
+   UnpostAll();
+}
+
 /** Unpost all error message, i.e. make them postable again.
  Does not reset the error buffer */
 void ErrorMessage::UnpostAll()
@@ -104,6 +116,12 @@ void ErrorMessage::PrintNewErrors()
 ERROR_MESSAGE_NUM ErrorMessage::GetLastError()
 {
    return lastError;
+}
+
+/** Check to see if a particular error has been posted. Useful for testing */
+bool ErrorMessage::HasErrorBeenPosted(ERROR_MESSAGE_NUM err)
+{
+   return posted[err];
 }
 
 /** Print all errors currently in error memory */
