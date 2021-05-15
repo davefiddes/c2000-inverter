@@ -33,7 +33,7 @@
 #define PAD_RIGHT 1
 #define PAD_ZERO 2
 
-extern "C" void putchar(char c);
+extern "C" int putchar(int c);
 
 class ExternPutChar: public IPutChar
 {
@@ -164,7 +164,7 @@ static int print(IPutChar* put, const char *format, va_list args )
 				width += *format - '0';
 			}
 			if( *format == 's' ) {
-				register char *s = (char *)va_arg( args, int );
+				register char *s = va_arg( args, char* );
 				pc += prints (put, s?s:"(null)", width, pad);
 				continue;
 			}
