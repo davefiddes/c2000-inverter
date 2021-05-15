@@ -34,6 +34,7 @@ using ::testing::InSequence;
 using ::testing::Le;
 using ::testing::Ne;
 using ::testing::Return;
+using ::testing::Test;
 
 void parm_Change(Param::PARAM_NUM paramNum)
 {
@@ -46,13 +47,23 @@ MATCHER_P2(IntNear, value, range, "")
 
 static const uint16_t DefaultPwmFrequency = 8789; // Hz
 
-TEST(TestFocPwmGeneration, InitCurrentOffsetSimple)
+/**
+ * Common test fixture
+ */
+class TestFocPwmGeneration : public ::testing::Test
 {
-    ErrorMessage::ResetAll();
-    ErrorMessage::SetTime(1);
-    EXPECT_EQ(ErrorMessage::GetLastError(), ERROR_NONE);
-    Param::LoadDefaults();
+protected:
+    void SetUp() override
+    {
+        ErrorMessage::ResetAll();
+        ErrorMessage::SetTime(1);
+        EXPECT_EQ(ErrorMessage::GetLastError(), ERROR_NONE);
+        Param::LoadDefaults();
+    }
+};
 
+TEST_F(TestFocPwmGeneration, InitCurrentOffsetSimple)
+{
     MockPwmDriverImpl pwmDriver;
     // With a default current gain of 4.7 [dig/A] and over current limit of 100
     // [A] these should be 1578 and 2518. Tolerance of 3 digits to allow fixed
@@ -65,13 +76,8 @@ TEST(TestFocPwmGeneration, InitCurrentOffsetSimple)
     EXPECT_EQ(ErrorMessage::GetLastError(), ERROR_NONE);
 }
 
-TEST(TestFocPwmGeneration, InitInvalidCurrentOffset)
+TEST_F(TestFocPwmGeneration, InitInvalidCurrentOffset)
 {
-    ErrorMessage::ResetAll();
-    ErrorMessage::SetTime(1);
-    EXPECT_EQ(ErrorMessage::GetLastError(), ERROR_NONE);
-    Param::LoadDefaults();
-
     MockPwmDriverImpl pwmDriver;
     // With a default current gain of 4.7 [dig/A] and over current limit of 100
     // [A] these should be 1780 and 2720. There is assumed to only be a single
@@ -88,14 +94,8 @@ TEST(TestFocPwmGeneration, InitInvalidCurrentOffset)
     EXPECT_TRUE(ErrorMessage::HasErrorBeenPosted(ERR_HICUROFS2));
 }
 
-TEST(TestFocPwmGeneration, SetRunMode)
+TEST_F(TestFocPwmGeneration, SetRunMode)
 {
-    // Common test setup
-    ErrorMessage::ResetAll();
-    ErrorMessage::SetTime(1);
-    EXPECT_EQ(ErrorMessage::GetLastError(), ERROR_NONE);
-    Param::LoadDefaults();
-
     // The rather complicated expectations needed to start up the PWM driver
     MockPwmDriverImpl pwmDriver;
     {
@@ -127,14 +127,8 @@ TEST(TestFocPwmGeneration, SetRunMode)
     EXPECT_EQ(ErrorMessage::GetLastError(), ERROR_NONE);
 }
 
-TEST(TestFocPwmGeneration, SetBoostMode)
+TEST_F(TestFocPwmGeneration, SetBoostMode)
 {
-    // Common test setup
-    ErrorMessage::ResetAll();
-    ErrorMessage::SetTime(1);
-    EXPECT_EQ(ErrorMessage::GetLastError(), ERROR_NONE);
-    Param::LoadDefaults();
-
     // The rather complicated expectations needed to start up the PWM driver
     MockPwmDriverImpl pwmDriver;
     {
@@ -168,14 +162,8 @@ TEST(TestFocPwmGeneration, SetBoostMode)
     EXPECT_EQ(ErrorMessage::GetLastError(), ERROR_NONE);
 }
 
-TEST(TestFocPwmGeneration, SetACHeatMode)
+TEST_F(TestFocPwmGeneration, SetACHeatMode)
 {
-    // Common test setup
-    ErrorMessage::ResetAll();
-    ErrorMessage::SetTime(1);
-    EXPECT_EQ(ErrorMessage::GetLastError(), ERROR_NONE);
-    Param::LoadDefaults();
-
     // The rather complicated expectations needed to start up the PWM driver
     MockPwmDriverImpl pwmDriver;
     {
@@ -210,13 +198,8 @@ TEST(TestFocPwmGeneration, SetACHeatMode)
     EXPECT_EQ(ErrorMessage::GetLastError(), ERROR_NONE);
 }
 
-TEST(TestFocPwmGeneration, ManualModeRun)
+TEST_F(TestFocPwmGeneration, ManualModeRun)
 {
-    ErrorMessage::ResetAll();
-    ErrorMessage::SetTime(1);
-    EXPECT_EQ(ErrorMessage::GetLastError(), ERROR_NONE);
-    Param::LoadDefaults();
-
     MockPwmDriverImpl pwmDriver;
 
     EXPECT_CALL(pwmDriver, SetOverCurrentLimits);
@@ -304,13 +287,8 @@ TEST(TestFocPwmGeneration, ManualModeRun)
     EXPECT_EQ(ErrorMessage::GetLastError(), ERROR_NONE);
 }
 
-TEST(TestFocPwmGeneration, NormalModeRun)
+TEST_F(TestFocPwmGeneration, NormalModeRun)
 {
-    ErrorMessage::ResetAll();
-    ErrorMessage::SetTime(1);
-    EXPECT_EQ(ErrorMessage::GetLastError(), ERROR_NONE);
-    Param::LoadDefaults();
-
     MockPwmDriverImpl pwmDriver;
 
     EXPECT_CALL(pwmDriver, SetOverCurrentLimits);
@@ -398,13 +376,8 @@ TEST(TestFocPwmGeneration, NormalModeRun)
     EXPECT_EQ(ErrorMessage::GetLastError(), ERROR_NONE);
 }
 
-TEST(TestFocPwmGeneration, BuckChargeModeRun)
+TEST_F(TestFocPwmGeneration, BuckChargeModeRun)
 {
-    ErrorMessage::ResetAll();
-    ErrorMessage::SetTime(1);
-    EXPECT_EQ(ErrorMessage::GetLastError(), ERROR_NONE);
-    Param::LoadDefaults();
-
     MockPwmDriverImpl pwmDriver;
 
     EXPECT_CALL(pwmDriver, SetOverCurrentLimits);
