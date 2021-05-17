@@ -8,7 +8,7 @@ add_compile_definitions("CTRL_SINE=0")
 add_compile_definitions("CTRL_FOC=1")
 
 target_include_directories(OpenInverterTest PUBLIC "${PROJECT_SOURCE_DIR}/include")
-target_link_libraries(OpenInverterTest PUBLIC libopeninv)
+target_link_libraries(OpenInverterTest PUBLIC libopeninv portablesine)
 
 # Create a code coverage utility target - assumes that gcov and lcov are available
 # TODO: Test for these utilities

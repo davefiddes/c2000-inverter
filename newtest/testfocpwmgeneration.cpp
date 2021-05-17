@@ -19,6 +19,7 @@
 
 #include "errormessage.h"
 #include "focpwmgeneration.h"
+#include "matcherhelper.h"
 #include "mockanain.h"
 #include "mockencoder.h"
 #include "mockpwmdriver.h"
@@ -38,11 +39,6 @@ using ::testing::Test;
 
 void parm_Change(Param::PARAM_NUM paramNum)
 {
-}
-
-MATCHER_P2(IntNear, value, range, "")
-{
-    return (arg <= (value + range)) && (arg >= (value - range));
 }
 
 static const uint16_t DefaultPwmFrequency = 8789; // Hz
