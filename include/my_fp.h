@@ -38,6 +38,7 @@
 #define FP_FROMINT(a) ((s32fp)((a) << CST_DIGITS))
 #define FP_TOINT(a)   ((s32fp)((a) >> CST_DIGITS))
 #define FP_FROMFLT(a) ((s32fp)((a) * FRAC_FAC))
+#define FP_TOFLT(a)   ((float)(a) / FRAC_FAC)
 
 #define FP_MUL(a, b) (((a) * (b)) >> CST_DIGITS)
 #define FP_DIV(a, b) (((a) << CST_DIGITS) / (b))
