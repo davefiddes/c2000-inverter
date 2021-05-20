@@ -128,7 +128,3 @@ get-deps:
 	@printf "  MAKE libopencm3\n"
 	$(Q)${MAKE} -C libopencm3
 
-Test:
-	cd test && $(MAKE)
-cleanTest:
-	cd test && $(MAKE) clean
