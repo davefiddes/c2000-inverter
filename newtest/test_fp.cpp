@@ -82,4 +82,15 @@ TEST(FixedPoint, TestLn)
     EXPECT_EQ(fp_ln(1), 0);
     EXPECT_THAT(FP_TOFLT(fp_ln(5389)), FloatNear(8.592115118, 0.1));
     EXPECT_THAT(FP_TOFLT(fp_ln(8290)), FloatNear(9.022805248, 0.1));
+    EXPECT_EQ(fp_ln(0), -1);
+}
+
+TEST(FixedPoint, TestSqrt)
+{
+    EXPECT_THAT(FP_TOFLT(fp_sqrt(FP_FROMFLT(9.0))), FloatNear(3.0, 0.1));
+    EXPECT_THAT(FP_TOFLT(fp_sqrt(FP_FROMFLT(100.0))), FloatNear(10.0, 0.1));
+    EXPECT_THAT(
+        FP_TOFLT(fp_sqrt(FP_FROMFLT(0.3))), FloatNear(0.547722558, 0.1));
+    EXPECT_THAT(
+        FP_TOFLT(fp_sqrt(FP_FROMFLT(12345.67))), FloatNear(111.111070556, 0.1));
 }
