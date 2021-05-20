@@ -19,4 +19,4 @@ add_subdirectory(libopeninv)
 add_subdirectory(src)
 
 # The unit tests
-add_subdirectory(newtest)
+add_subdirectory(test)
