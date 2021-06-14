@@ -1,14 +1,19 @@
+include(FetchContent)
+FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/965f8ecbfd8b91bbd4f5ee4914c028660bb89029.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
 enable_testing()
 
 # Unit test the library
 file(GLOB SRCS *.cpp)
 add_executable(OpenInverterTest ${SRCS})
-add_compile_definitions("CONTROL=CTRL_FOC")
-add_compile_definitions("CTRL_SINE=0")
-add_compile_definitions("CTRL_FOC=1")
 
-target_include_directories(OpenInverterTest PUBLIC "${PROJECT_SOURCE_DIR}/include")
-target_link_libraries(OpenInverterTest PUBLIC libopeninv portablesine)
+target_link_libraries(OpenInverterTest PUBLIC global_options libopeninv portablesine)
 
 # Create a code coverage utility target - assumes that gcov and lcov are available
 # TODO: Test for these utilities
