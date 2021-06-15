@@ -8,4 +8,4 @@ updater.py
 *.bin
 stm32_sine
 stm32_foc
-build/
+build/*/

@@ -74,7 +74,7 @@
             "name": "Debug OpenInverterTest",
             "type": "gdb",
             "request": "launch",
-            "target": "./build/test/OpenInverterTest",
+            "target": "./build/host/test/OpenInverterTest",
             "cwd": "${workspaceRoot}",
             "valuesFormatting": "parseText"
         }
