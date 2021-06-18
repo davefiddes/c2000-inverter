@@ -77,6 +77,39 @@
             "target": "./build/host/test/OpenInverterTest",
             "cwd": "${workspaceRoot}",
             "valuesFormatting": "parseText"
+        },
+        {
+            "name": "Debug CMake STM32F1",
+            "type": "cppdbg",
+            "request": "launch",
+            "miDebuggerPath": "arm-none-eabi-gdb",
+            "targetArchitecture": "arm",
+            "program": "${workspaceFolder}/build/stm32f1/src/stm32_sine",
+            "setupCommands": [
+                {
+                    "text": "set target-async off"
+                },
+                {
+                    "text": "file ${workspaceFolder}/build/stm32f1/src/stm32_sine"
+                },
+                {
+                    "text": "set remote hardware-breakpoint-limit 6"
+                },
+                {
+                    "text": "set remote hardware-watchpoint-limit 4"
+                },
+                {
+                    "text": "target extended-remote localhost:3333"
+                },
+                {
+                    "text": "monitor arm semihosting enable"
+                },
+                {
+                    "text": "load ${workspaceFolder}/build/stm32f1/src/stm32_sine"
+                }
+            ],
+            "externalConsole": false,
+            "cwd": "${workspaceFolder}"
         }
     ]
 }
