@@ -1,0 +1,41 @@
+{
+    "version": 2,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 19,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "default",
+            "displayName": "Default Config",
+            "description": "Default build for host platform (unit tests)",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/host",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "stm32f1",
+            "displayName": "STM32F1 platform",
+            "description": "Default build for the STM32F1 platform",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/stm32f1",
+            "cacheVariables": {
+                "PLATFORM": "stm32f1",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "Unit Test Coverage",
+            "configurePreset": "default",
+            "targets": [
+                "coverage_OpenInverterTest"
+            ]
+        }
+    ],
+    "testPresets": []
+}
