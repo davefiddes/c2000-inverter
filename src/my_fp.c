@@ -91,7 +91,7 @@ u32fp fp_sqrt(u32fp rad)
    return sqrt;
 }
 
-s32fp fp_ln(unsigned int x)
+s32fp fp_ln(uint32_t x)
 {
    int n = 0;
    const s32fp ln2 = FP_FROMFLT(0.6931471806);

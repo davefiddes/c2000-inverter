@@ -56,7 +56,7 @@ extern "C"
 char* fp_itoa(char * buf, s32fp a);
 s32fp fp_atoi(const char *str, int fracDigits);
 u32fp fp_sqrt(u32fp rad);
-s32fp fp_ln(unsigned int x);
+s32fp fp_ln(uint32_t x);
 
 #ifdef __cplusplus
 }
