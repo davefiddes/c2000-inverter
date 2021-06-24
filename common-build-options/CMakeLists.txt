@@ -1,5 +1,5 @@
 # Pull in our platform specific options
- add_subdirectory(${PLATFORM})
+add_subdirectory(${PLATFORM})
 
 # Set all of our common compiler options, defines and include paths
 add_library(global_options INTERFACE)
