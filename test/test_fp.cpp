@@ -69,7 +69,6 @@ TEST(FixedPoint, TestMedian3)
 
 TEST(FixedPoint, TestAtan2)
 {
-    uint16_t res;
     EXPECT_EQ(SineCore::Atan2(4096, 0), 0);         // 0°
     EXPECT_EQ(SineCore::Atan2(2896, 2896), 8192);   // 45°
     EXPECT_EQ(SineCore::Atan2(-4096, 0), 32768);    // 180°

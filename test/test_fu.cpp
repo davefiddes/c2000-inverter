@@ -35,7 +35,7 @@ TEST(TestMotorVoltage, TestNoBoost)
     MotorVoltage::SetWeakeningFrq(1000);
 
     // Test above minfrq of 0.2
-    EXPECT_THAT(MotorVoltage::GetAmp(FP_FROMFLT(1.0)), FPNear(10, 0.1));
+    EXPECT_THAT((s32fp)MotorVoltage::GetAmp(FP_FROMFLT(1.0)), FPNear(10, 0.1));
 }
 
 TEST(TestMotorVoltage, TestBoost1)
@@ -48,7 +48,7 @@ TEST(TestMotorVoltage, TestBoost1)
     EXPECT_EQ(MotorVoltage::GetAmp(0), 0);
 
     // Test above minfrq of 0.2
-    EXPECT_THAT(MotorVoltage::GetAmp(FP_FROMFLT(1.0)), FPNear(10.3, 0.1));
+    EXPECT_THAT((s32fp)MotorVoltage::GetAmp(FP_FROMFLT(1.0)), FPNear(10.3, 0.1));
 }
 
 TEST(TestMotorVoltage, TestFU1)
