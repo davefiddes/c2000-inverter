@@ -1,0 +1,33 @@
+add_library(
+  driverlib
+  adc.c
+  asysctl.c
+  can.c
+  cla.c
+  clb.c
+  cmpss.c
+  cputimer.c
+  dac.c
+  dcsm.c
+  dma.c
+  ecap.c
+  emif.c
+  epwm.c
+  eqep.c
+  flash.c
+  gpio.c
+  hrpwm.c
+  i2c.c
+  interrupt.c
+  mcbsp.c
+  memcfg.c
+  sci.c
+  sdfm.c
+  spi.c
+  sysctl.c
+  upp.c
+  usb.c
+  version.c
+  xbar.c)
+target_link_libraries(driverlib global_options)
+target_include_directories(driverlib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")

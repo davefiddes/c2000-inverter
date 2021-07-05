@@ -11,6 +11,7 @@ project(OpenInverter LANGUAGES C CXX ASM)
 add_subdirectory(common-build-options)
 add_subdirectory(libopeninv)
 add_subdirectory(src)
+add_subdirectory(platform)
 
 # The unit tests only if we are building natively
 if (PLATFORM STREQUAL "host")
