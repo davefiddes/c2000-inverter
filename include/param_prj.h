@@ -31,16 +31,16 @@
 #define MOTOR_PARAMETERS_COMMON \
     PARAM_ENTRY(CAT_MOTOR,   polepairs,   "",        1,      16,     2,      32  ) \
     PARAM_ENTRY(CAT_MOTOR,   respolepairs,"",        1,      16,     1,      93  ) \
-    PARAM_ENTRY(CAT_MOTOR,   sincosofs,   "dig",     1,      4096,   2048,   131 ) \
+    PARAM_ENTRY(CAT_MOTOR,   sincosofs,   "dig",     1,      4096L,  2048L,  131 ) \
     PARAM_ENTRY(CAT_MOTOR,   encmode,     ENCMODES,  0,      5,      0,      75  ) \
     PARAM_ENTRY(CAT_MOTOR,   fmax,        "Hz",      21,     1000,   200,    9   ) \
-    PARAM_ENTRY(CAT_MOTOR,   numimp,      "ppr",     8,      8192,   60,     15  ) \
-    PARAM_ENTRY(CAT_MOTOR,   dirchrpm,    "rpm",     0,      20000,  100,    87  ) \
+    PARAM_ENTRY(CAT_MOTOR,   numimp,      "ppr",     8,      8192L,   60,     15  ) \
+    PARAM_ENTRY(CAT_MOTOR,   dirchrpm,    "rpm",     0,      20000L, 100,    87  ) \
     PARAM_ENTRY(CAT_MOTOR,   dirmode,     DIRMODES,  0,      4,      1,      95  ) \
     PARAM_ENTRY(CAT_MOTOR,   snsm,        SNS_M,     12,     16,     12,     46  )
 
 #define MOTOR_PARAMETERS_SINE \
-    PARAM_ENTRY(CAT_MOTOR,   boost,       "dig",     0,      37813,  1700,   1   ) \
+    PARAM_ENTRY(CAT_MOTOR,   boost,       "dig",     0,      37813L, 1700L,  1   ) \
     PARAM_ENTRY(CAT_MOTOR,   fweak,       "Hz",      0,      1000,   90,     2   ) \
     PARAM_ENTRY(CAT_MOTOR,   fconst,      "Hz",      0,      1000,   180,    99  ) \
     PARAM_ENTRY(CAT_MOTOR,   udcnom,      "V",       0,      1000,   0,      78  ) \
@@ -49,21 +49,21 @@
     PARAM_ENTRY(CAT_MOTOR,   fslipconstmax,"Hz",     0,      10,     5,      100 )
 
 #define MOTOR_PARAMETERS_FOC \
-    PARAM_ENTRY(CAT_MOTOR,   curkp,       "",        0,      20000,  32,     107 ) \
-    PARAM_ENTRY(CAT_MOTOR,   curki,       "",        0,      100000, 20000,  108 ) \
-    PARAM_ENTRY(CAT_MOTOR,   curkifrqgain,"dig/Hz",  0,      1000,   50,     120 ) \
-    PARAM_ENTRY(CAT_MOTOR,   fwkp,        "",        -10000, 0,      -100,   118 ) \
-    PARAM_ENTRY(CAT_MOTOR,   syncofs,     "dig",     0,      65535,  0,      70  )
+    PARAM_ENTRY(CAT_MOTOR,   curkp,       "",        0,      20000L,  32,     107 ) \
+    PARAM_ENTRY(CAT_MOTOR,   curki,       "",        0,      100000L, 20000L,  108 ) \
+    PARAM_ENTRY(CAT_MOTOR,   curkifrqgain,"dig/Hz",  0,      1000,    50,     120 ) \
+    PARAM_ENTRY(CAT_MOTOR,   fwkp,        "",        -10000L, 0,      -100,   118 ) \
+    PARAM_ENTRY(CAT_MOTOR,   syncofs,     "dig",     0,      65535L,  0,      70  )
 
 #define INVERTER_PARAMETERS_COMMON \
     PARAM_ENTRY(CAT_INVERTER,pwmfrq,      PWMFRQS,   0,      2,      1,      13  ) \
     PARAM_ENTRY(CAT_INVERTER,pwmpol,      PWMPOLS,   0,      1,      0,      52  ) \
     PARAM_ENTRY(CAT_INVERTER,deadtime,    "dig",     0,      255,    63,     14  ) \
-    PARAM_ENTRY(CAT_INVERTER,ocurlim,     "A",       -65536, 65536,  100,    22  ) \
+    PARAM_ENTRY(CAT_INVERTER,ocurlim,     "A",       -65536L, 65536L,100,    22  ) \
     PARAM_ENTRY(CAT_INVERTER,il1gain,     "dig/A",   -100,   100,    4.7,    27  ) \
     PARAM_ENTRY(CAT_INVERTER,il2gain,     "dig/A",   -100,   100,    4.7,    28  ) \
-    PARAM_ENTRY(CAT_INVERTER,udcgain,     "dig/V",   0,      4095,   6.175,  29  ) \
-    PARAM_ENTRY(CAT_INVERTER,udcofs,      "dig",     0,      4095,   0,      77  ) \
+    PARAM_ENTRY(CAT_INVERTER,udcgain,     "dig/V",   0,      4095L,  6.175,  29  ) \
+    PARAM_ENTRY(CAT_INVERTER,udcofs,      "dig",     0,      4095L,  0,      77  ) \
     PARAM_ENTRY(CAT_INVERTER,udclim,      "V",       0,      1000,   540,    48  ) \
     PARAM_ENTRY(CAT_INVERTER,snshs,       SNS_HS,    0,      6,      0,      45  )
 
@@ -75,8 +75,8 @@
     PARAM_ENTRY(CAT_DERATE,  bmslimlow,   "%",       -100,   0,      -1,     56  ) \
     PARAM_ENTRY(CAT_DERATE,  udcmin,      "V",       0,      1000,   450,    42  ) \
     PARAM_ENTRY(CAT_DERATE,  udcmax,      "V",       0,      1000,   520,    43  ) \
-    PARAM_ENTRY(CAT_DERATE,  idcmax,      "A",       0,      5000,   5000,   96  ) \
-    PARAM_ENTRY(CAT_DERATE,  idcmin,      "A",       -5000,  0,     -5000,   98  ) \
+    PARAM_ENTRY(CAT_DERATE,  idcmax,      "A",       0,      5000L,  5000L,   96  ) \
+    PARAM_ENTRY(CAT_DERATE,  idcmin,      "A",       -5000L, 0,     -5000L,   98  ) \
     PARAM_ENTRY(CAT_DERATE,  idckp,       "dig",     0.1,    20,    2,       130 ) \
     PARAM_ENTRY(CAT_DERATE,  tmphsmax,    "°C",      50,     150,   85,      125 ) \
     PARAM_ENTRY(CAT_DERATE,  tmpmmax,     "°C",      70,     300,   300,     127 ) \
@@ -84,7 +84,7 @@
     PARAM_ENTRY(CAT_DERATE,  throtmin,    "%",       -100,   0,     -100,    119 )
 
 #define DERATE_PARAMETERS_SINE \
-    PARAM_ENTRY(CAT_DERATE,  iacmax,      "A",       0,      5000,   5000,   89  ) \
+    PARAM_ENTRY(CAT_DERATE,  iacmax,      "A",       0,      5000L, 5000L,   89  ) \
     PARAM_ENTRY(CAT_DERATE,  ifltrise,    "dig",     0,      32,    10,      91  ) \
     PARAM_ENTRY(CAT_DERATE,  ifltfall,    "dig",     0,      32,     3,      92  ) \
 
@@ -98,13 +98,13 @@
     PARAM_ENTRY(CAT_CHARGER, chargepwmax, "%",       0,      99,     90,     79  )
 
 #define THROTTLE_PARAMETERS_COMMON \
-    PARAM_ENTRY(CAT_THROTTLE,potmin,      "dig",     0,      4095,   0,      17  ) \
-    PARAM_ENTRY(CAT_THROTTLE,potmax,      "dig",     0,      4095,   4095,   18  ) \
-    PARAM_ENTRY(CAT_THROTTLE,pot2min,     "dig",     0,      4095,   4095,   63  ) \
-    PARAM_ENTRY(CAT_THROTTLE,pot2max,     "dig",     0,      4095,   4095,   64  ) \
+    PARAM_ENTRY(CAT_THROTTLE,potmin,      "dig",     0,      4095L,  0,      17  ) \
+    PARAM_ENTRY(CAT_THROTTLE,potmax,      "dig",     0,      4095L,  4095L,  18  ) \
+    PARAM_ENTRY(CAT_THROTTLE,pot2min,     "dig",     0,      4095L,  4095L,  63  ) \
+    PARAM_ENTRY(CAT_THROTTLE,pot2max,     "dig",     0,      4095L,  4095L,  64  ) \
     PARAM_ENTRY(CAT_THROTTLE,potmode,     POTMODES,  0,      3,      0,      82  ) \
     PARAM_ENTRY(CAT_THROTTLE,throtramp,   "%/10ms",  0.1,    100,    100,    81  ) \
-    PARAM_ENTRY(CAT_THROTTLE,throtramprpm,"rpm",     0,      20000,  20000,  85  )
+    PARAM_ENTRY(CAT_THROTTLE,throtramprpm,"rpm",     0,      20000L, 20000L,  85  )
 
 #define THROTTLE_PARAMETERS_SINE \
     PARAM_ENTRY(CAT_THROTTLE,ampmin,      "%",       0,      100,    10,     4   ) \
@@ -123,7 +123,7 @@
     PARAM_ENTRY(CAT_REGEN,   brkout,      "%",       -100,   -1,     -50,    67  )
 
 #define AUTOMATION_CONTACT_PWM_COMM_PARAMETERS \
-    PARAM_ENTRY(CAT_AUTOM,   idlespeed,   "rpm",     -100,   10000,  -100,   54  ) \
+    PARAM_ENTRY(CAT_AUTOM,   idlespeed,   "rpm",     -100,   10000L, -100,   54  ) \
     PARAM_ENTRY(CAT_AUTOM,   idlethrotlim,"%",       0,      100,    50,     65  ) \
     PARAM_ENTRY(CAT_AUTOM,   idlemode,    IDLEMODS,  0,      3,      0,      66  ) \
     PARAM_ENTRY(CAT_AUTOM,   speedkp,     "",        0,      100,    0.25,   53  ) \
@@ -133,8 +133,8 @@
     PARAM_ENTRY(CAT_CONTACT, udcswbuck,   "V",       0,      1000,   540,    80  ) \
     PARAM_ENTRY(CAT_CONTACT, tripmode,    TRIPMODES, 0,      3,      0,      86  ) \
     PARAM_ENTRY(CAT_PWM,     pwmfunc,     PWMFUNCS,  0,      3,      0,      58  ) \
-    PARAM_ENTRY(CAT_PWM,     pwmgain,     "",        -100000,100000, 100,    40  ) \
-    PARAM_ENTRY(CAT_PWM,     pwmofs,      "dig",     -65535, 65535,  0,      41  ) \
+    PARAM_ENTRY(CAT_PWM,     pwmgain,     "",        -100000L,100000L, 100,    40  ) \
+    PARAM_ENTRY(CAT_PWM,     pwmofs,      "dig",     -65535L, 65535L,0,      41  ) \
     PARAM_ENTRY(CAT_COMM,    canspeed,    CANSPEEDS, 0,      3,      1,      83  ) \
     PARAM_ENTRY(CAT_COMM,    canperiod,   CANPERIODS,0,      1,      0,      88  ) \
     PARAM_ENTRY(CAT_COMM,    nodeid,      "",        1,      63,     1,      129 ) \
@@ -278,7 +278,15 @@
 #define VERSTR STRINGIFY(4=VER-foc)
 #endif // CONTROL
 
-enum class CruiseModes
+// Allow the use of enum class in C++11 provided no duplicate enums in scope
+// TODO: Put this somewhere more central
+#if __cplusplus >= 201103L
+    #define CXX11CLASS class
+#else
+    #define CXX11CLASS
+#endif
+
+enum CXX11CLASS CruiseModes
 {
    BUTTON = 0,
    SWITCH = 1,
@@ -293,7 +301,7 @@ enum _potmodes
    POTMODE_CAN = 2
 };
 
-enum class PWMFuncs
+enum CXX11CLASS PWMFuncs
 {
    TMPM = 0,
    TMPHS,
@@ -301,15 +309,15 @@ enum class PWMFuncs
    SPEEDFRQ
 };
 
-enum class IdleModes
+enum CXX11CLASS IdleModes
 {
    ALWAYS = 0,
    NOBRAKE,
    CRUISE,
-   OFF
+   IDLEOFF
 };
 
-enum class Modes
+enum CXX11CLASS Modes
 {
    OFF = 0,
    RUN,
@@ -321,7 +329,7 @@ enum class Modes
    LAST
 };
 
-enum class TripModes
+enum CXX11CLASS TripModes
 {
    ALLOFF = 0,
    DCSWON,
