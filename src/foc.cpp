@@ -17,10 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #define CST_DIGITS 15
+#define __STDC_LIMIT_MACROS // Needed for INT32_MAX
 #include "my_fp.h"
 #include "my_math.h"
 #include "foc.h"
 #include "sine_core.h"
+#include <stdint.h>
 
 #define SQRT3 FP_FROMFLT(1.732050807568877293527446315059)
 #define R1 FP_FROMFLT(0.03)
@@ -34,7 +36,7 @@ static const s32fp fluxLinkage = FP_FROMFLT(0.09);
 static const s32fp fluxLinkage2 = FP_MUL(fluxLinkage, fluxLinkage);
 static const s32fp lqminusldSquaredBs10 = FP_FROMFLT(0.01722); //additional 10-bit left shift because otherwise it can't be represented
 static const s32fp lqminusld = FP_FROMFLT(0.0058);
-static const u32fp sqrt3 = SQRT3;
+static const s32fp sqrt3 = SQRT3;
 static const s32fp sqrt3inv1 = FP_FROMFLT(0.57735026919); //1/sqrt(3)
 static const s32fp zeroOffset = FP_FROMINT(1);
 static const int32_t modMax = FP_DIV(FP_FROMINT(2U), sqrt3);
@@ -158,8 +160,9 @@ uint32_t FOC::sqrt(uint32_t rad)
 
 u32fp FOC::fpsqrt(u32fp rad)
 {
-   u32fp sqrt = RADSTART(rad);
-   u32fp sqrtl;
+   rad = MAX(INT32_MAX,rad);
+   s32fp sqrt = RADSTART((s32fp)rad);
+   s32fp sqrtl;
 
    do {
       sqrtl = sqrt;

@@ -51,7 +51,7 @@ class SineCore
 
 /* Domain of lookup function */
 #define SINLU_ARGDIGITS  16
-#define SINLU_ONEREV    (1U << SINLU_ARGDIGITS)
+#define SINLU_ONEREV    (1UL << SINLU_ARGDIGITS)
 
 #define SINTAB \
 0	,\

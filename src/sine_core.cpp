@@ -22,10 +22,10 @@
 #include "sine_core.h"
 
 #define SINTAB_ARGDIGITS 11
-#define SINTAB_ENTRIES  (1 << SINTAB_ARGDIGITS)
+#define SINTAB_ENTRIES  (1UL << SINTAB_ARGDIGITS)
 /* Value range of sine lookup table */
-#define SINTAB_MAX      (1 << BITS)
-#define BRAD_PI         (1 << (BITS - 1))
+#define SINTAB_MAX      (1UL << BITS)
+#define BRAD_PI         (1UL << (BITS - 1))
 
 #define PHASE_SHIFT90   ((uint32_t)(     SINLU_ONEREV / 4))
 #define PHASE_SHIFT120  ((uint32_t)(     SINLU_ONEREV / 3))

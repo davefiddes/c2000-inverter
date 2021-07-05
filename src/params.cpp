@@ -19,6 +19,7 @@
 
 #include "params.h"
 #include "my_string.h"
+#include <stdint.h>
 
 namespace Param
 {
@@ -43,7 +44,7 @@ static s32fp values[] =
 
 #define PARAM_ENTRY(category, name, unit, min, max, def, id) 0,
 #define VALUE_ENTRY(name, unit, id) 0,
-static uint8_t flags[] =
+static uint_least8_t flags[] =
 {
     PARAM_LIST
 };
@@ -201,19 +202,19 @@ void LoadDefaults()
    }
 }
 
-void SetFlagsRaw(PARAM_NUM param, uint8_t rawFlags)
+void SetFlagsRaw(PARAM_NUM param, uint_least8_t rawFlags)
 {
    flags[param] = rawFlags;
 }
 
 void SetFlag(PARAM_NUM param, PARAM_FLAG flag)
 {
-   flags[param] |= (uint8_t)flag;
+   flags[param] |= (uint_least8_t)flag;
 }
 
 void ClearFlag(PARAM_NUM param, PARAM_FLAG flag)
 {
-   flags[param] &= (uint8_t)~flag;
+   flags[param] &= (uint_least8_t)~flag;
 }
 
 PARAM_FLAG GetFlag(PARAM_NUM param)
