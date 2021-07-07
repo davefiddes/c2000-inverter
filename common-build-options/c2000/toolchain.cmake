@@ -40,8 +40,8 @@ message( "TI Compile Path: ${TI_COMPILER_PATH}" )
 set(CMAKE_C_FLAGS                   "-I${TI_COMPILER_PATH}/include" CACHE INTERNAL "")
 set(CMAKE_CXX_FLAGS                 "${CMAKE_C_FLAGS}" CACHE INTERNAL "")
 
-set(CMAKE_C_FLAGS_DEBUG             "-O1" CACHE INTERNAL "")
-set(CMAKE_C_FLAGS_RELEASE           "-O4" CACHE INTERNAL "")
+set(CMAKE_C_FLAGS_DEBUG             "-O1 -v28 --abi=eabi" CACHE INTERNAL "")
+set(CMAKE_C_FLAGS_RELEASE           "-O4 -v28 --abi=eabi" CACHE INTERNAL "")
 set(CMAKE_CXX_FLAGS_DEBUG           "${CMAKE_C_FLAGS_DEBUG}" CACHE INTERNAL "")
 set(CMAKE_CXX_FLAGS_RELEASE         "${CMAKE_C_FLAGS_RELEASE}" CACHE INTERNAL "")
 
