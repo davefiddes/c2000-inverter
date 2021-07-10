@@ -14,12 +14,12 @@ add_library(platform_options INTERFACE)
 target_compile_definitions(platform_options INTERFACE C2000)
 target_compile_options(
   platform_options
-  INTERFACE -v28
-            --abi=eabi
-            -ml
+  INTERFACE -ml
             -mt
             --cla_support=cla1
             --float_support=fpu32
+            --fp_mode=relaxed
+            --printf_support=minimal
             --emit_warnings_as_errors
             --tmu_support=tmu0
             --vcu_support=vcu2
