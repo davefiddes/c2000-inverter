@@ -53,7 +53,7 @@ public:
             return;
         opmode = _opmode;
 
-        if (opmode != Modes::OFF)
+        if (opmode != OFF)
         {
             tripped = false;
             pwmdigits = PwmDriverT::MinPwmDigits + Param::GetInt(Param::pwmfrq);
@@ -64,31 +64,31 @@ public:
         switch (opmode)
         {
         default:
-        case Modes::OFF:
+        case OFF:
             PwmDriverT::DisableOutput();
             PwmDriverT::ResetCpuLoad();
             break;
 
-        case Modes::ACHEAT:
+        case ACHEAT:
             PwmDriverT::DisableOutput();
             PwmDriverT::EnableACHeatOutput();
             break;
 
-        case Modes::BOOST:
+        case BOOST:
             PwmDriverT::DisableOutput();
             PwmDriverT::EnableChargeOutput(opmode);
             ConfigureChargeController();
             break;
 
-        case Modes::BUCK:
+        case BUCK:
             PwmDriverT::DisableOutput();
             PwmDriverT::EnableChargeOutput(opmode);
             ConfigureChargeController();
             break;
 
-        case Modes::MANUAL:
-        case Modes::RUN:
-        case Modes::SINE:
+        case MANUAL:
+        case RUN:
+        case SINE:
             PwmDriverT::EnableOutput();
             break;
         }
@@ -185,7 +185,7 @@ protected:
 
         int dc = chargeController.Run(iFlt);
 
-        if (opmode == Modes::BOOST)
+        if (opmode == BOOST)
             Param::SetFlt(
                 Param::idc, FP_MUL((FP_FROMINT(100) - ampnom), iFlt) / 100);
         else
@@ -231,19 +231,19 @@ protected:
     }
 
 protected:
-    static uint16_t     pwmfrq;
-    static uint16_t     angle;
-    static s32fp        ampnom;
-    static uint16_t     slipIncr;
-    static s32fp        fslip;
-    static s32fp        frq;
-    static uint8_t      shiftForTimer;
-    static Modes        opmode;
-    static s32fp        ilofs[2];
-    static int          polePairRatio;
-    static bool         tripped;
-    static uint8_t      pwmdigits;
-    static PiController chargeController;
+    static uint16_t      pwmfrq;
+    static uint16_t      angle;
+    static s32fp         ampnom;
+    static uint16_t      slipIncr;
+    static s32fp         fslip;
+    static s32fp         frq;
+    static uint_least8_t shiftForTimer;
+    static Modes         opmode;
+    static s32fp         ilofs[2];
+    static int           polePairRatio;
+    static bool          tripped;
+    static uint_least8_t pwmdigits;
+    static PiController  chargeController;
 };
 
 // Instances of each member variable
@@ -266,7 +266,7 @@ template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
 s32fp PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::frq;
 
 template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
-uint8_t PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::shiftForTimer;
+uint_least8_t PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::shiftForTimer;
 
 template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
 Modes PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::opmode;
@@ -281,7 +281,7 @@ template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
 bool PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::tripped;
 
 template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
-uint8_t PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::pwmdigits;
+uint_least8_t PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::pwmdigits;
 
 template <typename PwmModeT, typename AnaInT, typename PwmDriverT>
 PiController PwmGenerationBase<PwmModeT, AnaInT, PwmDriverT>::chargeController;

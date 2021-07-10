@@ -278,15 +278,7 @@
 #define VERSTR STRINGIFY(4=VER-foc)
 #endif // CONTROL
 
-// Allow the use of enum class in C++11 provided no duplicate enums in scope
-// TODO: Put this somewhere more central
-#if __cplusplus >= 201103L
-    #define CXX11CLASS class
-#else
-    #define CXX11CLASS
-#endif
-
-enum CXX11CLASS CruiseModes
+enum CruiseModes
 {
    BUTTON = 0,
    SWITCH = 1,
@@ -301,7 +293,7 @@ enum _potmodes
    POTMODE_CAN = 2
 };
 
-enum CXX11CLASS PWMFuncs
+enum PWMFuncs
 {
    TMPM = 0,
    TMPHS,
@@ -309,7 +301,7 @@ enum CXX11CLASS PWMFuncs
    SPEEDFRQ
 };
 
-enum CXX11CLASS IdleModes
+enum IdleModes
 {
    ALWAYS = 0,
    NOBRAKE,
@@ -317,7 +309,7 @@ enum CXX11CLASS IdleModes
    IDLEOFF
 };
 
-enum CXX11CLASS Modes
+enum Modes
 {
    OFF = 0,
    RUN,
@@ -329,7 +321,7 @@ enum CXX11CLASS Modes
    LAST
 };
 
-enum CXX11CLASS TripModes
+enum TripModes
 {
    ALLOFF = 0,
    DCSWON,
@@ -382,4 +374,3 @@ enum status
 
 //Generated enum-string for possible errors
 extern const char* errorListString;
-

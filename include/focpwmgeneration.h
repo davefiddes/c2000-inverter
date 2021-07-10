@@ -31,13 +31,17 @@ class FocPwmGeneration : public PwmGenerationBase<
                              AnaInT,
                              PwmDriverT>
 {
-    using BaseT = PwmGenerationBase<
+    typedef PwmGenerationBase<
+        FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>,
+        AnaInT,
+        PwmDriverT>
+        BaseT;
+
+    // We need to allow PwmGenerationBase to call PwmInit
+    friend class PwmGenerationBase<
         FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>,
         AnaInT,
         PwmDriverT>;
-
-    // We need to allow PwmGenerationBase to call PwmInit
-    friend BaseT;
 
 public:
     static void SetControllerGains(int kp, int ki, int fwkp)
@@ -50,7 +54,7 @@ public:
 
     static void Run()
     {
-        if (BaseT::opmode == Modes::MANUAL || BaseT::opmode == Modes::RUN)
+        if (BaseT::opmode == MANUAL || BaseT::opmode == RUN)
         {
             static s32fp frqFiltered = 0, idcFiltered = 0;
             int          dir = Param::GetInt(Param::dir);
@@ -70,12 +74,12 @@ public:
 
             ProcessCurrents(id, iq);
 
-            if (BaseT::opmode == Modes::RUN && initwait == 0)
+            if (BaseT::opmode == RUN && initwait == 0)
             {
                 s32fp fwIdRef = idref <= 0 ? fwController.Run(iq) : 0;
                 dController.SetRef(idref + fwIdRef);
             }
-            else if (BaseT::opmode == Modes::MANUAL)
+            else if (BaseT::opmode == MANUAL)
             {
                 idref = Param::Get(Param::manualid);
                 dController.SetRef(idref);
@@ -118,12 +122,12 @@ public:
                 FOC::DutyCycles[1] >> BaseT::shiftForTimer,
                 FOC::DutyCycles[2] >> BaseT::shiftForTimer);
         }
-        else if (BaseT::opmode == Modes::BOOST || BaseT::opmode == Modes::BUCK)
+        else if (BaseT::opmode == BOOST || BaseT::opmode == BUCK)
         {
             initwait = 0;
             BaseT::Charge();
         }
-        else if (BaseT::opmode == Modes::ACHEAT)
+        else if (BaseT::opmode == ACHEAT)
         {
             initwait = 0;
             PwmDriverT::AcHeat(BaseT::ampnom);
@@ -211,7 +215,7 @@ protected:
 
         PwmDriverT::DriverInit();
 
-        if (BaseT::opmode == Modes::ACHEAT)
+        if (BaseT::opmode == ACHEAT)
             PwmDriverT::AcHeatTimerSetup();
     }
 
