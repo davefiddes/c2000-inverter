@@ -6,3 +6,6 @@ add_subdirectory(device_support)
 
 # A simple blinky
 add_subdirectory(blinky)
+
+# The inverter
+add_subdirectory(inverter)
