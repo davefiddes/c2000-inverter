@@ -79,6 +79,14 @@
             "valuesFormatting": "parseText"
         },
         {
+            "name": "Debug pwmsimulator",
+            "type": "gdb",
+            "request": "launch",
+            "target": "./build/host/simulator/pwm/pwmsimulator",
+            "cwd": "${workspaceRoot}",
+            "valuesFormatting": "parseText"
+        },
+        {
             "name": "Debug CMake STM32F1",
             "type": "cppdbg",
             "request": "launch",

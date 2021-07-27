@@ -38,6 +38,9 @@ target_link_options(
   --reread_libs
   --diag_wrap=off
   --display_error_number
-  --entry_point=code_start
   --rom_model
   "${CMAKE_CURRENT_SOURCE_DIR}/2837xD_RAM_lnk_cpu1.cmd")
+
+# Special library to add last
+add_library(link_last INTERFACE)
+target_link_libraries(link_last INTERFACE -llibc.a)

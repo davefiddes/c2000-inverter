@@ -1,0 +1,2 @@
+add_executable(pwmsimulator pwmsimulator.cpp)
+target_link_libraries(pwmsimulator global_options link_last)
