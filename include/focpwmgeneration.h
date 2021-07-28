@@ -25,22 +25,22 @@
 #include "picontroller.h"
 #include "pwmgenerationbase.h"
 
-template <typename AnaInT, typename EncoderT, typename PwmDriverT>
+template <typename CurrentT, typename EncoderT, typename PwmDriverT>
 class FocPwmGeneration : public PwmGenerationBase<
-                             FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>,
-                             AnaInT,
+                             FocPwmGeneration<CurrentT, EncoderT, PwmDriverT>,
+                             CurrentT,
                              PwmDriverT>
 {
     typedef PwmGenerationBase<
-        FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>,
-        AnaInT,
+        FocPwmGeneration<CurrentT, EncoderT, PwmDriverT>,
+        CurrentT,
         PwmDriverT>
         BaseT;
 
     // We need to allow PwmGenerationBase to call PwmInit
     friend class PwmGenerationBase<
-        FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>,
-        AnaInT,
+        FocPwmGeneration<CurrentT, EncoderT, PwmDriverT>,
+        CurrentT,
         PwmDriverT>;
 
 public:
@@ -229,9 +229,9 @@ private:
         }
 
         s32fp il1 = BaseT::GetCurrent(
-            AnaInT::il1, BaseT::ilofs[0], Param::Get(Param::il1gain));
+            CurrentT::Phase1(), BaseT::ilofs[0], Param::Get(Param::il1gain));
         s32fp il2 = BaseT::GetCurrent(
-            AnaInT::il2, BaseT::ilofs[1], Param::Get(Param::il2gain));
+            CurrentT::Phase2(), BaseT::ilofs[1], Param::Get(Param::il2gain));
 
         if ((Param::GetInt(Param::pinswap) & SWAP_CURRENTS) > 0)
             FOC::ParkClarke(il2, il1, BaseT::angle);
@@ -276,8 +276,8 @@ private:
 
         if (samples < offsetSamples)
         {
-            il1Avg += AnaInT::il1.Get();
-            il2Avg += AnaInT::il2.Get();
+            il1Avg += CurrentT::Phase1();
+            il2Avg += CurrentT::Phase2();
         }
         else
         {
@@ -303,25 +303,25 @@ private:
 };
 
 // Instances of each member variable
-template <typename AnaInT, typename EncoderT, typename PwmDriverT>
-int FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>::initwait;
+template <typename CurrentT, typename EncoderT, typename PwmDriverT>
+int FocPwmGeneration<CurrentT, EncoderT, PwmDriverT>::initwait;
 
-template <typename AnaInT, typename EncoderT, typename PwmDriverT>
-int FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>::fwBaseGain;
+template <typename CurrentT, typename EncoderT, typename PwmDriverT>
+int FocPwmGeneration<CurrentT, EncoderT, PwmDriverT>::fwBaseGain;
 
-template <typename AnaInT, typename EncoderT, typename PwmDriverT>
-s32fp FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>::idref;
+template <typename CurrentT, typename EncoderT, typename PwmDriverT>
+s32fp FocPwmGeneration<CurrentT, EncoderT, PwmDriverT>::idref;
 
-template <typename AnaInT, typename EncoderT, typename PwmDriverT>
-int FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>::curki;
+template <typename CurrentT, typename EncoderT, typename PwmDriverT>
+int FocPwmGeneration<CurrentT, EncoderT, PwmDriverT>::curki;
 
-template <typename AnaInT, typename EncoderT, typename PwmDriverT>
-PiController FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>::qController;
+template <typename CurrentT, typename EncoderT, typename PwmDriverT>
+PiController FocPwmGeneration<CurrentT, EncoderT, PwmDriverT>::qController;
 
-template <typename AnaInT, typename EncoderT, typename PwmDriverT>
-PiController FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>::dController;
+template <typename CurrentT, typename EncoderT, typename PwmDriverT>
+PiController FocPwmGeneration<CurrentT, EncoderT, PwmDriverT>::dController;
 
-template <typename AnaInT, typename EncoderT, typename PwmDriverT>
-PiController FocPwmGeneration<AnaInT, EncoderT, PwmDriverT>::fwController;
+template <typename CurrentT, typename EncoderT, typename PwmDriverT>
+PiController FocPwmGeneration<CurrentT, EncoderT, PwmDriverT>::fwController;
 
 #endif // FOCPWMGENERATION_H

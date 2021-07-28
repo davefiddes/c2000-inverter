@@ -16,13 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "c2000anain.h"
+#include "c2000current.h"
 
 namespace c2000 {
 
-// Variable storage declaration
-#define ANA_IN_ENTRY(name, port, pin) AnaIn AnaIn::name;
-ANA_IN_LIST
-#undef ANA_IN_ENTRY
+uint16_t Current::m_phase1Value;
+uint16_t Current::m_phase2Value;
 
 } // namespace c2000

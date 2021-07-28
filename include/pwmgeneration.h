@@ -29,17 +29,34 @@
 #include "anain.h"
 #include "inc_encoder.h"
 
+/**
+ * Adapt the currents read through the AnaIn driver into
+ * something simple that the PWM generation can use
+ */
+struct CurrentAdapter
+{
+    static uint16_t Phase1()
+    {
+        return AnaIn::il1.Get();
+    }
+
+    static uint16_t Phase2()
+    {
+        return AnaIn::il2.Get();
+    }
+};
+
 #ifdef STM32F1
 
 #include "stm32pwmdriver.h"
 
 #if CONTROL == CTRL_SINE
 
-using PwmGeneration = SinePwmGeneration<AnaIn, Encoder, STM32PwmDriver>;
+using PwmGeneration = SinePwmGeneration<CurrentAdapter, Encoder, STM32PwmDriver>;
 
 #elif CONTROL == CTRL_FOC
 
-using PwmGeneration = FocPwmGeneration<AnaIn, Encoder, STM32PwmDriver>;
+using PwmGeneration = FocPwmGeneration<CurrentAdapter, Encoder, STM32PwmDriver>;
 
 #endif
 

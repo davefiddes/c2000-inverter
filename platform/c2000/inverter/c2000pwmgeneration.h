@@ -17,12 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "c2000anain.h"
+#include "c2000current.h"
 #include "c2000encoder.h"
 #include "c2000pwmdriver.h"
 #include "focpwmgeneration.h"
 
 // Global declaration of our PWM generation class - we only support Field
 // Oriented Control at this point
-typedef FocPwmGeneration<c2000::AnaIn, c2000::Encoder, c2000::PwmDriver> PwmGeneration;
-
+typedef FocPwmGeneration<c2000::Current, c2000::Encoder, c2000::PwmDriver>
+    PwmGeneration;

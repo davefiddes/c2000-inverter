@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "c2000anain.h"
+#include "c2000current.h"
 #include "c2000encoder.h"
 #include "c2000pwmdriver.h"
 #include "c2000pwmgeneration.h"
@@ -82,11 +82,8 @@ void main(void)
     Param::Set(Param::manualiq, FP_FROMFLT(0.6));
 
     // Provide some neutral values for the phase currents
-    AnaIn::il1.Set(2048);
-    AnaIn::il2.Set(2048);
-
-    // Provide a valid DC bus voltage
-    AnaIn::udc.Set(3500);
+    Current::SetPhase1(2048);
+    Current::SetPhase1(2048);
 
     //
     // Enable Global Interrupt (INTM) and realtime interrupt (DBGM)

@@ -17,40 +17,46 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef C2000ANAIN_H
-#define C2000ANAIN_H
+#ifndef C2000CURRENT_H
+#define C2000CURRENT_H
 
-#include "anain_prj.h"
 #include <stdint.h>
 
 namespace c2000 {
 
 /**
- * Mock implementation of the AnaIn class used to obtain analog values.
- * Allows each value to be set by test functions as required.
+ * Mock implementation of the Current class used to obtain analog values
+ * of the phase currents. Allows each value to be set by test functions
+ * as required rather than reading a physical value.
  */
-class AnaIn
+class Current
 {
 public:
-    uint16_t Get()
+    static uint16_t Phase1()
     {
-        return m_value;
+        return m_phase1Value;
     }
 
-    void Set(uint16_t value)
+    static void SetPhase1(uint16_t value)
     {
-        m_value = value;
+        m_phase1Value = value;
+    }
+
+    static uint16_t Phase2()
+    {
+        return m_phase2Value;
+    }
+
+    static void SetPhase2(uint16_t value)
+    {
+        m_phase2Value = value;
     }
 
 private:
-    uint16_t m_value;
-
-public:
-#define ANA_IN_ENTRY(name, port, pin) static AnaIn name;
-    ANA_IN_LIST
-#undef ANA_IN_ENTRY
+    static uint16_t m_phase1Value;
+    static uint16_t m_phase2Value;
 };
 
 } // namespace c2000
 
-#endif // C2000ANAIN_H
+#endif // C2000CURRENT_H

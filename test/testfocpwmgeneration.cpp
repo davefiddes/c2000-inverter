@@ -20,12 +20,12 @@
 #include "errormessage.h"
 #include "focpwmgeneration.h"
 #include "matcherhelper.h"
-#include "mockanain.h"
+#include "mockcurrent.h"
 #include "mockencoder.h"
 #include "mockpwmdriver.h"
 #include <gtest/gtest.h>
 
-using PwmGeneration = FocPwmGeneration<MockAnaIn, MockEncoder, MockPwmDriver>;
+using PwmGeneration = FocPwmGeneration<MockCurrent, MockEncoder, MockPwmDriver>;
 
 using ::testing::_;
 using ::testing::AtLeast;
@@ -220,11 +220,8 @@ TEST_F(TestFocPwmGeneration, ManualModeRun)
     Param::SetInt(Param::dir, 1);
 
     // Provide some neutral values for the phase currents
-    MockAnaIn::il1.Set(2048);
-    MockAnaIn::il2.Set(2048);
-
-    // Provide a valid DC bus voltage
-    MockAnaIn::udc.Set(3500);
+    MockCurrent::SetPhase1(2048);
+    MockCurrent::SetPhase2(2048);
 
     // We need the pole pair ratio set to correctly calculate the rotation
     // frequency
@@ -312,11 +309,8 @@ TEST_F(TestFocPwmGeneration, NormalModeRun)
     PwmGeneration::SetTorquePercent(FP_FROMFLT(0.5));
 
     // Provide some neutral values for the phase currents
-    MockAnaIn::il1.Set(2048);
-    MockAnaIn::il2.Set(2048);
-
-    // Provide a valid DC bus voltage
-    MockAnaIn::udc.Set(3500);
+    MockCurrent::SetPhase1(2048);
+    MockCurrent::SetPhase2(2048);
 
     // We need the pole pair ratio set to correctly calculate the rotation
     // frequency
@@ -399,11 +393,8 @@ TEST_F(TestFocPwmGeneration, BuckChargeModeRun)
     Param::SetInt(Param::dir, 0);
 
     // Provide some neutral values for the phase currents
-    MockAnaIn::il1.Set(2048);
-    MockAnaIn::il2.Set(2048);
-
-    // Provide a valid DC bus voltage
-    MockAnaIn::udc.Set(3500);
+    MockCurrent::SetPhase1(2048);
+    MockCurrent::SetPhase2(2048);
 
     // initialise the controller gains from the default parameters
     PwmGeneration::SetControllerGains(

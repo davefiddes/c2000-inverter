@@ -28,15 +28,15 @@
 #include "sine_core.h"
 #include <stdint.h>
 
-template <typename AnaInT, typename EncoderT, typename PwmDriverT>
+template <typename CurrentT, typename EncoderT, typename PwmDriverT>
 class SinePwmGeneration : public PwmGenerationBase<
-                              SinePwmGeneration<AnaInT, EncoderT, PwmDriverT>,
-                              AnaInT,
+                              SinePwmGeneration<CurrentT, EncoderT, PwmDriverT>,
+                              CurrentT,
                               PwmDriverT>
 {
     using BaseT = PwmGenerationBase<
-        SinePwmGeneration<AnaInT, EncoderT, PwmDriverT>,
-        AnaInT,
+        SinePwmGeneration<CurrentT, EncoderT, PwmDriverT>,
+        CurrentT,
         PwmDriverT>;
 
     // We need to allow PwmGenerationBase to call PwmInit
@@ -177,7 +177,7 @@ private:
 protected:
     static void PwmInit()
     {
-        BaseT::SetCurrentOffset(AnaInT::il1.Get(), AnaInT::il2.Get());
+        BaseT::SetCurrentOffset(CurrentT::Phase1(), CurrentT::Phase2());
         BaseT::pwmfrq = PwmDriverT::TimerSetup(
             Param::GetInt(Param::deadtime),
             Param::GetInt(Param::pwmpol),
@@ -200,9 +200,9 @@ private:
         static EdgeType lastEdge[2] = { PosEdge, PosEdge };
 
         s32fp il1 = BaseT::GetCurrent(
-            AnaInT::il1, BaseT::ilofs[0], Param::Get(Param::il1gain));
+            CurrentT::Phase1(), BaseT::ilofs[0], Param::Get(Param::il1gain));
         s32fp il2 = BaseT::GetCurrent(
-            AnaInT::il2, BaseT::ilofs[1], Param::Get(Param::il2gain));
+            CurrentT::Phase2(), BaseT::ilofs[1], Param::Get(Param::il2gain));
         s32fp    rms;
         s32fp    il1PrevRms = Param::Get(Param::il1rms);
         s32fp    il2PrevRms = Param::Get(Param::il2rms);
