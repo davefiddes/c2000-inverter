@@ -1,2 +1,3 @@
-add_executable(pwmsimulator pwmsimulator.cpp)
-target_link_libraries(pwmsimulator global_options link_last)
+add_executable(pwmsimulator pwmsimulator.cpp simulatorcurrent.cpp
+                            simulatorencoder.cpp simulatorpwmdriver.cpp)
+target_link_libraries(pwmsimulator global_options portablesine libopeninv link_last)

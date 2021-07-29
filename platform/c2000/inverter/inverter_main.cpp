@@ -83,7 +83,7 @@ void main(void)
 
     // Provide some neutral values for the phase currents
     Current::SetPhase1(2048);
-    Current::SetPhase1(2048);
+    Current::SetPhase2(2048);
 
     //
     // Enable Global Interrupt (INTM) and realtime interrupt (DBGM)
