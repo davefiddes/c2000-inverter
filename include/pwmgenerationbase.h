@@ -127,6 +127,12 @@ public:
         SetCurrentLimitThreshold(Param::Get(Param::ocurlim));
     }
 
+    //! Return the specified current offset - useful for testing
+    static s32fp GetCurrentOffset(uint16_t num)
+    {
+        return ilofs[num];
+    }
+
     static void SetCurrentLimitThreshold(s32fp ocurlim)
     {
         // We use the average offset and gain values because we only

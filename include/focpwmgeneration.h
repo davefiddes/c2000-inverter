@@ -278,6 +278,7 @@ private:
         {
             il1Avg += CurrentT::Phase1();
             il2Avg += CurrentT::Phase2();
+            samples++;
         }
         else
         {
@@ -286,8 +287,6 @@ private:
             il1Avg = il2Avg = 0;
             samples = 0;
         }
-
-        samples++;
     }
 
 private:

@@ -444,3 +444,79 @@ TEST_F(TestFocPwmGeneration, BuckChargeModeRun)
 
     EXPECT_EQ(ErrorMessage::GetLastError(), ERROR_NONE);
 }
+
+TEST_F(TestFocPwmGeneration, CurrentOffsetAveraging)
+{
+    MockPwmDriverImpl pwmDriver;
+
+    EXPECT_CALL(pwmDriver, SetOverCurrentLimits);
+    PwmGeneration::SetCurrentOffset(2048, 2048);
+
+    {
+        InSequence seq;
+
+        EXPECT_CALL(pwmDriver, TimerSetup)
+            .WillOnce(Return(DefaultPwmFrequency));
+        EXPECT_CALL(pwmDriver, DriverInit);
+        EXPECT_CALL(pwmDriver, EnableOutput);
+    }
+
+    // Set up an encoder that is going forwards
+    MockEncoderImpl encoder;
+    EXPECT_CALL(encoder, SetPwmFrequency(DefaultPwmFrequency));
+
+    PwmGeneration::SetOpmode(Modes::MANUAL);
+
+    // Ensure the system thinks we should be going forwards
+    Param::SetInt(Param::dir, 1);
+
+    // Provide some neutral values for the phase currents
+    MockCurrent::SetPhase1(2048);
+    MockCurrent::SetPhase2(2048);
+
+    // We need the pole pair ratio set to correctly calculate the rotation
+    // frequency
+    PwmGeneration::SetPolePairRatio(1);
+
+    // initialise the controller gains from the default parameters
+    PwmGeneration::SetControllerGains(
+        Param::GetInt(Param::curkp),
+        Param::GetInt(Param::curki),
+        Param::GetInt(Param::fwkp));
+
+    // We need to wait for a certain number of Run() cycles before the system is
+    // ready to run
+    static const int StartupWait = DefaultPwmFrequency / 2 - 1;
+    static const int CurrentAveragePeriod = 513;
+
+    EXPECT_GT(StartupWait, CurrentAveragePeriod);
+
+    EXPECT_CALL(pwmDriver, SetOverCurrentLimits).Times(AtLeast(2));
+    EXPECT_CALL(encoder, SeenNorthSignal)
+        .Times(StartupWait)
+        .WillRepeatedly(Return(true));
+    EXPECT_CALL(encoder, GetRotorFrequency)
+        .Times(StartupWait)
+        .WillRepeatedly(Return(10));
+    EXPECT_CALL(encoder, UpdateRotorAngle(1)).Times(StartupWait);
+    EXPECT_CALL(encoder, GetRotorAngle)
+        .Times(StartupWait)
+        .WillRepeatedly(Return(32767));
+    EXPECT_CALL(pwmDriver, DisableMasterOutput).Times(StartupWait);
+    EXPECT_CALL(pwmDriver, EnableMasterOutput).Times(0);
+    EXPECT_CALL(pwmDriver, SetPhasePwm).Times(StartupWait);
+
+    for (int i = 0; i < StartupWait; i++)
+    {
+        PwmGeneration::Run();
+        EXPECT_EQ(PwmGeneration::GetCurrentOffset(0), FP_FROMINT(2048));
+        EXPECT_EQ(PwmGeneration::GetCurrentOffset(1), FP_FROMINT(2048));
+    }
+
+    // Check that we turn off cleanly
+    EXPECT_CALL(pwmDriver, ResetCpuLoad);
+    EXPECT_CALL(pwmDriver, DisableOutput);
+    PwmGeneration::SetOpmode(Modes::OFF);
+
+    EXPECT_EQ(ErrorMessage::GetLastError(), ERROR_NONE);
+}
