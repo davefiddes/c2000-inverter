@@ -60,10 +60,10 @@ namespace Param
       uint32_t id;
    } Attributes;
 
-   s32fp  Get(PARAM_NUM ParamNum);
-   int    GetInt(PARAM_NUM ParamNum);
-   s32fp  GetScl(PARAM_NUM ParamNum);
-   bool   GetBool(PARAM_NUM ParamNum);
+   s32fp    Get(PARAM_NUM ParamNum);
+   int32_t  GetInt(PARAM_NUM ParamNum);
+   s32fp    GetScl(PARAM_NUM ParamNum);
+   bool     GetBool(PARAM_NUM ParamNum);
 
    template <class T>
    T GetEnum(PARAM_NUM ParamNum)
@@ -72,19 +72,19 @@ namespace Param
    }
 
    int  Set(PARAM_NUM ParamNum, s32fp ParamVal);
-   void SetInt(PARAM_NUM ParamNum, int ParamVal);
+   void SetInt(PARAM_NUM ParamNum, int32_t ParamVal);
    void SetFlt(PARAM_NUM ParamNum, s32fp ParamVal);
 
    template <class T>
    void SetEnum(PARAM_NUM ParamNum, T ParamVal)
    {
-       SetInt(ParamNum, static_cast<int>(ParamVal));
+       SetInt(ParamNum, static_cast<int32_t>(ParamVal));
    }
 
    PARAM_NUM NumFromString(const char *name);
    PARAM_NUM NumFromId(uint32_t id);
    const Attributes *GetAttrib(PARAM_NUM ParamNum);
-   int IsParam(PARAM_NUM ParamNum);
+   bool IsParam(PARAM_NUM ParamNum);
    void LoadDefaults();
    void SetFlagsRaw(PARAM_NUM param, uint_least8_t rawFlags);
    void SetFlag(PARAM_NUM param, PARAM_FLAG flag);

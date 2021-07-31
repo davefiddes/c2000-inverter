@@ -88,7 +88,7 @@ s32fp Get(PARAM_NUM ParamNum)
 * @param[in] ParamNum Parameter index
 * @return Parameters value
 */
-int GetInt(PARAM_NUM ParamNum)
+int32_t GetInt(PARAM_NUM ParamNum)
 {
     return FP_TOINT(values[ParamNum]);
 }
@@ -110,7 +110,7 @@ bool GetBool(PARAM_NUM ParamNum)
 * @param[in] ParamNum Parameter index
 * @param[in] ParamVal New value of parameter
 */
-void SetInt(PARAM_NUM ParamNum, int ParamVal)
+void SetInt(PARAM_NUM ParamNum, int32_t ParamVal)
 {
    values[ParamNum] = FP_FROMINT(ParamVal);
 }
@@ -182,10 +182,8 @@ const Attributes *GetAttrib(PARAM_NUM ParamNum)
 }
 
 /** Find out if ParamNum is a parameter or display value
- * @retval 1 it is a parameter
- * @retval 0 otherwise
  */
-int IsParam(PARAM_NUM ParamNum)
+bool IsParam(PARAM_NUM ParamNum)
 {
    return attribs[ParamNum].min != attribs[ParamNum].max;
 }
