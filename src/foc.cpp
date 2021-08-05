@@ -24,7 +24,6 @@
 #include "sine_core.h"
 #include <stdint.h>
 
-#define SQRT3 FP_FROMFLT(1.732050807568877293527446315059)
 #define R1 FP_FROMFLT(0.03)
 #define S1 FP_FROMFLT(0.15)
 #define R2 FP_FROMFLT(0.5)
@@ -36,7 +35,7 @@ static const s32fp fluxLinkage = FP_FROMFLT(0.09);
 static const s32fp fluxLinkage2 = FP_MUL(fluxLinkage, fluxLinkage);
 static const s32fp lqminusldSquaredBs10 = FP_FROMFLT(0.01722); //additional 10-bit left shift because otherwise it can't be represented
 static const s32fp lqminusld = FP_FROMFLT(0.0058);
-static const s32fp sqrt3 = SQRT3;
+static const s32fp sqrt3 = FP_FROMFLT(1.732050807568877293527446315059);
 static const s32fp sqrt3inv1 = FP_FROMFLT(0.57735026919); //1/sqrt(3)
 static const s32fp zeroOffset = FP_FROMINT(1);
 static const int32_t modMax = FP_FROMFLT(1.154700538379); // 2.0/sqrt(3.0);
@@ -116,8 +115,8 @@ void FOC::InvParkClarke(int32_t ud, int32_t uq, uint16_t angle)
    s32fp ub = (cos * uq + sin * ud) >> CST_DIGITS;
    //Inverse Clarke transformation
    DutyCycles[0] = ua;
-   DutyCycles[1] = (-ua + FP_MUL(SQRT3, ub)) / 2;
-   DutyCycles[2] = (-ua - FP_MUL(SQRT3, ub)) / 2;
+   DutyCycles[1] = (-ua + FP_MUL(sqrt3, ub)) / 2;
+   DutyCycles[2] = (-ua - FP_MUL(sqrt3, ub)) / 2;
 
    int32_t offset = SineCore::CalcSVPWMOffset(DutyCycles[0], DutyCycles[1], DutyCycles[2]);
 
