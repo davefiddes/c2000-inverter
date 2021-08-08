@@ -37,11 +37,11 @@ static const s32fp lqminusldSquaredBs10 = FP_FROMFLT(0.01722); //additional 10-b
 static const s32fp lqminusld = FP_FROMFLT(0.0058);
 static const s32fp sqrt3 = FP_FROMFLT(1.732050807568877293527446315059);
 static const s32fp sqrt3inv1 = FP_FROMFLT(0.57735026919); //1/sqrt(3)
-static const s32fp zeroOffset = FP_FROMINT(1);
+static const s32fp zeroOffset = FP_FROMINT(1L);
 static const int32_t modMax = FP_FROMFLT(1.154700538379); // 2.0/sqrt(3.0);
 static const int32_t modMaxPow2 = modMax * modMax;
 static const int32_t minPulse = 1000;
-static const int32_t maxPulse = FP_FROMINT(2) - 1000;
+static const int32_t maxPulse = FP_FROMINT(2L) - 1000;
 
 s32fp FOC::id;
 s32fp FOC::iq;
@@ -110,7 +110,9 @@ void FOC::InvParkClarke(int32_t ud, int32_t uq, uint16_t angle)
    s32fp sin = SineCore::Sine(angle);
    s32fp cos = SineCore::Cosine(angle);
 
-   //Inverse Park transformation
+   // Inverse Park transformation
+   // Note: Manually multiply and shift to do the fixed point maths to minimise
+   // precision loss in preference to using FP_MUL()
    s32fp ua = (cos * ud - sin * uq) >> CST_DIGITS;
    s32fp ub = (cos * uq + sin * ud) >> CST_DIGITS;
    //Inverse Clarke transformation
@@ -133,7 +135,7 @@ void FOC::InvParkClarke(int32_t ud, int32_t uq, uint16_t angle)
       }
       else if (DutyCycles[i] > maxPulse)
       {
-         DutyCycles[i] = FP_FROMINT(2);
+         DutyCycles[i] = FP_FROMINT(2L);
       }
    }
 }
