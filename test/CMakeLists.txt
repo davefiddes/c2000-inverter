@@ -20,6 +20,7 @@ file(
   test_throttle.cpp
   testfoccalc.cpp
   testfocpwmgeneration.cpp
+  testsinecore.cpp
   mockencoder.cpp
   mockpwmdriver.cpp)
 add_executable(OpenInverterTest ${SRCS})
