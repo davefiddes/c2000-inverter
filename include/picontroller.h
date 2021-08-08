@@ -32,14 +32,14 @@ class PiController
        * \param kp New value to set for proportional gain
        * \param ki New value for integral gain
        */
-      void SetGains(int kp, int ki)
+      void SetGains(int32_t kp, int32_t ki)
       {
          this->kp = kp;
          this->ki = ki;
       }
 
-      void SetProportionalGain(int kp) { this->kp = kp; }
-      void SetIntegralGain(int ki) { this->ki = ki; }
+      void SetProportionalGain(int32_t kp) { this->kp = kp; }
+      void SetIntegralGain(int32_t ki) { this->ki = ki; }
 
       /** Set regulator target set point
        * \param val regulator target
@@ -57,7 +57,7 @@ class PiController
       /** Set calling frequency
        * \param val New value to set
        */
-      void SetCallingFrequency(int val) { frequency = val; }
+      void SetCallingFrequency(int32_t val) { frequency = val; }
 
       /** Run regulator to obtain a new actuator value
        * \param curVal currently measured value
