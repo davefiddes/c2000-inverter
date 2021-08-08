@@ -33,6 +33,11 @@ void parm_Change(__attribute__((__unused__)) Param::PARAM_NUM paramNum)
 
 int main()
 {
+    // Use only line-by-line buffering on stdout for easier debugging
+    // We still need to use line buffering to avoid very poor IO performance
+    // with C2000 semi-hosting
+    setvbuf(stdout, NULL, _IOLBF, 0);
+
     printf("PWM generation simulator\n\n");
 
     // Enable chatty mode to get all events
