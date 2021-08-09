@@ -206,7 +206,7 @@ protected:
 
     static s32fp GetCurrent(uint16_t input, s32fp offset, s32fp gain)
     {
-        s32fp il = FP_FROMINT(input);
+        s32fp il = FP_FROMINT((int32_t)input);
         il -= offset;
         return FP_DIV(il, gain);
     }
