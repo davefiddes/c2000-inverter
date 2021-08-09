@@ -61,7 +61,7 @@ void MockPwmDriver::EnableACHeatOutput()
     instance->EnableACHeatOutput();
 }
 
-void MockPwmDriver::SetOverCurrentLimits(int limNeg, int LimPos)
+void MockPwmDriver::SetOverCurrentLimits(int16_t limNeg, int16_t LimPos)
 {
     instance->SetOverCurrentLimits(limNeg, LimPos);
 };
@@ -85,7 +85,7 @@ void MockPwmDriver::AcHeat(s32fp ampnom)
     instance->AcHeat(ampnom);
 }
 
-void MockPwmDriver::SetChargeCurrent(int dc)
+void MockPwmDriver::SetChargeCurrent(int16_t dc)
 {
     instance->SetChargeCurrent(dc);
 }

@@ -48,7 +48,7 @@ public:
         if (BaseT::opmode == Modes::MANUAL || BaseT::opmode == Modes::RUN ||
             BaseT::opmode == Modes::SINE)
         {
-            int dir = Param::GetInt(Param::dir);
+            int32_t dir = Param::GetInt(Param::dir);
 
             EncoderT::UpdateRotorAngle(dir);
             s32fp ampNomLimited = LimitCurrent();
@@ -195,8 +195,8 @@ private:
     static s32fp ProcessCurrents()
     {
         static s32fp    currentMax[2];
-        static int      samples[2] = { 0 };
-        static int      sign = 1;
+        static int16_t  samples[2] = { 0 };
+        static int32_t  sign = 1;
         static EdgeType lastEdge[2] = { PosEdge, PosEdge };
 
         s32fp il1 = BaseT::GetCurrent(
@@ -239,7 +239,7 @@ private:
         return ilMax;
     }
 
-    static void CalcNextAngleAsync(int dir)
+    static void CalcNextAngleAsync(int32_t dir)
     {
         static uint16_t slipAngle = 0;
         uint16_t        rotorAngle = EncoderT::GetRotorAngle();
@@ -254,7 +254,7 @@ private:
         BaseT::angle = BaseT::polePairRatio * rotorAngle + slipAngle;
     }
 
-    static void CalcNextAngleConstant(int dir)
+    static void CalcNextAngleConstant(int32_t dir)
     {
         BaseT::frq = BaseT::fslip;
         BaseT::angle += dir * BaseT::slipIncr;
@@ -295,7 +295,7 @@ private:
         s32fp slipSpnt = FP_DIV(FP_MUL(BaseT::fslip, imargin), a);
         slipSpnt = MAX(slipmin, slipSpnt);
         curLimSpnt = MAX(FP_FROMINT(40), curLimSpnt); // Never go below 40%
-        int filter = Param::GetInt(
+        int32_t filter = Param::GetInt(
             curLimSpnt < curLimSpntFiltered ? Param::ifltfall :
                                               Param::ifltrise);
         curLimSpntFiltered = IIRFILTER(curLimSpntFiltered, curLimSpnt, filter);
@@ -316,11 +316,11 @@ private:
         EdgeType& lastEdge,
         s32fp&    max,
         s32fp&    rms,
-        int&      samples,
+        int16_t&  samples,
         s32fp     prevRms)
     {
         const s32fp oneOverSqrt2 = FP_FROMFLT(0.707106781187);
-        int         minSamples = BaseT::pwmfrq / (4 * FP_TOINT(BaseT::frq));
+        int32_t     minSamples = BaseT::pwmfrq / (4 * FP_TOINT(BaseT::frq));
         EdgeType    edgeType = NoEdge;
 
         minSamples = MAX(10, minSamples);

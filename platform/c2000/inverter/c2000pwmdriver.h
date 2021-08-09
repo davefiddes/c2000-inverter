@@ -40,17 +40,17 @@ public:
     static void SetPhasePwm(uint32_t phaseA, uint32_t phaseB, uint32_t phaseC);
     static void EnableChargeOutput(Modes opmode);
     static void EnableACHeatOutput();
-    static void SetOverCurrentLimits(int limNeg, int LimPos);
+    static void SetOverCurrentLimits(int16_t limNeg, int16_t LimPos);
     static uint16_t TimerSetup(
         uint16_t deadtime,
         bool     activeLow,
         uint16_t pwmdigits);
-    static int  GetPwmFrq();
-    static void AcHeatTimerSetup();
-    static void AcHeat(s32fp ampnom);
-    static void SetChargeCurrent(int dc);
-    static int  GetCpuLoad();
-    static void ResetCpuLoad();
+    static int     GetPwmFrq();
+    static void    AcHeatTimerSetup();
+    static void    AcHeat(s32fp ampnom);
+    static void    SetChargeCurrent(int16_t dc);
+    static int16_t GetCpuLoad();
+    static void    ResetCpuLoad();
 };
 
 } // namespace c2000

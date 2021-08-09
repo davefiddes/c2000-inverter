@@ -28,8 +28,8 @@ class MockPwmDriverImpl;
 
 /**
  * Mock implementation of a motor PWM generator. This provides the static
- * methods expected by the openinverter PWM generator classes and acts as a trampoline to the
- * real mock methods in MockPwmDriverImpl.
+ * methods expected by the openinverter PWM generator classes and acts as a
+ * trampoline to the real mock methods in MockPwmDriverImpl.
  */
 class MockPwmDriver
 {
@@ -46,7 +46,7 @@ public:
     static void SetPhasePwm(uint32_t phaseA, uint32_t phaseB, uint32_t phaseC);
     static void EnableChargeOutput(Modes opmode);
     static void EnableACHeatOutput();
-    static void SetOverCurrentLimits(int limNeg, int LimPos);
+    static void SetOverCurrentLimits(int16_t limNeg, int16_t LimPos);
     static uint16_t TimerSetup(
         uint16_t deadtime,
         bool     activeLow,
@@ -54,7 +54,7 @@ public:
 
     static void AcHeatTimerSetup();
     static void AcHeat(s32fp ampnom);
-    static void SetChargeCurrent(int dc);
+    static void SetChargeCurrent(int16_t dc);
     static void ResetCpuLoad();
 
 private:
@@ -79,7 +79,7 @@ public:
         (uint32_t phaseA, uint32_t phaseB, uint32_t phaseC));
     MOCK_METHOD(void, EnableChargeOutput, (Modes opmode));
     MOCK_METHOD(void, EnableACHeatOutput, ());
-    MOCK_METHOD(void, SetOverCurrentLimits, (int limNeg, int LimPos));
+    MOCK_METHOD(void, SetOverCurrentLimits, (int16_t limNeg, int16_t LimPos));
     MOCK_METHOD(
         uint16_t,
         TimerSetup,
@@ -87,7 +87,7 @@ public:
     MOCK_METHOD(int, GetPwmFrq, ());
     MOCK_METHOD(void, AcHeatTimerSetup, ());
     MOCK_METHOD(void, AcHeat, (s32fp ampnom));
-    MOCK_METHOD(void, SetChargeCurrent, (int dc));
+    MOCK_METHOD(void, SetChargeCurrent, (int16_t dc));
     MOCK_METHOD(int, GetCpuLoad, ());
     MOCK_METHOD(void, ResetCpuLoad, ());
 };

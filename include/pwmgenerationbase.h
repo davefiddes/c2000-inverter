@@ -110,7 +110,7 @@ public:
         PwmModeT::SetTorquePercent(torque);
     }
 
-    static void SetCurrentOffset(int offset1, int offset2)
+    static void SetCurrentOffset(int32_t offset1, int32_t offset2)
     {
         ilofs[0] = FP_FROMINT(offset1);
         ilofs[1] = FP_FROMINT(offset2);
@@ -142,13 +142,13 @@ public:
             (Param::Get(Param::il1gain) + Param::Get(Param::il2gain)) / 2;
 
         ocurlim = FP_MUL(igain, ocurlim);
-        int limNeg = FP_TOINT(iofs - ocurlim);
-        int limPos = FP_TOINT(iofs + ocurlim);
+        int16_t limNeg = FP_TOINT(iofs - ocurlim);
+        int16_t limPos = FP_TOINT(iofs + ocurlim);
 
         PwmDriverT::SetOverCurrentLimits(limNeg, limPos);
     }
 
-    static int GetCpuLoad()
+    static int32_t GetCpuLoad()
     {
         return PwmDriverT::GetCpuLoad();
     }
@@ -158,7 +158,7 @@ public:
         chargeController.SetRef(cur);
     }
 
-    static void SetPolePairRatio(int ratio)
+    static void SetPolePairRatio(int16_t ratio)
     {
         polePairRatio = ratio;
     }
@@ -189,7 +189,7 @@ protected:
 
         iFlt = IIRFILTER(iFlt, ilMax, Param::GetInt(Param::chargeflt));
 
-        int dc = chargeController.Run(iFlt);
+        int32_t dc = chargeController.Run(iFlt);
 
         if (opmode == BOOST)
             Param::SetFlt(
@@ -213,9 +213,9 @@ protected:
 
     static void ConfigureChargeController()
     {
-        int pwmin =
+        int32_t pwmin =
             FP_TOINT((Param::Get(Param::chargepwmin) * (1 << pwmdigits)) / 100);
-        int pwmax =
+        int32_t pwmax =
             FP_TOINT((Param::Get(Param::chargepwmax) * (1 << pwmdigits)) / 100);
 
         chargeController.SetCallingFrequency(pwmfrq);
@@ -226,14 +226,14 @@ protected:
         chargeController.PreloadIntegrator(pwmin);
     }
 
-    static int FrqToAngle(s32fp frq)
+    static int32_t FrqToAngle(s32fp frq)
     {
         return FP_TOINT((frq << SineCore::BITS) / pwmfrq);
     }
 
-    static s32fp DigitToDegree(int angle)
+    static s32fp DigitToDegree(int32_t angle)
     {
-        return FP_FROMINT(angle) / (65536 / 360);
+        return FP_FROMINT(angle) / (65536L / 360L);
     }
 
 protected:
@@ -246,7 +246,7 @@ protected:
     static uint_least8_t shiftForTimer;
     static Modes         opmode;
     static s32fp         ilofs[2];
-    static int           polePairRatio;
+    static int16_t       polePairRatio;
     static bool          tripped;
     static uint_least8_t pwmdigits;
     static PiController  chargeController;
@@ -281,7 +281,7 @@ template <typename PwmModeT, typename CurrentT, typename PwmDriverT>
 s32fp PwmGenerationBase<PwmModeT, CurrentT, PwmDriverT>::ilofs[2];
 
 template <typename PwmModeT, typename CurrentT, typename PwmDriverT>
-int PwmGenerationBase<PwmModeT, CurrentT, PwmDriverT>::polePairRatio;
+int16_t PwmGenerationBase<PwmModeT, CurrentT, PwmDriverT>::polePairRatio;
 
 template <typename PwmModeT, typename CurrentT, typename PwmDriverT>
 bool PwmGenerationBase<PwmModeT, CurrentT, PwmDriverT>::tripped;

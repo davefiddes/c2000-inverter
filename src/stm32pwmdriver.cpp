@@ -223,7 +223,7 @@ void STM32PwmDriver::EnableACHeatOutput()
  * \param limNeg    Negative over current limit
  * \param limPos    Positive over current limit
  */
-void STM32PwmDriver::SetOverCurrentLimits(int limNeg, int limPos)
+void STM32PwmDriver::SetOverCurrentLimits(int16_t limNeg, int16_t limPos)
 {
     limNeg = MAX(0, limNeg);
     limPos = MIN(OCURMAX, limPos);
@@ -366,7 +366,7 @@ void STM32PwmDriver::AcHeat(s32fp ampnom)
  * Set the charge current target
  * \param dc    Target current
  */
-void STM32PwmDriver::SetChargeCurrent(int dc)
+void STM32PwmDriver::SetChargeCurrent(int16_t dc)
 {
     timer_set_oc_value(PWM_TIMER, TIM_OC2, dc);
 }
@@ -375,7 +375,7 @@ void STM32PwmDriver::SetChargeCurrent(int dc)
  * Obtain how many PWM ticks we spend running the main control loop
  * \return Number of ticks
  */
-int STM32PwmDriver::GetCpuLoad()
+int16_t STM32PwmDriver::GetCpuLoad()
 {
     // PWM period 2x counter because of center aligned mode
     return (1000 * execTicks) / FRQ_DIVIDER;

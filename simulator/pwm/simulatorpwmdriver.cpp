@@ -113,7 +113,7 @@ void PwmDriver::EnableACHeatOutput()
  * \param limNeg    Negative over current limit
  * \param limPos    Positive over current limit
  */
-void PwmDriver::SetOverCurrentLimits(int limNeg, int limPos)
+void PwmDriver::SetOverCurrentLimits(int16_t limNeg, int16_t limPos)
 {
     printf(
         "\"SetOverCurrentLimits\", %" PRId16 ", %" PRId16 "\n", limNeg, limPos);
@@ -163,7 +163,7 @@ void PwmDriver::AcHeat(__attribute__((__unused__)) s32fp ampnom)
  * Set the charge current target
  * \param dc    Target current
  */
-void PwmDriver::SetChargeCurrent(__attribute__((__unused__)) int dc)
+void PwmDriver::SetChargeCurrent(__attribute__((__unused__)) int16_t dc)
 {
 }
 
@@ -171,7 +171,7 @@ void PwmDriver::SetChargeCurrent(__attribute__((__unused__)) int dc)
  * Obtain how many PWM ticks we spend running the main control loop
  * \return Number of ticks
  */
-int PwmDriver::GetCpuLoad()
+int16_t PwmDriver::GetCpuLoad()
 {
     return 100;
 }
@@ -190,6 +190,5 @@ void PwmDriver::EnableChattyOutput()
 {
     sm_chatty = true;
 }
-
 
 } // namespace simulator

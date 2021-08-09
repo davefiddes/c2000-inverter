@@ -44,7 +44,7 @@ class FocPwmGeneration : public PwmGenerationBase<
         PwmDriverT>;
 
 public:
-    static void SetControllerGains(int kp, int ki, int fwkp)
+    static void SetControllerGains(int32_t kp, int32_t ki, int32_t fwkp)
     {
         qController.SetGains(kp, ki);
         dController.SetGains(kp, ki);
@@ -57,8 +57,8 @@ public:
         if (BaseT::opmode == MANUAL || BaseT::opmode == RUN)
         {
             static s32fp frqFiltered = 0, idcFiltered = 0;
-            int          dir = Param::GetInt(Param::dir);
-            int          kifrqgain = Param::GetInt(Param::curkifrqgain);
+            int32_t      dir = Param::GetInt(Param::dir);
+            int32_t      kifrqgain = Param::GetInt(Param::curkifrqgain);
             s32fp        id, iq;
 
             EncoderT::UpdateRotorAngle(dir);
@@ -66,7 +66,7 @@ public:
             CalcNextAngleSync(dir);
 
             frqFiltered = IIRFILTER(frqFiltered, BaseT::frq, 8);
-            int moddedKi = curki + kifrqgain * FP_TOINT(frqFiltered);
+            int32_t moddedKi = curki + kifrqgain * FP_TOINT(frqFiltered);
 
             qController.SetIntegralGain(moddedKi);
             dController.SetIntegralGain(moddedKi);
@@ -138,8 +138,8 @@ public:
     {
         static int32_t heatCurRamped = 0;
         s32fp          brkrampstr = Param::Get(Param::brkrampstr);
-        int            direction = Param::GetInt(Param::dir);
-        int            heatCur = Param::GetInt(Param::heatcur);
+        int32_t        direction = Param::GetInt(Param::dir);
+        int32_t        heatCur = Param::GetInt(Param::heatcur);
 
         heatCur = MIN(400, heatCur);
 
@@ -160,7 +160,7 @@ public:
 
         if (heatCur > 0 && torquePercent < FP_FROMINT(30))
         {
-            int speed = Param::GetInt(Param::speed);
+            int32_t speed = Param::GetInt(Param::speed);
 
             if (speed == 0 && torquePercent <= 0)
             {
@@ -248,7 +248,7 @@ private:
         return 0;
     }
 
-    static void CalcNextAngleSync(int dir)
+    static void CalcNextAngleSync(int32_t dir)
     {
         if (EncoderT::SeenNorthSignal())
         {
@@ -271,8 +271,8 @@ private:
 
     static void RunOffsetCalibration()
     {
-        static int il1Avg = 0, il2Avg = 0, samples = 0;
-        const int  offsetSamples = 512;
+        static int32_t il1Avg = 0, il2Avg = 0, samples = 0;
+        const int32_t  offsetSamples = 512;
 
         if (samples < offsetSamples)
         {
@@ -290,10 +290,10 @@ private:
     }
 
 private:
-    static int         initwait;
-    static int         fwBaseGain;
+    static int32_t     initwait;
+    static int32_t     fwBaseGain;
     static s32fp       idref;
-    static int         curki;
+    static int32_t     curki;
     static const s32fp dcCurFac = FP_FROMFLT(
         0.81649658092772603273 * 1.05); // sqrt(2/3)*1.05 (inverter losses)
     static PiController qController;
@@ -303,16 +303,16 @@ private:
 
 // Instances of each member variable
 template <typename CurrentT, typename EncoderT, typename PwmDriverT>
-int FocPwmGeneration<CurrentT, EncoderT, PwmDriverT>::initwait;
+int32_t FocPwmGeneration<CurrentT, EncoderT, PwmDriverT>::initwait;
 
 template <typename CurrentT, typename EncoderT, typename PwmDriverT>
-int FocPwmGeneration<CurrentT, EncoderT, PwmDriverT>::fwBaseGain;
+int32_t FocPwmGeneration<CurrentT, EncoderT, PwmDriverT>::fwBaseGain;
 
 template <typename CurrentT, typename EncoderT, typename PwmDriverT>
 s32fp FocPwmGeneration<CurrentT, EncoderT, PwmDriverT>::idref;
 
 template <typename CurrentT, typename EncoderT, typename PwmDriverT>
-int FocPwmGeneration<CurrentT, EncoderT, PwmDriverT>::curki;
+int32_t FocPwmGeneration<CurrentT, EncoderT, PwmDriverT>::curki;
 
 template <typename CurrentT, typename EncoderT, typename PwmDriverT>
 PiController FocPwmGeneration<CurrentT, EncoderT, PwmDriverT>::qController;
