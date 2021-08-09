@@ -27,7 +27,7 @@
 #define CST_DIGITS FRAC_DIGITS
 #endif
 
-#define FRAC_FAC (1 << CST_DIGITS)
+#define FRAC_FAC (1L << CST_DIGITS)
 
 #define CST_CONVERT(a) ((a) << (CST_DIGITS - FRAC_DIGITS))
 #define CST_ICONVERT(a) ((a) >> (CST_DIGITS - FRAC_DIGITS))
