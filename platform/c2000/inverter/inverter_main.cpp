@@ -46,6 +46,16 @@ void main(void)
     Device_initGPIO();
 
     //
+    // Set up GPIO pinmux for EPWM
+    //
+    GPIO_setPinConfig(GPIO_0_EPWM1A);
+    GPIO_setPinConfig(GPIO_1_EPWM1B);
+    GPIO_setPinConfig(GPIO_2_EPWM2A);
+    GPIO_setPinConfig(GPIO_3_EPWM2B);
+    GPIO_setPinConfig(GPIO_4_EPWM3A);
+    GPIO_setPinConfig(GPIO_5_EPWM3B);
+
+    //
     // Initialize PIE and clear PIE registers. Disables CPU interrupts.
     //
     Interrupt_initModule();
@@ -78,7 +88,11 @@ void main(void)
         Param::GetInt(Param::curki),
         Param::GetInt(Param::fwkp));
 
-    // Put in a bit of Q current to pretend were looking to check the syncofs
+    // Override the default deadtime as the C2000 uses values in nS rather than
+    // a coded STM32 value
+    Param::SetInt(Param::deadtime, 875);
+
+    // Put in a bit of Q current to get the inverter to do something
     Param::Set(Param::manualiq, FP_FROMFLT(0.6));
 
     // Provide some neutral values for the phase currents
