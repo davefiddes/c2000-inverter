@@ -24,6 +24,7 @@
 #include "driverlib.h"
 #include "errormessage.h"
 #include "params.h"
+#include "performancecounter.h"
 
 namespace c2000 {
 
@@ -100,9 +101,10 @@ void PwmDriver::SetPhasePwm(uint32_t phaseA, uint32_t phaseB, uint32_t phaseC)
     EPWM_setCounterCompareValue(EPWM3_BASE, EPWM_COUNTER_COMPARE_A, phaseC);
 }
 
-/** Store of number of PWM ticks we spend running the main PWM interrupt handler
+/** Store of number of SYSCLOCK ticks we spend running the main PWM interrupt
+ * handler
  */
-__attribute__((unused)) static int execTicks;
+static int32_t execTicks;
 
 /**
  * Main PWM timer interrupt. Run the main motor control loop while measuring how
@@ -110,21 +112,13 @@ __attribute__((unused)) static int execTicks;
  */
 __interrupt void pwm_timer_isr(void)
 {
-#if 0
-    int start = timer_get_counter(PWM_TIMER);
-    /* Clear interrupt pending flag */
-    timer_clear_flag(PWM_TIMER, TIM_SR_UIF);
-#endif
+    uint32_t startTime = PerformanceCounter::GetCount();
+
     PwmGeneration::Run();
 
-#if 0
-    int time = timer_get_counter(PWM_TIMER) - start;
-
-    if (TIM_CR1(PWM_TIMER) & TIM_CR1_DIR_DOWN)
-        time = (2 << PwmGeneration::GetPwmDigits()) -
-               timer_get_counter(PWM_TIMER) - start;
-    execTicks = ABS(time);
-#endif
+    // Measure the time - handles timer overflows
+    uint32_t totalTime = startTime - PerformanceCounter::GetCount();
+    execTicks = execTicks + totalTime;
 
     //
     // Clear INT flag for this timer
@@ -335,6 +329,10 @@ uint16_t PwmDriver::TimerSetup(
     //
     SysCtl_enablePeripheral(SYSCTL_PERIPH_CLK_TBCLKSYNC);
 
+    // Ensure we have initialised the performance counter before we start
+    // getting interrupts
+    PerformanceCounter::Init();
+
     //
     // Enable ePWM interrupts
     //
@@ -373,12 +371,12 @@ void PwmDriver::SetChargeCurrent(int16_t dc)
 }
 
 /**
- * Obtain how many PWM ticks we spend running the main control loop
+ * Obtain how many SYSCLOCK cycles we spend running the main control loop
  * \return Number of ticks
  */
-int16_t PwmDriver::GetCpuLoad()
+int32_t PwmDriver::GetCpuLoad()
 {
-    return 100;
+    return execTicks;
 }
 
 /**

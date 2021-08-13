@@ -25,6 +25,8 @@
 #include "driverlib.h"
 #include "errormessage.h"
 #include "focpwmgeneration.h"
+#include "performancecounter.h"
+#include <stdio.h>
 
 // Pull in the whole C2000 namespace as this is platform specific code obviously
 using namespace c2000;
@@ -111,7 +113,13 @@ void main(void)
     //
     // Loop Forever
     //
+    int32_t lastLoad = PwmGeneration::GetCpuLoad();
     while (true)
     {
+        DEVICE_DELAY_US(500000);
+
+        int32_t currentLoad = PwmGeneration::GetCpuLoad();
+        printf("PWM cycles: %ld\n", currentLoad - lastLoad);
+        lastLoad = currentLoad;
     }
 }
