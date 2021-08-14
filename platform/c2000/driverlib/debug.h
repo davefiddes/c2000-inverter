@@ -50,7 +50,7 @@
 // application's responsibility to define the __error__ function.
 //
 //*****************************************************************************
-extern void __error__(char *filename, uint32_t line);
+extern void __error__(const char *filename, uint32_t line);
 
 //*****************************************************************************
 //

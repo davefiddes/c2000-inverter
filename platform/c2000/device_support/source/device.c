@@ -671,7 +671,7 @@ Device_bootCPU2(uint32_t bootMode)
 // Error handling function to be called when an ASSERT is violated
 //
 //*****************************************************************************
-void __error__(char *filename, uint32_t line)
+void __error__(const char *filename, uint32_t line)
 {
     //
     // An ASSERT condition was evaluated as false. You can use the filename and

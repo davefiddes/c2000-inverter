@@ -389,7 +389,7 @@ extern uint16_t Device_bootCPU2(uint32_t ulBootMode);
 //! @return None
 //
 //*****************************************************************************
-extern void __error__(char *filename, uint32_t line);
+extern void __error__(const char *filename, uint32_t line);
 extern void Example_setResultPass(void);
 extern void Example_setResultFail(void);
 extern void Example_done(void);

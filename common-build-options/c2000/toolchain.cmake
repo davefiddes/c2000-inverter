@@ -41,7 +41,7 @@ set(CMAKE_C_FLAGS                   "-v28 --abi=eabi -I${TI_COMPILER_PATH}/inclu
 set(CMAKE_CXX_FLAGS                 "${CMAKE_C_FLAGS}" CACHE INTERNAL "")
 set(CMAKE_ASM_FLAGS                 "${CMAKE_C_FLAGS}" CACHE INTERNAL "")
 
-set(CMAKE_C_FLAGS_DEBUG             "-Ooff" CACHE INTERNAL "")
+set(CMAKE_C_FLAGS_DEBUG             "-Ooff -DDEBUG" CACHE INTERNAL "")
 set(CMAKE_C_FLAGS_RELEASE           "-O4" CACHE INTERNAL "")
 set(CMAKE_CXX_FLAGS_DEBUG           "${CMAKE_C_FLAGS_DEBUG}" CACHE INTERNAL "")
 set(CMAKE_CXX_FLAGS_RELEASE         "${CMAKE_C_FLAGS_RELEASE}" CACHE INTERNAL "")

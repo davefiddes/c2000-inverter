@@ -11,7 +11,8 @@ set(CMAKE_C_STANDARD
 # Set all of our common platform specific compiler options, defines and include
 # paths
 add_library(platform_options INTERFACE)
-target_compile_definitions(platform_options INTERFACE C2000)
+target_compile_definitions(platform_options INTERFACE C2000 CPU1
+                                                      _LAUNCHXL_F28379D)
 target_compile_options(
   platform_options
   INTERFACE -ml
