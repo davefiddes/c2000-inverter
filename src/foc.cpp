@@ -33,7 +33,7 @@
 
 static const s32fp fluxLinkage = FP_FROMFLT(0.09);
 static const s32fp fluxLinkage2 = FP_MUL(fluxLinkage, fluxLinkage);
-static const s32fp lqminusldSquaredBs10 = FP_FROMFLT(0.01722); //additional 10-bit left shift because otherwise it can't be represented
+static const s32fp lqminusldSquaredBs10 = FP_FROMFLT(0.03444736); //additional 10-bit left shift because otherwise it can't be represented
 static const s32fp lqminusld = FP_FROMFLT(0.0058);
 static const s32fp sqrt3 = FP_FROMFLT(1.732050807568877293527446315059);
 static const s32fp sqrt3inv1 = FP_FROMFLT(0.57735026919); //1/sqrt(3)
@@ -46,15 +46,25 @@ static const int32_t maxPulse = FP_FROMINT(2L) - 1000;
 s32fp FOC::id;
 s32fp FOC::iq;
 s32fp FOC::DutyCycles[3];
+s32fp FOC::sin;
+s32fp FOC::cos;
+
+/** @brief Set angle for Park und inverse Park transformation
+ *  @param angle uint16_t rotor angle
+ */
+void FOC::SetAngle(uint16_t angle)
+{
+   sin = SineCore::Sine(angle);
+   cos = SineCore::Cosine(angle);
+}
 
 /** @brief Transform current to rotor system using Clarke and Park transformation
+  * @pre Call SetAngle to specify angle for Park transformation
   * @post flux producing (id) and torque producing (iq) current are written
   *       to FOC::id and FOC::iq
   */
-void FOC::ParkClarke(s32fp il1, s32fp il2, uint16_t angle)
+void FOC::ParkClarke(s32fp il1, s32fp il2)
 {
-   s32fp sin = SineCore::Sine(angle);
-   s32fp cos = SineCore::Cosine(angle);
    //Clarke transformation
    s32fp ia = il1;
    s32fp ib = FP_MUL(sqrt3inv1, il1 + 2 * il2);
@@ -65,18 +75,18 @@ void FOC::ParkClarke(s32fp il1, s32fp il2, uint16_t angle)
 
 /** \brief distribute motor current in magnetic torque and reluctance torque with the least total current
  *
- * \param is int32_t total motor current
+ * \param[in] is int32_t total motor current
  * \param[out] idref int32_t& resulting direct current reference
  * \param[out] iqref int32_t& resulting quadrature current reference
- * \return void
  *
  */
 void FOC::Mtpa(int32_t is, int32_t& idref, int32_t& iqref)
 {
    int32_t isSquared = is * is;
    int32_t sign = is < 0 ? -1 : 1;
-   s32fp term1 = fpsqrt(fluxLinkage2 + ((lqminusldSquaredBs10 * isSquared) >> 10));
-   idref = FP_TOINT(FP_DIV(fluxLinkage - term1, lqminusld));
+   //factor of 8 has been incorporated into the right shift (7 instead of 10)
+   s32fp term1 = fpsqrt(fluxLinkage2 + ((lqminusldSquaredBs10 * isSquared) >> 7));
+   idref = FP_TOINT(FP_DIV(fluxLinkage - term1, 4 * lqminusld));
    iqref = sign * (int32_t)sqrt(isSquared - idref * idref);
 }
 
@@ -99,18 +109,15 @@ int32_t FOC::GetTotalVoltage(int32_t ud, int32_t uq)
 
 /** \brief Calculate duty cycles for generating ud and uq at given angle
  *
+ * @pre Call SetAngle to specify angle for inverse Park transformation
+ *
  * \param ud int32_t direct voltage
  * \param uq int32_t quadrature voltage
- * \param angle uint16_t rotor angle
- * \return void
  *
  */
-void FOC::InvParkClarke(int32_t ud, int32_t uq, uint16_t angle)
+void FOC::InvParkClarke(int32_t ud, int32_t uq)
 {
-   s32fp sin = SineCore::Sine(angle);
-   s32fp cos = SineCore::Cosine(angle);
-
-   // Inverse Park transformation
+   //Inverse Park transformation
    // Note: Manually multiply and shift to do the fixed point maths to minimise
    // precision loss in preference to using FP_MUL()
    s32fp ua = (cos * ud - sin * uq) >> CST_DIGITS;
