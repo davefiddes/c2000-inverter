@@ -64,6 +64,7 @@ public:
             EncoderT::UpdateRotorAngle(dir);
 
             CalcNextAngleSync(dir);
+            FOC::SetAngle(BaseT::angle);
 
             frqFiltered = IIRFILTER(frqFiltered, BaseT::frq, 8);
             int32_t moddedKi = curki + kifrqgain * FP_TOINT(frqFiltered);
@@ -76,8 +77,10 @@ public:
 
             if (BaseT::opmode == RUN && initwait == 0)
             {
-                s32fp fwIdRef = idref <= 0 ? fwController.Run(iq) : 0;
+                s32fp fwIdRef =
+                    idref <= 0 ? fwController.RunProportionalOnly(iq) : 0;
                 dController.SetRef(idref + fwIdRef);
+                Param::SetFlt(Param::ifw, fwIdRef);
             }
             else if (BaseT::opmode == MANUAL)
             {
@@ -88,13 +91,14 @@ public:
 
             int32_t ud = dController.Run(id);
             int32_t qlimit = FOC::GetQLimit(ud);
-            qController.SetMinMaxY(-qlimit, qlimit);
+            qController.SetMinMaxY(dir < 0 ? -qlimit : 0, dir > 0 ? qlimit : 0);
             int32_t uq = qController.Run(iq);
-            FOC::InvParkClarke(ud, uq, BaseT::angle);
+            FOC::InvParkClarke(ud, uq);
 
             s32fp idc = (iq * uq + id * ud) / FOC::GetMaximumModulationIndex();
             idc = FP_MUL(idc, dcCurFac);
-            idcFiltered = IIRFILTER(idcFiltered, idc, 10);
+            idcFiltered =
+                IIRFILTER(idcFiltered, idc, Param::GetInt(Param::idcflt));
 
             Param::SetFlt(Param::fstat, BaseT::frq);
             Param::SetFlt(Param::angle, BaseT::DigitToDegree(BaseT::angle));
@@ -206,7 +210,7 @@ protected:
         qController.SetMinMaxY(-maxVd, maxVd);
         dController.ResetIntegrator();
         dController.SetCallingFrequency(BaseT::pwmfrq);
-        dController.SetMinMaxY(-maxVd, maxVd);
+        dController.SetMinMaxY(-maxVd, maxVd / 2);
         fwController.ResetIntegrator();
         fwController.SetCallingFrequency(BaseT::pwmfrq);
         fwController.SetMinMaxY(
@@ -234,9 +238,9 @@ private:
             CurrentT::Phase2(), BaseT::ilofs[1], Param::Get(Param::il2gain));
 
         if ((Param::GetInt(Param::pinswap) & SWAP_CURRENTS) > 0)
-            FOC::ParkClarke(il2, il1, BaseT::angle);
+            FOC::ParkClarke(il2, il1);
         else
-            FOC::ParkClarke(il1, il2, BaseT::angle);
+            FOC::ParkClarke(il1, il2);
         id = FOC::id;
         iq = FOC::iq;
 
@@ -254,10 +258,12 @@ private:
         {
             uint16_t syncOfs = Param::GetInt(Param::syncofs);
             uint16_t rotorAngle = EncoderT::GetRotorAngle();
+            int      syncadv = (BaseT::frq - FP_FROMINT(20)) * 10;
+            syncadv = MAX(0, syncadv);
 
             // Compensate rotor movement that happened between sampling and
             // processing
-            syncOfs += FP_TOINT(dir * BaseT::frq * 10);
+            syncOfs += FP_TOINT(dir * syncadv);
 
             BaseT::angle = BaseT::polePairRatio * rotorAngle + syncOfs;
             BaseT::frq = BaseT::polePairRatio * EncoderT::GetRotorFrequency();

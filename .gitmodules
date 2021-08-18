@@ -4,3 +4,4 @@
 [submodule "libopeninv"]
 	path = libopeninv
 	url = https://github.com/jsphuebner/libopeninv.git
+	branch = portable-cpp

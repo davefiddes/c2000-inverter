@@ -59,56 +59,63 @@ std::pair<float, float> FloatParkClark(float phase1, float phase2, float theta)
 TEST(TestFocCalc, ParkClarkeTransform)
 {
     // No current, zero angle therefore no Id and Iq
-    FOC::ParkClarke(FP_FROMFLT(0.0), FP_FROMFLT(0.0), 0);
+    FOC::SetAngle(0);
+    FOC::ParkClarke(FP_FROMFLT(0.0), FP_FROMFLT(0.0));
     EXPECT_THAT(FP_TOFLT(FOC::id), FloatNear(0.0, Tolerance));
     EXPECT_THAT(FP_TOFLT(FOC::iq), FloatNear(0.0, Tolerance));
 
     // Phase 1 current only, zero angle
-    FOC::ParkClarke(FP_FROMFLT(1.0), FP_FROMFLT(0.0), 0);
+    FOC::SetAngle(0);
+    FOC::ParkClarke(FP_FROMFLT(1.0), FP_FROMFLT(0.0));
     auto result = FloatParkClark(1.0, 0.0, 0);
     EXPECT_THAT(FP_TOFLT(FOC::id), FloatNear(result.first, Tolerance));
     EXPECT_THAT(FP_TOFLT(FOC::iq), FloatNear(result.second, Tolerance));
 
     // Phase 1 and Phase 2 current, zero angle
-    FOC::ParkClarke(FP_FROMFLT(100.0), FP_FROMFLT(100.0), 0);
+    FOC::SetAngle(0);
+    FOC::ParkClarke(FP_FROMFLT(100.0), FP_FROMFLT(100.0));
     result = FloatParkClark(100.0, 100.0, 0);
     EXPECT_THAT(FP_TOFLT(FOC::id), FloatNear(result.first, Tolerance));
     EXPECT_THAT(FP_TOFLT(FOC::iq), FloatNear(result.second, Tolerance));
 
     // In first quadrant
-    FOC::ParkClarke(FP_FROMFLT(100.0), FP_FROMFLT(100.0), RadToRev(pi / 3));
+    FOC::SetAngle(RadToRev(pi / 3));
+    FOC::ParkClarke(FP_FROMFLT(100.0), FP_FROMFLT(100.0));
     result = FloatParkClark(100.0, 100.0, pi / 3);
     EXPECT_THAT(FP_TOFLT(FOC::id), FloatNear(result.first, Tolerance));
     EXPECT_THAT(FP_TOFLT(FOC::iq), FloatNear(result.second, Tolerance));
 
     // 90 degrees
-    FOC::ParkClarke(FP_FROMFLT(100.0), FP_FROMFLT(100.0), RadToRev(pi / 2));
+    FOC::SetAngle(RadToRev(pi / 2));
+    FOC::ParkClarke(FP_FROMFLT(100.0), FP_FROMFLT(100.0));
     result = FloatParkClark(100.0, 100.0, pi / 2);
     EXPECT_THAT(FP_TOFLT(FOC::id), FloatNear(result.first, Tolerance));
     EXPECT_THAT(FP_TOFLT(FOC::iq), FloatNear(result.second, Tolerance));
 
     // 180 degrees
-    FOC::ParkClarke(FP_FROMFLT(100.0), FP_FROMFLT(100.0), RadToRev(pi));
+    FOC::SetAngle(RadToRev(pi));
+    FOC::ParkClarke(FP_FROMFLT(100.0), FP_FROMFLT(100.0));
     result = FloatParkClark(100.0, 100.0, pi);
     EXPECT_THAT(FP_TOFLT(FOC::id), FloatNear(result.first, Tolerance));
     EXPECT_THAT(FP_TOFLT(FOC::iq), FloatNear(result.second, Tolerance));
 
     // In third quadrant
-    FOC::ParkClarke(
-        FP_FROMFLT(100.0), FP_FROMFLT(100.0), RadToRev(pi + pi / 4));
+    FOC::SetAngle(RadToRev(pi + pi / 4));
+    FOC::ParkClarke(FP_FROMFLT(100.0), FP_FROMFLT(100.0));
     result = FloatParkClark(100.0, 100.0, pi + pi / 4);
     EXPECT_THAT(FP_TOFLT(FOC::id), FloatNear(result.first, Tolerance));
     EXPECT_THAT(FP_TOFLT(FOC::iq), FloatNear(result.second, Tolerance));
 
     // In fourth quadrant
-    FOC::ParkClarke(
-        FP_FROMFLT(100.0), FP_FROMFLT(100.0), RadToRev(2 * pi - pi / 5));
+    FOC::SetAngle(RadToRev(2 * pi - pi / 5));
+    FOC::ParkClarke(FP_FROMFLT(100.0), FP_FROMFLT(100.0));
     result = FloatParkClark(100.0, 100.0, 2 * pi - pi / 5);
     EXPECT_THAT(FP_TOFLT(FOC::id), FloatNear(result.first, Tolerance));
     EXPECT_THAT(FP_TOFLT(FOC::iq), FloatNear(result.second, Tolerance));
 
     // Different phase currents at 90 degrees
-    FOC::ParkClarke(FP_FROMFLT(123.4), FP_FROMFLT(567.8), RadToRev(pi / 2));
+    FOC::SetAngle(RadToRev(pi / 2));
+    FOC::ParkClarke(FP_FROMFLT(123.4), FP_FROMFLT(567.8));
     result = FloatParkClark(123.4, 567.8, pi / 2);
     EXPECT_THAT(FP_TOFLT(FOC::id), FloatNear(result.first, Tolerance));
     EXPECT_THAT(FP_TOFLT(FOC::iq), FloatNear(result.second, Tolerance));
@@ -151,17 +158,20 @@ TEST(TestFocCalc, GetTotalVoltage)
 TEST(TestFocCalc, InvParkClarke)
 {
     // Zero volts should be 50% PWM duty cycle irrespective of the angle
-    FOC::InvParkClarke(0, 0, 0);
+    FOC::SetAngle(0);
+    FOC::InvParkClarke(0, 0);
     EXPECT_EQ(FOC::DutyCycles[0], 32768);
     EXPECT_EQ(FOC::DutyCycles[1], 32768);
     EXPECT_EQ(FOC::DutyCycles[2], 32768);
 
-    FOC::InvParkClarke(0, 0, 32768);
+    FOC::SetAngle(32768);
+    FOC::InvParkClarke(0, 0);
     EXPECT_EQ(FOC::DutyCycles[0], 32768);
     EXPECT_EQ(FOC::DutyCycles[1], 32768);
     EXPECT_EQ(FOC::DutyCycles[2], 32768);
 
-    FOC::InvParkClarke(0, 0, 60000);
+    FOC::SetAngle(60000);
+    FOC::InvParkClarke(0, 0);
     EXPECT_EQ(FOC::DutyCycles[0], 32768);
     EXPECT_EQ(FOC::DutyCycles[1], 32768);
     EXPECT_EQ(FOC::DutyCycles[2], 32768);
@@ -170,30 +180,37 @@ TEST(TestFocCalc, InvParkClarke)
     // till the tests pass - There has to be a better way.
 
     // Ud volts only
-    FOC::InvParkClarke(1000, 0, 0);
+    FOC::SetAngle(0);
+    FOC::InvParkClarke(1000, 0);
     EXPECT_EQ(FOC::DutyCycles[0], 33517);
     EXPECT_EQ(FOC::DutyCycles[1], 32019);
     EXPECT_EQ(FOC::DutyCycles[2], 32019);
 
     // Uq volts only aligned with phase A
-    FOC::InvParkClarke(0, 1000, 0);
+    FOC::SetAngle(0);
+    FOC::InvParkClarke(0, 1000);
     EXPECT_EQ(FOC::DutyCycles[0], 32768);
     EXPECT_EQ(FOC::DutyCycles[1], 33633);
     EXPECT_EQ(FOC::DutyCycles[2], 31903);
 
     // Ud and Uq volts
-    FOC::InvParkClarke(1000, 1000, 0);
+    FOC::SetAngle(0);
+    FOC::InvParkClarke(1000, 1000);
     EXPECT_EQ(FOC::DutyCycles[0], 33950);
     EXPECT_EQ(FOC::DutyCycles[1], 33316);
     EXPECT_EQ(FOC::DutyCycles[2], 31587);
 
     // Uq volts only aligned with phase C
-    FOC::InvParkClarke(0, 1000, RadToRev(2 * pi / 3));
+    FOC::SetAngle(RadToRev(2 * pi / 3));
+    FOC::InvParkClarke(0, 1000);
     EXPECT_EQ(FOC::DutyCycles[0], 31901);
     EXPECT_EQ(FOC::DutyCycles[1], 32770);
     EXPECT_EQ(FOC::DutyCycles[2], 33635);
 }
 
+//! Floating point implementation of Maximum Torque Per Amp calculation from
+//! SPRACF3 Sensorless-FOC With Flux-Weakening and MTPA for IPMSM Motor Drives
+//! https://www.ti.com/lit/pdf/spracf3
 std::pair<float, float> FloatMtpa(float is)
 {
     constexpr float fluxLinkage = 0.09; // Wb
@@ -201,9 +218,10 @@ std::pair<float, float> FloatMtpa(float is)
 
     float isSquared = is * is;
     float sign = is < 0 ? -1 : 1;
-    float term1 = fluxLinkage * fluxLinkage + lqminusld * lqminusld * isSquared;
+    float term1 =
+        fluxLinkage * fluxLinkage + 8 * lqminusld * lqminusld * isSquared;
     term1 = std::sqrt(term1);
-    float idref = (fluxLinkage - term1) / lqminusld;
+    float idref = (fluxLinkage - term1) / (4 * lqminusld);
     float iqref = sign * std::sqrt(isSquared - idref * idref);
 
     return std::make_pair(idref, iqref);

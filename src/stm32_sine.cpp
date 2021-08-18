@@ -23,6 +23,7 @@
 #include <libopencm3/stm32/timer.h>
 #include <libopencm3/stm32/rtc.h>
 #include <libopencm3/stm32/can.h>
+#include <libopencm3/stm32/spi.h>
 #include <libopencm3/stm32/iwdg.h>
 #include "terminal.h"
 #include "sine_core.h"
@@ -38,6 +39,7 @@
 #include "my_math.h"
 #include "stm32scheduler.h"
 #include "pwmgeneration.h"
+#include "temp_meas.h"
 #include "vehiclecontrol.h"
 
 HWREV hwRev; //Hardware variant of board we are running on
@@ -180,6 +182,7 @@ static void Ms10Task(void)
 
    if (newMode != Modes::OFF)
    {
+      opmode = newMode;
       DigIo::dcsw_out.Set();
       DigIo::err_out.Clear();
       DigIo::prec_out.Clear();
@@ -276,9 +279,11 @@ extern void parm_Change(Param::PARAM_NUM paramNum)
          Throttle::idcmax = Param::Get(Param::idcmax);
          Throttle::brkmax = Param::Get(Param::brkmax);
          break;
-      default:
+      case Param::nodeid:
          can->SetNodeId(Param::GetInt(Param::nodeid));
          terminal->SetNodeId(Param::GetInt(Param::nodeid));
+         break;
+      default:
          PwmGeneration::SetCurrentLimitThreshold(Param::Get(Param::ocurlim));
          PwmGeneration::SetPolePairRatio(Param::GetInt(Param::polepairs) / Param::GetInt(Param::respolepairs));
 
@@ -347,7 +352,7 @@ extern "C" void tim4_isr(void)
    scheduler->Run();
 }
 
-//C++ run time requires that when using interfaces
+//C++ run time requires that when using interfaces and not optimizing for size
 extern "C" void __cxa_pure_virtual() { while (1); }
 
 extern "C" int main(void)
@@ -360,7 +365,6 @@ extern "C" int main(void)
    write_bootloader_pininit();
    tim_setup();
    nvic_setup();
-   //Encoder::Reset();
    parm_load();
    ErrorMessage::SetTime(1);
    Param::SetInt(Param::pwmio, pwmio_setup(Param::GetBool(Param::pwmpol)));
@@ -388,6 +392,7 @@ extern "C" int main(void)
 
    UpgradeParameters();
    parm_Change(Param::PARAM_LAST);
+   parm_Change(Param::nodeid);
 
    while(1)
       t.Run();

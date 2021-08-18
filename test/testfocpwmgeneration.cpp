@@ -336,7 +336,7 @@ TEST_F(TestFocPwmGeneration, NormalModeRun)
     EXPECT_CALL(encoder, UpdateRotorAngle(1)).Times(StartupWait);
     EXPECT_CALL(encoder, GetRotorAngle)
         .Times(StartupWait)
-        .WillRepeatedly(Return(10000));
+        .WillRepeatedly(Return(20000));
     EXPECT_CALL(pwmDriver, DisableMasterOutput).Times(StartupWait);
     EXPECT_CALL(pwmDriver, EnableMasterOutput).Times(0);
     EXPECT_CALL(pwmDriver, SetPhasePwm).Times(StartupWait);
@@ -351,7 +351,7 @@ TEST_F(TestFocPwmGeneration, NormalModeRun)
     EXPECT_CALL(encoder, SeenNorthSignal).WillRepeatedly(Return(true));
     EXPECT_CALL(encoder, GetRotorFrequency).WillRepeatedly(Return(10));
     EXPECT_CALL(encoder, UpdateRotorAngle(1));
-    EXPECT_CALL(encoder, GetRotorAngle).WillOnce(Return(10000));
+    EXPECT_CALL(encoder, GetRotorAngle).WillOnce(Return(20000));
     EXPECT_CALL(pwmDriver, DisableMasterOutput).Times(0);
     EXPECT_CALL(pwmDriver, EnableMasterOutput);
     EXPECT_CALL(pwmDriver, SetPhasePwm(Ne(2048), Ne(2048), Ne(2048)));

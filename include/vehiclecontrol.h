@@ -37,19 +37,21 @@ class VehicleControl
       static s32fp ProcessThrottle();
       static void SetContactorsOffState();
 
-   protected:
-
    private:
       static Can* can; //!< Member variable "can"
       static bool lastCruiseSwitchState;
       static bool canIoActive;
+      static bool spiEnabled;
       static int temphsFiltered;
       static int tempmFiltered;
       static int udcFiltered;
+      static uint16_t bmwAdcNextChan;
+      static uint16_t bmwAdcValues[4];
 
       static void GetTemps(s32fp& tmphs, s32fp &tmpm);
       static s32fp GetUserThrottleCommand();
       static void GetCruiseCreepCommand(s32fp& finalSpnt, s32fp throtSpnt);
+      static void BmwAdcAcquire();
 };
 
 #endif // VCU_H

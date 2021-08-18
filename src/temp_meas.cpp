@@ -45,6 +45,9 @@ static const uint16_t Semikron[] = { SEMIKRON };
 /* Temp sensor in MBB600 IGBT module */
 static const uint16_t mbb600[] = { MBB600 };
 
+/* Temp sensor in FS800 IGBT module */
+static const uint16_t fs800[] = { FS800 };
+
 /* Temp sensor KTY83-110 */
 static const uint16_t Kty83[] = { KTY83 };
 
@@ -84,6 +87,9 @@ static const uint16_t Pt1000[] = { PT1000 };
 /* Temp sensor NTC K45 2k2 (with parallel 2k!) */
 static const uint16_t NtcK45[] = { NTCK45 };
 
+/* Temp sensor for outlander front motor (47k) in series with 1.2k with a 2.2k for R2 */
+static const uint16_t OutlanderFront[] = { OUTLANDERFRONT };
+
 static const TEMP_SENSOR sensors[] =
 {
    { -25, 105, 5,  TABLEN(JCurve),    NTC, JCurve     },
@@ -93,6 +99,7 @@ static const TEMP_SENSOR sensors[] =
    { -50, 150, 10, TABLEN(Pt1000),    PTC, Pt1000     },
    { -50, 150, 5,  TABLEN(NtcK45),    NTC, NtcK45     },
    { -10, 100, 10, TABLEN(leafhs),    NTC, leafhs     },
+   { -25, 105, 5,  TABLEN(fs800),     PTC, fs800      },
    { -50, 170, 10, TABLEN(Kty83),     PTC, Kty83      },
    { -40, 300, 10, TABLEN(Kty84),     PTC, Kty84      },
    { -20, 150, 10, TABLEN(leaf),      NTC, leaf       },
@@ -102,6 +109,7 @@ static const TEMP_SENSOR sensors[] =
    { 0,   100, 10, TABLEN(Tesla52k),  PTC, Tesla52k   },
    { 5,   100,  5, TABLEN(TeslaFluid),PTC, TeslaFluid },
    { -20, 190, 5,  TABLEN(Tesla10k),  PTC, Tesla10k   },
+   { -40, 300, 10,  TABLEN(OutlanderFront),  NTC, OutlanderFront   },
 };
 
 s32fp TempMeas::Lookup(int digit, Sensors sensorId)
