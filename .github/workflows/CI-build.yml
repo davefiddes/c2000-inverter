@@ -17,7 +17,7 @@ jobs:
       - name: Install build package dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install gcc-arm-none-eabi ninja-build
+          sudo apt-get install gcc-arm-none-eabi ninja-build lcov
 
       - name: Build STM32 dependencies
         run: |
