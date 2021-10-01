@@ -21,7 +21,7 @@ jobs:
 
       - name: Build STM32 dependencies
         run: |
-          make get-deps - j `nproc`
+          make get-deps -j `nproc`
 
       - name: Run old STM32 Makefile build
         run: |
