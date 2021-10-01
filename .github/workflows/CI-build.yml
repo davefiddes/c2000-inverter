@@ -14,13 +14,14 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install ARM compiler for STM32
+      - name: Install build package dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install gcc-arm-none-eabi
+          sudo apt-get install gcc-arm-none-eabi ninja-build
 
       - name: Build STM32 dependencies
         run: |
+          echo "Number of processors:" `nproc`
           make get-deps -j `nproc`
 
       - name: Run old STM32 Makefile build
