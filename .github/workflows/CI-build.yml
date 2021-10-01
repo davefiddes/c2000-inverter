@@ -1,0 +1,51 @@
+name: CI
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: build-linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+        with:
+          submodules: recursive
+
+      - name: Install ARM compiler for STM32
+        run: |
+          sudo apt-get update
+          sudo apt-get install gcc-arm-none-eabi
+
+      - name: Build STM32 dependencies
+        run: |
+          make get-deps - j `nproc`
+
+      - name: Run old STM32 Makefile build
+        run: |
+          CONTROL=SINE make
+          make clean
+          CONTROL=FOC make
+
+      - name: CMake build on host (x86_64)
+        run: |
+          cd ${{ github.workspace }}
+          mkdir -p build/host
+          cd build/host
+          cmake --preset default ../..
+          cmake --build .
+
+      - name: CMake build for STM32F1
+        run: |
+          cd ${{ github.workspace }}
+          mkdir -p build/stm32f1
+          cd build/stm32f1
+          cmake --preset stm32f1 ../..
+          cmake --build .
+
+      - name: Run unit tests on host
+        run: |
+          cd ${{ github.workspace }}
+          build/host/test/OpenInverterTest
