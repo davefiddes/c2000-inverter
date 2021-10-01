@@ -19,6 +19,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install gcc-arm-none-eabi ninja-build lcov
 
+          # Force gcc-10 to be the default
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 40
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 60
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 40
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 60
+          sudo update-alternatives --config g++
+
       - name: Build STM32 dependencies
         run: |
           echo "Number of processors:" `nproc`
