@@ -28,7 +28,7 @@
             }
         },
         {
-            "name": "C2000",
+            "name": "c2000",
             "displayName": "C2000 platform",
             "description": "Default build for the C2000 platform",
             "generator": "Ninja",

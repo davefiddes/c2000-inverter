@@ -1,31 +1,144 @@
-# stm32-sine
-Main firmware of the Huebner inverter project
-This firmware runs on any revision of the "Huebner" hardware https://github.com/jsphuebner/inverter-hardware as well as any derivatives as the Open Source Tesla controller https://github.com/damienmaguire
+![Build status](https://github.com/davefiddes/stm32-sine/actions/workflows/CI-build.yml/badge.svg)
 
-# Goals
-The main goal of this firmware is well-drivable control of electric 3-phase motors with as little software complexity as possible. We do not rely on virtual control methods such as FOC (field oriented control) or DTC (direct torque control). This makes tuning more intuitive, as only real physical quantities are parametrized.
-The same principle is applied to the hardware design, keeping component count low and therefor minimize cost and failure modes.
-To fine tune the driving experience and adapt to different flavours of power stages, over 60 parameters can be customized.
+# C2000 openinverter
 
-# Motor Control Concept
-The idea is that the dynamics of any 3-phase asynchronous motor are controlled by the amplitude of the sythesized sine wave and its frequency offset to the rotor speed (slip). 
-For 3-phase synchronous motors a similar control method did not prove practical. Therefor a FOC version of the software has been created. It shares 95% of the code.
+A port of the Huebner inverter project to the [TI C2000](https://www.ti.com/microcontrollers-mcus-processors/microcontrollers/c2000-real-time-control-mcus/overview.html) family of micro-controllers. Specifically this targets the MCU found in the Tesla Model 3/Y inverter allowing. Eventually this will allow a completely Open Source solution to running Tesla Model 3 / Y drive units in non-Tesla vehicles. For other Tesla drive units, inverters from other manufacturers and DIY inverters have a look at the [openinverter project](https://openinverter.org).
 
-# Inverter charging
-A unique feature of this software is to re-purpose the drivetrain hardware as a programmable battery charger. One of the motor phase windings is being used as a high current capable inductor and one of the phase switches as a buck or boost converter. This has practically proven to replace a separate charging unit and further reduce complexity of electric vehicles.
+## Goals
 
-# Further reading
-A comprehensive guide to the Huebner inverter system can be found here: https://openinverter.org/docs
+The main goal of this firmware is to create a usable and safe control system for Tesla Model 3 / Y drive units. A secondary goal is to create a more portable implementation of the openinverter algorithms that can be tested and/or simulated outside of embedded hardware platforms.
 
-# Compiling
-You will need the arm-none-eabi toolchain: https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
-On Ubuntu type
+## Non-Goals
 
-`sudo apt-get install git gcc-arm-none-eabi`
+This firmware does not aim to replace existing openinverter firmware for STM32 platforms.
 
-The only external depedency is libopencm3 which I forked. You can download and build this dependency by typing
+The firmware build process does target the STM32F1 processor used in existing openinverter designs. This is to allow validation of changes and refactoring. Using the STM32 builds on a real motor is at the users own risk!
 
+## Hardware Platforms
+
+The current hardware targets are:
+
+* Tesla Model 3 / Y rear drive units 1120980-00-G, 1120990-00-G - using a [JTAG cable](docs/Tesla-M3-JTAG-cable.md)
+* Texas Instruments LAUNCHXL-F28379D development board
+* All existing STM32F103 based openinverter boards (for verification only)
+* x86_64 Linux (unit tests, code coverage and utilities)
+
+## Status
+
+* [x] Port core libopeninv code to work on x86_64 and C2000 with unit tests
+* [x] Hardware independent, statically virtualised Field Oriented Control / Sine PWM generation
+* [x] Port and update existing unit tests and extend to verify FOC PWM generation
+* [x] Fix integer overflows affecting C2000 in PWM generation, SineCore and libopeninv
+* [ ] Support operation on Tesla M3 rear drive unit hardware
+* [ ] Tesla M3 gate driver integration
+* [ ] Tesla M3 safety PSU/PMIC integration
+* [ ] Functional PWM generation on Tesla M3 hardware
+* [ ] Cross-platform resolver to digital conversion and Tesla M3 integration
+* [ ] Analogue sampling of phase currents for FOC
+* [ ] Analogue capture of other Tesla M3 signals
+* [ ] Tesla M3 inverter temperature monitoring
+* [ ] Over-current and over/under-voltage detection
+* [ ] Basic vehicle and throttle integration
+* [ ] openinverter compatible CAN support
+* [ ] CAN control of openinverter serial parameters and commands
+* [ ] CAN firmware upgrade
+* [ ] Storing system parameters in Flash
+* [ ] High Voltage InterLock support
+
+## Compiling
+
+The build process currently assumes you are running Linux. It may be possible to support Windows and MacOS but not at this time.
+
+### Install Build Tools
+
+You will need to install a Texas Instruments C2000 compiler. This may be the standalone [C2000-CGT](https://www.ti.com/tool/C2000-CGT) or the [Code Composer Studio IDE](https://www.ti.com/tool/CCSTUDIO). The code assumes version 21.6.0.LTS of the compiler is installed and **on the system $PATH**.
+
+The project has a number of build dependencies to install these:
+On Fedora run
+
+```
+    sudo dnf install git arm-none-eabi-gcc-cs-c++ cmake ninja-build lcov
+```
+
+On Ubuntu run
+
+```
+    sudo apt-get install git gcc-arm-none-eabi cmake ninja-build lcov
+```
+
+### Build Process
+
+The build process uses CMake 3.20 or later and assumes the host compiler is GCC 10.x or later.
+
+Before building any platform the git submodules need to be downloaded and openinverter libopencm3 build for STM32 compiled. To do this:
 `make get-deps`
+
+To build for Linux:
+
+```
+    mkdir -p build/host
+    cd build/host
+    cmake --preset default ../..
+    cmake --build .
+```
+
+To build for C2000:
+
+```
+    mkdir -p build/c2000
+    cd build/c2000
+    cmake --preset c2000 ../..
+    cmake --build .
+```
+
+To build for STM32F1:
+
+```
+    make get-deps # To build libopencm3 dependency
+    mkdir -p build/stm32f1
+    cd build/stm32f1
+    cmake --preset stm32f1 ../..
+    cmake --build .
+```
+
+## Visual Studio Code Integration
+
+The build process automatically integrates with Visual Studio Code. It is possible to pick the CMake presets above from the UI provided the CMake Visual Studio Code extension is installed. A `launch.json` has been provided with targets for Linux and STM32 executables. A `tasks.json` has been provided to build the STM32 build using the legacy Makefile.
+
+## Code Composer Studio Integration
+
+For now the firmware for the C2000 platform is configured to run out of RAM only. To use this the TI Code Composer Studio IDE is required to load the firmware onto the target device and run it in the supplied debugger. To do this a new project needs to be set up within Code Composer Studio.
+
+At a Linux terminal:
+```
+    cd ~/workspace_v10
+    mkdir c2000-sine
+    cd c2000-sine
+    cmake -G "Eclipse CDT4 - Ninja" -DPLATFORM=c2000 -DCMAKE_BUILD_TYPE=Release <my_git_clone_location>
+```
+
+Open Code Composer Studio and verify that there is a new project in the workspace called `c2000-sine`. You should be able to build this by right-click the project and selecting `Build Project`.
+
+To debug the inverter a new configuration must be created. To do this:
+
+* Select `Run | Debug Configurations...` menu
+* Press the `New Launch Configuration` toolbar
+* Change the `Name` field to `c2000-sine inverter`
+* Check the `Use default target configuration`
+* Select the `Program` tab
+* For the `Device` field pick `Texas Instruments XDS100v2 USB Debug Probe_0/C28xx_CPU1`
+* For the `Target Configuration` field press `Workspace...` and pick `c2000-sine`
+* For the `Program` field enter `${workspace_loc:/c2000-sine/platform/c2000/inverter/inverter}`
+* Select the `Target` tab
+* Select the `Flash Settings` section
+* Ensure the `Download Settings` option is set to `Load RAM only`.  **Failure to do this will wipe any Flash memory on the device rendering it inoperable**
+* Press `Apply` and `Debug` to start the debug session
+
+This process needs to be repeated for each program to be debugged changing the Program path for each new configuration.
+
+## Legacy Build Process
+
+For now the legacy `Makefile` build process used by openinverter is retained to enable easier merges.
 
 Now you can compile stm32-sine by typing
 
@@ -37,4 +150,41 @@ or
 
 to build the FOC version for synchronous motors.
 
-And upload it to your board using a JTAG/SWD adapter, the updater.py script or the esp8266 web interface
+And upload it to your board using a JTAG/SWD adapter, the [updater.py](https://github.com/jsphuebner/tumanako-inverter-fw-bootloader/blob/master/updater.py) script or the esp8266 web interface.
+
+# License
+
+This software is licensed with the GPL v3 as detailed in [LICENSE](LICENSE).
+
+Additionally some code has this additional disclaimer:
+
+```
+Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+  Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
+
+  Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the
+  distribution.
+
+  Neither the name of Texas Instruments Incorporated nor the names of
+  its contributors may be used to endorse or promote products derived
+  from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
