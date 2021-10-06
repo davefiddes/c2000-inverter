@@ -2,7 +2,7 @@
 
 # C2000 openinverter
 
-A port of the Huebner inverter project to the [TI C2000](https://www.ti.com/microcontrollers-mcus-processors/microcontrollers/c2000-real-time-control-mcus/overview.html) family of micro-controllers. Specifically this targets the MCU found in the Tesla Model 3/Y inverter allowing. Eventually this will allow a completely Open Source solution to running Tesla Model 3 / Y drive units in non-Tesla vehicles. For other Tesla drive units, inverters from other manufacturers and DIY inverters have a look at the [openinverter project](https://openinverter.org).
+A port of the Huebner inverter project to the [TI C2000](https://www.ti.com/microcontrollers-mcus-processors/microcontrollers/c2000-real-time-control-mcus/overview.html) family of micro-controllers. Specifically this targets the MCU found in the Tesla Model 3 / Y inverter allowing. Eventually this will allow a completely Open Source solution to running Tesla Model 3 / Y drive units in non-Tesla vehicles. For other Tesla drive units, inverters from other manufacturers and DIY inverters have a look at the [openinverter project](https://openinverter.org).
 
 ## Goals
 
@@ -111,13 +111,12 @@ For now the firmware for the C2000 platform is configured to run out of RAM only
 
 At a Linux terminal:
 ```
-    cd ~/workspace_v10
-    mkdir c2000-sine
-    cd c2000-sine
+    mkdir ~/my-c2000-build-project
+    cd ~/my-c2000-build-project
     cmake -G "Eclipse CDT4 - Ninja" -DPLATFORM=c2000 -DCMAKE_BUILD_TYPE=Release <my_git_clone_location>
 ```
 
-Open Code Composer Studio and verify that there is a new project in the workspace called `c2000-sine`. You should be able to build this by right-click the project and selecting `Build Project`.
+Open Code Composer Studio and select `File | Open Projects From Filesystem...` and enter `~/my-c2000-build-project` as the source path. Once the project import is complete you should have a project called `OpenInverter-Release@my-c2000-build-project` in your workspace. You should be able to build this by right-click the project and selecting `Build Project`.
 
 To debug the inverter a new configuration must be created. To do this:
 
@@ -152,11 +151,11 @@ to build the FOC version for synchronous motors.
 
 And upload it to your board using a JTAG/SWD adapter, the [updater.py](https://github.com/jsphuebner/tumanako-inverter-fw-bootloader/blob/master/updater.py) script or the esp8266 web interface.
 
-# License
+## License
 
 This software is licensed with the GPL v3 as detailed in [LICENSE](LICENSE).
 
-Additionally some code has this additional disclaimer:
+Additionally some C2000 specific code in `platform/c2000/driverlib` and `platform/c2000/device_support` has this additional license:
 
 ```
 Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
