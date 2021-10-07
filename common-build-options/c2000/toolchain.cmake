@@ -21,6 +21,13 @@ find_program(TI_OBJDUMP         NAMES   hex2000${CMAKE_EXECUTABLE_SUFFIX})
 find_program(TI_SIZE            NAMES   size2000${CMAKE_EXECUTABLE_SUFFIX})
 find_program(TI_LD              NAMES   cl2000${CMAKE_EXECUTABLE_SUFFIX})
 
+if(NOT TI_CC)
+  message(
+    FATAL_ERROR
+      "TI compiler executable 'cl2000' not found. Please ensure this is installed and on the system path"
+  )
+endif()
+
 # set executables settings
 set(CMAKE_C_COMPILER    ${TI_CC})
 set(CMAKE_CXX_COMPILER  ${TI_CXX})
