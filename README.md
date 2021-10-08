@@ -1,6 +1,6 @@
-![Build status](https://github.com/davefiddes/stm32-sine/actions/workflows/CI-build.yml/badge.svg)
-
 # C2000 openinverter
+
+[![Build status](https://github.com/davefiddes/stm32-sine/actions/workflows/CI-build.yml/badge.svg)](https://github.com/davefiddes/stm32-sine/actions/workflows/CI-build.yml)
 
 A port of the Huebner inverter project to the [TI C2000](https://www.ti.com/microcontrollers-mcus-processors/microcontrollers/c2000-real-time-control-mcus/overview.html) family of micro-controllers. Specifically this targets the MCU found in the Tesla Model 3 / Y inverter allowing. Eventually this will allow a completely Open Source solution to running Tesla Model 3 / Y drive units in non-Tesla vehicles. For other Tesla drive units, inverters from other manufacturers and DIY inverters have a look at the [openinverter project](https://openinverter.org).
 
