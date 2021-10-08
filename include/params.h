@@ -62,6 +62,7 @@ namespace Param
 
    s32fp    Get(PARAM_NUM ParamNum);
    int32_t  GetInt(PARAM_NUM ParamNum);
+   float    GetFloat(PARAM_NUM ParamNum);
    s32fp    GetScl(PARAM_NUM ParamNum);
    bool     GetBool(PARAM_NUM ParamNum);
 
@@ -73,7 +74,8 @@ namespace Param
 
    int  Set(PARAM_NUM ParamNum, s32fp ParamVal);
    void SetInt(PARAM_NUM ParamNum, int32_t ParamVal);
-   void SetFlt(PARAM_NUM ParamNum, s32fp ParamVal);
+   void SetFixed(PARAM_NUM ParamNum, s32fp ParamVal);
+   void SetFloat(PARAM_NUM ParamNum, float ParamVal);
 
    template <class T>
    void SetEnum(PARAM_NUM ParamNum, T ParamVal)
