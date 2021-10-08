@@ -32,30 +32,30 @@ TEST(TestMotorVoltage, TestNoBoost)
 {
     MotorVoltage::SetBoost(0);
     MotorVoltage::SetMaxAmp(10000);
-    MotorVoltage::SetWeakeningFrq(1000);
+    MotorVoltage::SetWeakeningFrq(1000.0);
 
     // Test above minfrq of 0.2
-    EXPECT_THAT((s32fp)MotorVoltage::GetAmp(FP_FROMFLT(1.0)), FPNear(10, 0.1));
+    EXPECT_EQ(MotorVoltage::GetAmp(FP_FROMFLT(1.0)), 10);
 }
 
 TEST(TestMotorVoltage, TestBoost1)
 {
     MotorVoltage::SetBoost(10);
     MotorVoltage::SetMaxAmp(10000);
-    MotorVoltage::SetWeakeningFrq(1000);
+    MotorVoltage::SetWeakeningFrq(1000.0);
 
     // Test below old minfrq parameter
     EXPECT_EQ(MotorVoltage::GetAmp(0), 0);
 
     // Test above minfrq of 0.2
-    EXPECT_THAT((s32fp)MotorVoltage::GetAmp(FP_FROMFLT(1.0)), FPNear(10.3, 0.1));
+    EXPECT_EQ(MotorVoltage::GetAmp(FP_FROMFLT(1.0)), 19);
 }
 
 TEST(TestMotorVoltage, TestFU1)
 {
     MotorVoltage::SetBoost(10);
     MotorVoltage::SetMaxAmp(10000);
-    MotorVoltage::SetWeakeningFrq(FP_FROMFLT(15));
+    MotorVoltage::SetWeakeningFrq(15.0);
 
     EXPECT_THAT(
         MotorVoltage::GetAmp(FP_FROMFLT(0.3)),
@@ -66,7 +66,7 @@ TEST(TestMotorVoltage, TestFU2)
 {
     MotorVoltage::SetBoost(1700);
     MotorVoltage::SetMaxAmp(10000);
-    MotorVoltage::SetWeakeningFrq(FP_FROMFLT(1000));
+    MotorVoltage::SetWeakeningFrq(1000.0);
 
     float fac = (10000 - 1700) / 1000.0;
 
@@ -84,7 +84,7 @@ TEST(TestMotorVoltage, TestFUPerc)
 {
     MotorVoltage::SetBoost(230);
     MotorVoltage::SetMaxAmp(10000);
-    MotorVoltage::SetWeakeningFrq(FP_FROMFLT(1000));
+    MotorVoltage::SetWeakeningFrq(1000.0);
 
     EXPECT_THAT(
         MotorVoltage::GetAmpPerc(FP_FROMFLT(5), FP_FROMFLT(50)),

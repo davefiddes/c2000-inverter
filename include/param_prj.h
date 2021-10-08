@@ -17,14 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define VER 5.06.R
+#define VER 5.12.R
 
 /* Entries must be ordered as follows:
    1. Saveable parameters (id != 0)
    2. Temporary parameters (id = 0)
    3. Display values
  */
-//Next param id (increase when adding new parameter!): 133
+//Next param id (increase when adding new parameter!): 138
 //Next value Id: 2049
 /*              category     name         unit       min     max     default id */
 
@@ -37,11 +37,12 @@
     PARAM_ENTRY(CAT_MOTOR,   numimp,      "ppr",     8,      8192L,   60,     15  ) \
     PARAM_ENTRY(CAT_MOTOR,   dirchrpm,    "rpm",     0,      20000L, 100,    87  ) \
     PARAM_ENTRY(CAT_MOTOR,   dirmode,     DIRMODES,  0,      4,      1,      95  ) \
-    PARAM_ENTRY(CAT_MOTOR,   snsm,        SNS_M,     12,     21,     12,     46  )
+    PARAM_ENTRY(CAT_MOTOR,   snsm,        SNS_M,     12,     22,     12,     46  )
 
 #define MOTOR_PARAMETERS_SINE \
     PARAM_ENTRY(CAT_MOTOR,   boost,       "dig",     0,      37813L, 1700L,  1   ) \
     PARAM_ENTRY(CAT_MOTOR,   fweak,       "Hz",      0,      1000,   90,     2   ) \
+    PARAM_ENTRY(CAT_MOTOR,   fweakstrt,   "Hz",      0,      1000,   400,    134 ) \
     PARAM_ENTRY(CAT_MOTOR,   fconst,      "Hz",      0,      1000,   180,    99  ) \
     PARAM_ENTRY(CAT_MOTOR,   udcnom,      "V",       0,      1000,   0,      78  ) \
     PARAM_ENTRY(CAT_MOTOR,   fslipmin,    "Hz",      0.3,    10,     1,      37  ) \
@@ -50,10 +51,12 @@
 
 #define MOTOR_PARAMETERS_FOC \
     PARAM_ENTRY(CAT_MOTOR,   curkp,       "",        0,      20000L,  32,     107 ) \
-    PARAM_ENTRY(CAT_MOTOR,   curki,       "",        0,      100000L, 20000L,  108 ) \
+    PARAM_ENTRY(CAT_MOTOR,   curki,       "",        0,      100000L, 20000L, 108 ) \
     PARAM_ENTRY(CAT_MOTOR,   curkifrqgain,"dig/Hz",  0,      1000,    50,     120 ) \
     PARAM_ENTRY(CAT_MOTOR,   fwkp,        "",        -10000L, 0,      -100,   118 ) \
-    PARAM_ENTRY(CAT_MOTOR,   syncofs,     "dig",     0,      65535L,  0,      70  )
+    PARAM_ENTRY(CAT_MOTOR,   ffwstart,    "Hz",      0,      1000,    200,    136 ) \
+    PARAM_ENTRY(CAT_MOTOR,   syncofs,     "dig",     0,      65535L,  0,      70  ) \
+    PARAM_ENTRY(CAT_MOTOR,   syncadv,     "dig/Hz",  0,      65535,   10,     133 )
 
 #define INVERTER_PARAMETERS_COMMON \
     PARAM_ENTRY(CAT_INVERTER,pwmfrq,      PWMFRQS,   0,      2,      1,      13  ) \
@@ -133,6 +136,7 @@
     PARAM_ENTRY(CAT_CONTACT, udcsw,       "V",       0,      1000,   330,    20  ) \
     PARAM_ENTRY(CAT_CONTACT, udcswbuck,   "V",       0,      1000,   540,    80  ) \
     PARAM_ENTRY(CAT_CONTACT, tripmode,    TRIPMODES, 0,      3,      0,      86  ) \
+    PARAM_ENTRY(CAT_CONTACT, bootprec,    ONOFF,     0,      1,      0,      135 ) \
     PARAM_ENTRY(CAT_PWM,     pwmfunc,     PWMFUNCS,  0,      3,      0,      58  ) \
     PARAM_ENTRY(CAT_PWM,     pwmgain,     "",        -100000L,100000L, 100,    40  ) \
     PARAM_ENTRY(CAT_PWM,     pwmofs,      "dig",     -65535L, 65535L,0,      41  ) \
@@ -193,7 +197,6 @@
     VALUE_ENTRY(ifw,     "A",     2048 ) \
     VALUE_ENTRY(ud,      "dig",   2046 ) \
     VALUE_ENTRY(uq,      "dig",   2047 ) \
-    VALUE_ENTRY(heatcur, "A",     2043 ) \
 
 #if CONTROL == CTRL_SINE
 #define PARAM_LIST \
@@ -241,7 +244,7 @@
 #define DIRS         "-1=Reverse, 0=Neutral, 1=Forward"
 #define TRIPMODES    "0=AllOff, 1=DcSwOn, 2=PrechargeOn, 3=AutoResume"
 #define SNS_HS       "0=JCurve, 1=Semikron, 2=MBB600, 3=KTY81, 4=PT1000, 5=NTCK45_2k2, 6=Leaf, 7=BMW-i3"
-#define SNS_M        "12=KTY83-110, 13=KTY84-130, 14=Leaf, 15=KTY81-110, 16=Toyota, 21=OutlanderFront"
+#define SNS_M        "12=KTY83-110, 13=KTY84-130, 14=Leaf, 15=KTY81-110, 16=Toyota, 21=OutlanderFront, 22=EpcosB57861-S"
 #define PWMFUNCS     "0=tmpm, 1=tmphs, 2=speed, 3=speedfrq"
 #define BTNSWITCH    "0=Button, 1=Switch, 2=CAN"
 #define DIRMODES     "0=Button, 1=Switch, 2=ButtonReversed, 3=SwitchReversed, 4=DefaultForward"

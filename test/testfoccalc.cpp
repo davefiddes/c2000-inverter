@@ -211,6 +211,7 @@ TEST(TestFocCalc, InvParkClarke)
 //! Floating point implementation of Maximum Torque Per Amp calculation from
 //! SPRACF3 Sensorless-FOC With Flux-Weakening and MTPA for IPMSM Motor Drives
 //! https://www.ti.com/lit/pdf/spracf3
+//! Adjusted as the by-the-book-version causes oscillation
 std::pair<float, float> FloatMtpa(float is)
 {
     constexpr float fluxLinkage = 0.09; // Wb
@@ -218,10 +219,9 @@ std::pair<float, float> FloatMtpa(float is)
 
     float isSquared = is * is;
     float sign = is < 0 ? -1 : 1;
-    float term1 =
-        fluxLinkage * fluxLinkage + 8 * lqminusld * lqminusld * isSquared;
+    float term1 = fluxLinkage * fluxLinkage + lqminusld * lqminusld * isSquared;
     term1 = std::sqrt(term1);
-    float idref = (fluxLinkage - term1) / (4 * lqminusld);
+    float idref = (fluxLinkage - term1) / lqminusld;
     float iqref = sign * std::sqrt(isSquared - idref * idref);
 
     return std::make_pair(idref, iqref);

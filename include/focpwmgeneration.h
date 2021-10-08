@@ -58,6 +58,7 @@ public:
         {
             static s32fp frqFiltered = 0, idcFiltered = 0;
             int32_t      dir = Param::GetInt(Param::dir);
+            int          moddedfwkp;
             int32_t      kifrqgain = Param::GetInt(Param::curkifrqgain);
             s32fp        id, iq;
 
@@ -69,18 +70,33 @@ public:
             frqFiltered = IIRFILTER(frqFiltered, BaseT::frq, 8);
             int32_t moddedKi = curki + kifrqgain * FP_TOINT(frqFiltered);
 
+            if (BaseT::frq < Param::Get(Param::ffwstart))
+            {
+                moddedfwkp = 0;
+            }
+            else if (BaseT::frq > Param::Get(Param::fmax))
+            {
+                moddedfwkp = fwBaseGain;
+            }
+            else
+            {
+                moddedfwkp = fwBaseGain * (FP_TOINT(BaseT::frq) -
+                                           Param::GetInt(Param::ffwstart));
+                moddedfwkp /=
+                    Param::GetInt(Param::fmax) - Param::GetInt(Param::ffwstart);
+            }
+
             qController.SetIntegralGain(moddedKi);
             dController.SetIntegralGain(moddedKi);
-            fwController.SetProportionalGain(fwBaseGain * dir);
+            fwController.SetProportionalGain(moddedfwkp * dir);
 
             ProcessCurrents(id, iq);
 
             if (BaseT::opmode == RUN && initwait == 0)
             {
-                s32fp fwIdRef =
-                    idref <= 0 ? fwController.RunProportionalOnly(iq) : 0;
+                s32fp fwIdRef = fwController.RunProportionalOnly(iq);
                 dController.SetRef(idref + fwIdRef);
-                Param::SetFlt(Param::ifw, fwIdRef);
+                Param::SetFixed(Param::ifw, fwIdRef);
             }
             else if (BaseT::opmode == MANUAL)
             {
@@ -100,15 +116,15 @@ public:
             idcFiltered =
                 IIRFILTER(idcFiltered, idc, Param::GetInt(Param::idcflt));
 
-            Param::SetFlt(Param::fstat, BaseT::frq);
-            Param::SetFlt(Param::angle, BaseT::DigitToDegree(BaseT::angle));
-            Param::SetFlt(Param::idc, idcFiltered);
+            Param::SetFixed(Param::fstat, BaseT::frq);
+            Param::SetFixed(Param::angle, BaseT::DigitToDegree(BaseT::angle));
+            Param::SetFixed(Param::idc, idcFiltered);
             Param::SetInt(Param::uq, uq);
             Param::SetInt(Param::ud, ud);
 
-            /* Shut down PWM on stopped motor, neutral gear or init phase */
+            /* Shut down PWM on stopped motor or init phase */
             if ((0 == BaseT::frq && 0 == idref && 0 == qController.GetRef()) ||
-                0 == dir || initwait > 0)
+                initwait > 0)
             {
                 PwmDriverT::DisableMasterOutput();
                 dController.ResetIntegrator();
@@ -138,19 +154,15 @@ public:
         }
     }
 
-    static void SetTorquePercent(s32fp torquePercent)
+    static void SetTorquePercent(float torquePercent)
     {
-        static int32_t heatCurRamped = 0;
-        s32fp          brkrampstr = Param::Get(Param::brkrampstr);
-        int32_t        direction = Param::GetInt(Param::dir);
-        int32_t        heatCur = Param::GetInt(Param::heatcur);
+        float brkrampstr = Param::GetFloat(Param::brkrampstr);
+        float rotorfreq = (float)BaseT::frq / FRAC_FAC;
+        int   direction = Param::GetInt(Param::dir);
 
-        heatCur = MIN(400, heatCur);
-
-        if (BaseT::frq < brkrampstr && torquePercent < 0)
+        if (rotorfreq < brkrampstr && torquePercent < 0)
         {
-            torquePercent =
-                FP_MUL(FP_DIV(BaseT::frq, brkrampstr), torquePercent);
+            torquePercent = (rotorfreq / brkrampstr) * torquePercent;
         }
 
         if (torquePercent < 0)
@@ -158,35 +170,11 @@ public:
             direction = EncoderT::GetRotorDirection();
         }
 
-        int32_t is = FP_TOINT(
-            FP_MUL(Param::Get(Param::throtcur), direction * torquePercent));
+        int32_t is =
+            Param::GetFloat(Param::throtcur) * direction * torquePercent;
         int32_t id, iq;
 
-        if (heatCur > 0 && torquePercent < FP_FROMINT(30))
-        {
-            int32_t speed = Param::GetInt(Param::speed);
-
-            if (speed == 0 && torquePercent <= 0)
-            {
-                iq = 0;
-                heatCurRamped = RAMPUP(heatCurRamped, heatCur, 10);
-                id = heatCurRamped;
-            }
-            /*else if (torquePercent > 0)
-            {
-               id = FP_TOINT((-heatCur * torquePercent) / 30);
-            }*/
-            else
-            {
-                FOC::Mtpa(is, id, iq);
-                heatCurRamped = 0;
-            }
-        }
-        else
-        {
-            FOC::Mtpa(is, id, iq);
-            heatCurRamped = 0;
-        }
+        FOC::Mtpa(is, id, iq);
 
         qController.SetRef(FP_FROMINT(iq));
         fwController.SetRef(FP_FROMINT(iq));
@@ -244,10 +232,10 @@ private:
         id = FOC::id;
         iq = FOC::iq;
 
-        Param::SetFlt(Param::id, FOC::id);
-        Param::SetFlt(Param::iq, FOC::iq);
-        Param::SetFlt(Param::il1, il1);
-        Param::SetFlt(Param::il2, il2);
+        Param::SetFixed(Param::id, FOC::id);
+        Param::SetFixed(Param::iq, FOC::iq);
+        Param::SetFixed(Param::il1, il1);
+        Param::SetFixed(Param::il2, il2);
 
         return 0;
     }
@@ -258,7 +246,8 @@ private:
         {
             uint16_t syncOfs = Param::GetInt(Param::syncofs);
             uint16_t rotorAngle = EncoderT::GetRotorAngle();
-            int      syncadv = (BaseT::frq - FP_FROMINT(20)) * 10;
+            int      syncadv =
+                (BaseT::frq - FP_FROMINT(20)) * Param::GetInt(Param::syncadv);
             syncadv = MAX(0, syncadv);
 
             // Compensate rotor movement that happened between sampling and

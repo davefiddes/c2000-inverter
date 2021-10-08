@@ -62,8 +62,8 @@ public:
 
             SineCore::SetAmp(amp);
             Param::SetInt(Param::amp, amp);
-            Param::SetFlt(Param::fstat, BaseT::frq);
-            Param::SetFlt(Param::angle, BaseT::DigitToDegree(BaseT::angle));
+            Param::SetFixed(Param::fstat, BaseT::frq);
+            Param::SetFixed(Param::angle, BaseT::DigitToDegree(BaseT::angle));
             SineCore::Calc(BaseT::angle);
 
             /* Shut down PWM on zero voltage request */
@@ -92,70 +92,72 @@ public:
         }
     }
 
-    static void SetTorquePercent(s32fp torque)
+    static void SetTorquePercent(float torque)
     {
-        s32fp fslipmin = Param::Get(Param::fslipmin);
-        s32fp ampmin = Param::Get(Param::ampmin);
-        s32fp slipstart = Param::Get(Param::slipstart);
-        s32fp ampnomLocal;
-        s32fp fslipspnt = 0;
+        const int   filterConst = 4;
+        const float roundingError =
+            ((float)((1 << filterConst) - 1)) / FRAC_FAC;
+        float fslipmin = Param::GetFloat(Param::fslipmin);
+        float ampmin = Param::GetFloat(Param::ampmin);
+        float slipstart = Param::GetFloat(Param::slipstart);
+        float ampnomLocal;
+        float fslipspnt = 0;
 
         if (torque >= 0)
         {
             /* In async mode first X% throttle commands amplitude, X-100% raises
              * slip */
-            ampnomLocal =
-                ampmin + (100 - FP_TOINT(ampmin)) * FP_DIV(torque, slipstart);
+            ampnomLocal = ampmin + (100.0f - ampmin) * torque / slipstart;
 
             if (torque >= slipstart)
             {
-                s32fp fstat = Param::Get(Param::fstat);
-                s32fp fweak = Param::Get(Param::fweakcalc);
-                s32fp fslipmax = Param::Get(Param::fslipmax);
+                float fstat = Param::GetFloat(Param::fstat);
+                float fweak = Param::GetFloat(Param::fweakcalc);
+                float fslipmax = Param::GetFloat(Param::fslipmax);
 
                 if (fstat > fweak)
                 {
-                    s32fp fconst = Param::Get(Param::fconst);
-                    s32fp fslipconstmax = Param::Get(Param::fslipconstmax);
+                    float fconst = Param::GetFloat(Param::fconst);
+                    float fslipconstmax = Param::GetFloat(Param::fslipconstmax);
                     // Basically, for every Hz above fweak we get a fraction of
                     // the difference between fslipconstmax and fslipmax
                     // of additional slip
-                    fslipmax += FP_MUL(
-                        FP_DIV(fstat - fweak, fconst - fweak),
-                        fslipconstmax - fslipmax);
+                    fslipmax += (fstat - fweak) / (fconst - fweak) *
+                                (fslipconstmax - fslipmax);
                     fslipmax = MIN(
                         fslipmax, fslipconstmax); // never exceed fslipconstmax!
                 }
 
-                s32fp fslipdiff = fslipmax - fslipmin;
+                float fslipdiff = fslipmax - fslipmin;
                 fslipspnt =
-                    fslipmin + (FP_MUL(fslipdiff, (torque - slipstart)) /
-                                (100 - FP_TOINT(slipstart)));
+                    roundingError + fslipmin +
+                    (fslipdiff * (torque - slipstart)) / (100.0f - slipstart);
             }
             else
             {
-                fslipspnt = fslipmin;
+                fslipspnt = fslipmin + roundingError;
             }
         }
         else
         {
-            u32fp brkrampstr = (u32fp)Param::Get(Param::brkrampstr);
+            float brkrampstr = Param::GetFloat(Param::brkrampstr);
 
             ampnomLocal = -torque;
 
             fslipspnt = -fslipmin;
             if (EncoderT::GetRotorFrequency() < brkrampstr)
             {
-                ampnomLocal = FP_TOINT(
-                    FP_DIV(EncoderT::GetRotorFrequency(), brkrampstr) *
-                    ampnomLocal);
+                ampnomLocal =
+                    Encoder::GetRotorFrequency() / brkrampstr * ampnomLocal;
             }
         }
 
-        ampnomLocal = MIN(ampnomLocal, FP_FROMINT(100));
+        ampnomLocal = MIN(ampnomLocal, 100.0f);
         // anticipate sudden changes by filtering
-        BaseT::ampnom = IIRFILTER(BaseT::ampnom, ampnomLocal, 4);
-        BaseT::fslip = IIRFILTER(BaseT::fslip, fslipspnt, 4);
+        BaseT::ampnom =
+            IIRFILTER(BaseT::ampnom, FP_FROMFLT(ampnomLocal), filterConst);
+        BaseT::fslip =
+            IIRFILTER(BaseT::fslip, FP_FROMFLT(fslipspnt), filterConst);
         Param::Set(Param::ampnom, BaseT::ampnom);
         Param::Set(Param::fslipspnt, BaseT::fslip);
 
@@ -211,7 +213,7 @@ private:
 
         if (edge != NoEdge)
         {
-            Param::SetFlt(Param::il1rms, rms);
+            Param::SetFixed(Param::il1rms, rms);
 
             if (BaseT::opmode != Modes::BOOST || BaseT::opmode != Modes::BUCK)
             {
@@ -221,20 +223,20 @@ private:
                 idc = FP_DIV(
                     idc, FP_FROMFLT(1.2247)); // divide by sqrt(3)/sqrt(2)
                 idc *= BaseT::fslip < 0 ? -1 : 1;
-                Param::SetFlt(Param::idc, idc);
+                Param::SetFixed(Param::idc, idc);
             }
         }
         if (CalcRms(
                 il2, lastEdge[1], currentMax[1], rms, samples[1], il2PrevRms))
         {
-            Param::SetFlt(Param::il2rms, rms);
+            Param::SetFixed(Param::il2rms, rms);
         }
 
         s32fp ilMax = sign * GetIlMax(il1, il2);
 
-        Param::SetFlt(Param::il1, il1);
-        Param::SetFlt(Param::il2, il2);
-        Param::SetFlt(Param::ilmax, ilMax);
+        Param::SetFixed(Param::il1, il1);
+        Param::SetFixed(Param::il2, il2);
+        Param::SetFixed(Param::ilmax, ilMax);
 
         return ilMax;
     }

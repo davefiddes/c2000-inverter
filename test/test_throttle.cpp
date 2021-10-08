@@ -43,17 +43,17 @@ protected:
         Throttle::potmax[0] = 2000;
         Throttle::potmin[1] = 3000;
         Throttle::potmax[1] = 4000;
-        Throttle::brknom = FP_FROMFLT(30.0);
-        Throttle::brknompedal = FP_FROMFLT(-50.0);
-        Throttle::regenRamp = FP_FROMFLT(25.0);
-        Throttle::brkmax = FP_FROMFLT(50.0);
+        Throttle::brknom = 30.0;
+        Throttle::brknompedal = -50.0;
+        Throttle::regenRamp = 25.0;
+        Throttle::brkmax = 50.0;
         Throttle::idleSpeed = 100;
-        Throttle::speedkp = FP_FROMFLT(0.25);
+        Throttle::speedkp = 0.25;
         Throttle::speedflt = 5;
-        Throttle::idleThrotLim = FP_FROMFLT(30.0);
-        Throttle::throtmin = FP_FROMFLT(-100.0);
-        Throttle::throtmax = FP_FROMFLT(100.0);
-        Throttle::throttleRamp = FP_FROMFLT(50.0);
+        Throttle::idleThrotLim = 30.0;
+        Throttle::throtmin = -100.0;
+        Throttle::throtmax = 100.0;
+        Throttle::throttleRamp = 50.0;
     }
 };
 
@@ -105,25 +105,17 @@ TEST_F(TestThrottle, PotRangeLimits)
 
 TEST_F(TestThrottle, PotReadingToPercent)
 {
-    EXPECT_EQ(Throttle::DigitsToPercent(1500, 0), FP_FROMFLT(50.0));
-    EXPECT_EQ(Throttle::DigitsToPercent(3200, 1), FP_FROMFLT(20.0));
-    EXPECT_EQ(Throttle::DigitsToPercent(4000, 1), FP_FROMFLT(100.0));
+    EXPECT_EQ(Throttle::DigitsToPercent(1500, 0), 50.0);
+    EXPECT_EQ(Throttle::DigitsToPercent(3200, 1), 20.0);
+    EXPECT_EQ(Throttle::DigitsToPercent(4000, 1), 100.0);
 }
 
 TEST_F(TestThrottle, BasicThrottleAccelerate)
 {
-    EXPECT_THAT(
-        Throttle::CalcThrottle(FP_FROMFLT(10.0), FP_FROMFLT(0.0), false),
-        FPNear(0.0, 1));
-    EXPECT_THAT(
-        Throttle::CalcThrottle(FP_FROMFLT(40.0), FP_FROMFLT(0.0), false),
-        FPNear(14.0, 1));
-    EXPECT_THAT(
-        Throttle::CalcThrottle(FP_FROMFLT(70.0), FP_FROMFLT(0.0), false),
-        FPNear(57.0, 1));
-    EXPECT_THAT(
-        Throttle::CalcThrottle(FP_FROMFLT(100.0), FP_FROMFLT(0.0), false),
-        FPNear(100.0, 1));
+    EXPECT_THAT(Throttle::CalcThrottle(10.0, 0.0, false), FloatNear(0.0, 1));
+    EXPECT_THAT(Throttle::CalcThrottle(40.0, 0.0, false), FloatNear(14.0, 1));
+    EXPECT_THAT(Throttle::CalcThrottle(70.0, 0.0, false), FloatNear(57.0, 1));
+    EXPECT_THAT(Throttle::CalcThrottle(100.0, 0.0, false), FloatNear(100.0, 1));
 }
 
 TEST_F(TestThrottle, TestBrkPedal)
@@ -131,34 +123,22 @@ TEST_F(TestThrottle, TestBrkPedal)
     // Not quite sure why this old test makes multiple calls. Perhaps ramping of
     // throttles happened in CalcThrottle originally
     // TODO: Investigate history
-    EXPECT_THAT(
-        Throttle::CalcThrottle(FP_FROMFLT(50.0), FP_FROMFLT(0.0), true),
-        FPNear(0.0, 1));
-    EXPECT_THAT(
-        Throttle::CalcThrottle(FP_FROMFLT(50.0), FP_FROMFLT(0.0), true),
-        FPNear(0.0, 1));
-    EXPECT_THAT(
-        Throttle::CalcThrottle(FP_FROMFLT(50.0), FP_FROMFLT(0.0), true),
-        FPNear(0.0, 1));
-    EXPECT_THAT(
-        Throttle::CalcThrottle(FP_FROMFLT(50.0), FP_FROMFLT(0.0), true),
-        FPNear(0.0, 1));
+    EXPECT_THAT(Throttle::CalcThrottle(50.0, 0.0, true), FloatNear(0.0, 1));
+    EXPECT_THAT(Throttle::CalcThrottle(50.0, 0.0, true), FloatNear(0.0, 1));
+    EXPECT_THAT(Throttle::CalcThrottle(50.0, 0.0, true), FloatNear(0.0, 1));
+    EXPECT_THAT(Throttle::CalcThrottle(50.0, 0.0, true), FloatNear(0.0, 1));
 }
 
 TEST_F(TestThrottle, TestRegen)
 {
-    EXPECT_THAT(
-        Throttle::CalcThrottle(FP_FROMFLT(100.0), FP_FROMFLT(0.0), false),
-        FPNear(100.0, 1));
-    EXPECT_THAT(
-        Throttle::CalcThrottle(FP_FROMFLT(0.0), FP_FROMFLT(0.0), false),
-        FPNear(0.0, 1));
+    EXPECT_THAT(Throttle::CalcThrottle(100.0, 0.0, false), FloatNear(100.0, 1));
+    EXPECT_THAT(Throttle::CalcThrottle(0.0, 0.0, false), FloatNear(0.0, 1));
 }
 
 TEST_F(TestThrottle, ThrottleRamp)
 {
     // Mash the throttle and verify we take two calls (assumed to be at 10ms
     // intervals) to reach 100%
-    EXPECT_THAT(Throttle::RampThrottle(FP_FROMFLT(120.0)), FPNear(50.0, 1));
-    EXPECT_THAT(Throttle::RampThrottle(FP_FROMFLT(120.0)), FPNear(100.0, 1));
+    EXPECT_THAT(Throttle::RampThrottle(120.0), FloatNear(50.0, 1));
+    EXPECT_THAT(Throttle::RampThrottle(120.0), FloatNear(100.0, 1));
 }

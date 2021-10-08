@@ -119,8 +119,8 @@ HWREV detect_hw()
       return HW_BLUEPILL;
    /*else if (is_floating(GPIOC, GPIO1))
       return HW_PRIUSMG1;*/
-   else if (gpio_get(GPIOB, GPIO1)) //On Tesla M3 board precharge output is tied to Vcc
-      return HW_TESLAM3;
+   //else if (gpio_get(GPIOB, GPIO1)) //On Tesla M3 board precharge output is tied to Vcc
+     // return HW_TESLAM3;
    else if (is_floating(GPIOC, GPIO9)) //Desat pin is floating
       return HW_REV1;
    else if (is_floating(GPIOB, GPIO5)) //Cruise pin is floating
@@ -181,7 +181,7 @@ uint16_t pwmio_setup(bool activeLow)
    return actualPattern;
 }
 
-void write_bootloader_pininit()
+void write_bootloader_pininit(bool bootprec)
 {
    uint32_t flashSize = desig_get_flash_size();
    uint32_t pindefAddr = FLASH_BASE + flashSize * 1024 - PINDEF_BLKNUM * PINDEF_BLKSIZE;
@@ -196,7 +196,7 @@ void write_bootloader_pininit()
    commands.pindef[0].level = 0;
    commands.pindef[1].port = GPIOB;
    commands.pindef[1].inout = PIN_OUT;
-   commands.pindef[1].level = 0;
+   commands.pindef[1].level = bootprec;
 
    if (hwRev == HW_BLUEPILL)
    {
