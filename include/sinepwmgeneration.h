@@ -148,7 +148,7 @@ public:
             if (EncoderT::GetRotorFrequency() < brkrampstr)
             {
                 ampnomLocal =
-                    Encoder::GetRotorFrequency() / brkrampstr * ampnomLocal;
+                    EncoderT::GetRotorFrequency() / brkrampstr * ampnomLocal;
             }
         }
 
