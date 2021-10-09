@@ -63,47 +63,32 @@ a single CPU should be defined."
 //
 // LEDs
 //
-#ifdef _LAUNCHXL_F28379D
-#define DEVICE_GPIO_PIN_LED1        31U  // GPIO number for LD10
-#define DEVICE_GPIO_PIN_LED2        34U  // GPIO number for LD9
-#define DEVICE_GPIO_CFG_LED1        GPIO_31_GPIO31  // "pinConfig" for LD10
-#define DEVICE_GPIO_CFG_LED2        GPIO_34_GPIO34  // "pinConfig" for LD9
-#else
-#define DEVICE_GPIO_PIN_LED1        31U  // GPIO number for LD2
-#define DEVICE_GPIO_PIN_LED2        34U  // GPIO number for LD3
-#define DEVICE_GPIO_CFG_LED1        GPIO_31_GPIO31  // "pinConfig" for LD2
-#define DEVICE_GPIO_CFG_LED2        GPIO_34_GPIO34  // "pinConfig" for LD3
-#endif
+#define DEVICE_LAUNCHXL_GPIO_PIN_LED1        31U  // GPIO number for LD10
+#define DEVICE_LAUNCHXL_GPIO_PIN_LED2        34U  // GPIO number for LD9
+#define DEVICE_LAUNCHXL_GPIO_CFG_LED1        GPIO_31_GPIO31  // "pinConfig" for LD10
+#define DEVICE_LAUNCHXL_GPIO_CFG_LED2        GPIO_34_GPIO34  // "pinConfig" for LD9
+
+#define DEVICE_TESLAM3_GPIO_PIN_LED1        84U  // GPIO number for LD10
+#define DEVICE_TESLAM3_GPIO_PIN_LED2        72U  // GPIO number for LD9
+#define DEVICE_TESLAM3_GPIO_CFG_LED1        GPIO_84_GPIO84  // "pinConfig" for LD10
+#define DEVICE_TESLAM3_GPIO_CFG_LED2        GPIO_72_GPIO72  // "pinConfig" for LD9
 
 
 //
-// SCI for USB-to-UART adapter on FTDI chip
+// SCI for USB-to-UART adapter on FTDI chip on LAUNCHXL
 //
-#ifdef _LAUNCHXL_F28379D
-#define DEVICE_GPIO_PIN_SCIRXDA     43U             // GPIO number for SCI RX
-#define DEVICE_GPIO_PIN_SCITXDA     42U             // GPIO number for SCI TX
-#define DEVICE_GPIO_CFG_SCIRXDA     GPIO_43_SCIRXDA // "pinConfig" for SCI RX
-#define DEVICE_GPIO_CFG_SCITXDA     GPIO_42_SCITXDA // "pinConfig" for SCI TX
-#else
-#define DEVICE_GPIO_PIN_SCIRXDA     28U             // GPIO number for SCI RX
-#define DEVICE_GPIO_PIN_SCITXDA     29U             // GPIO number for SCI TX
-#define DEVICE_GPIO_CFG_SCIRXDA     GPIO_28_SCIRXDA // "pinConfig" for SCI RX
-#define DEVICE_GPIO_CFG_SCITXDA     GPIO_29_SCITXDA // "pinConfig" for SCI TX
-#endif
+#define DEVICE_LAUNCHXL_GPIO_PIN_SCIRXDA     43U             // GPIO number for SCI RX
+#define DEVICE_LAUNCHXL_GPIO_PIN_SCITXDA     42U             // GPIO number for SCI TX
+#define DEVICE_LAUNCHXL_GPIO_CFG_SCIRXDA     GPIO_43_SCIRXDA // "pinConfig" for SCI RX
+#define DEVICE_LAUNCHXL_GPIO_CFG_SCITXDA     GPIO_42_SCITXDA // "pinConfig" for SCI TX
 
 //
 // GPIO assignment for CAN-A and CAN-B
 //
-#ifdef _LAUNCHXL_F28379D
 #define DEVICE_GPIO_CFG_CANRXA      GPIO_36_CANRXA  // "pinConfig" for CANA RX
 #define DEVICE_GPIO_CFG_CANTXA      GPIO_37_CANTXA  // "pinConfig" for CANA TX
 #define DEVICE_GPIO_CFG_CANRXB      GPIO_17_CANRXB  // "pinConfig" for CANB RX
 #define DEVICE_GPIO_CFG_CANTXB      GPIO_12_CANTXB  // "pinConfig" for CANB TX
-#else
-#define DEVICE_GPIO_CFG_CANRXA      GPIO_30_CANRXA  // "pinConfig" for CANA RX
-#define DEVICE_GPIO_CFG_CANTXA      GPIO_31_CANTXA  // "pinConfig" for CANA TX
-#define DEVICE_GPIO_CFG_CANRXB      GPIO_10_CANRXB  // "pinConfig" for CANB RX
-#define DEVICE_GPIO_CFG_CANTXB      GPIO_8_CANTXB   // "pinConfig" for CANB TX
 
 //I2CA GPIO pins
 #define DEVICE_GPIO_PIN_SDAA    104
@@ -120,8 +105,6 @@ a single CPU should be defined."
 #define DEVICE_GPIO_CFG_SDAB GPIO_40_SDAB
 #define DEVICE_GPIO_CFG_SCLB GPIO_41_SCLB
 
-#endif
-
 //*****************************************************************************
 //
 // Defines related to clock configuration
@@ -130,10 +113,9 @@ a single CPU should be defined."
 //
 // Launchpad Configuration
 //
-#ifdef _LAUNCHXL_F28379D
 
 //
-// 10MHz XTAL on LaunchPad. For use with SysCtl_getClock().
+// 10MHz XTAL on LaunchPad and Tesla M3 inverter. For use with SysCtl_getClock().
 //
 #define DEVICE_OSCSRC_FREQ          10000000U
 
@@ -150,32 +132,6 @@ a single CPU should be defined."
 // code below if a different clock configuration is used!
 //
 #define DEVICE_SYSCLK_FREQ          ((DEVICE_OSCSRC_FREQ * 40 * 1) / 2)
-
-//
-// ControlCARD Configuration
-//
-#else
-
-//
-// 20MHz XTAL on controlCARD. For use with SysCtl_getClock().
-//
-#define DEVICE_OSCSRC_FREQ          20000000U
-
-//
-// Define to pass to SysCtl_setClock(). Will configure the clock as follows:
-// PLLSYSCLK = 20MHz (XTAL_OSC) * 20 (IMULT) * 1 (FMULT) / 2 (PLLCLK_BY_2)
-//
-#define DEVICE_SETCLOCK_CFG         (SYSCTL_OSCSRC_XTAL | SYSCTL_IMULT(20) |  \
-                                     SYSCTL_FMULT_NONE | SYSCTL_SYSDIV(2) |   \
-                                     SYSCTL_PLL_ENABLE)
-
-//
-// 200MHz SYSCLK frequency based on the above DEVICE_SETCLOCK_CFG. Update the
-// code below if a different clock configuration is used!
-//
-#define DEVICE_SYSCLK_FREQ          ((DEVICE_OSCSRC_FREQ * 20 * 1) / 2)
-
-#endif
 
 //
 // 50MHz LSPCLK frequency based on the above DEVICE_SYSCLK_FREQ and a default
@@ -393,6 +349,21 @@ extern void __error__(const char *filename, uint32_t line);
 extern void Example_setResultPass(void);
 extern void Example_setResultFail(void);
 extern void Example_done(void);
+
+//*****************************************************************************
+//!
+//! @brief Are we running on a Tesla Model 3 inverter?
+//!
+//! @param None
+//! @return Bool - false if running on a TI LAUNCHXL-F28379D
+//
+//*****************************************************************************
+inline bool IsTeslaM3Inverter(void)
+{
+    return ((HWREG(DEVCFG_BASE + SYSCTL_O_PARTIDL) &
+                          (uint32_t)SYSCTL_PARTIDL_PIN_COUNT_M) >>
+                         SYSCTL_PARTIDL_PIN_COUNT_S) == 6;
+}
 
 #ifdef __cplusplus
 }

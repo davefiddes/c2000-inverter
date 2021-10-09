@@ -77,10 +77,25 @@ void main(void)
     // Initialize GPIO and configure the GPIO pin as a push-pull output
     //
     Device_initGPIO();
-    GPIO_setPadConfig(DEVICE_GPIO_PIN_LED1, GPIO_PIN_TYPE_STD);
-    GPIO_setDirectionMode(DEVICE_GPIO_PIN_LED1, GPIO_DIR_MODE_OUT);
-    GPIO_setPadConfig(DEVICE_GPIO_PIN_LED2, GPIO_PIN_TYPE_STD);
-    GPIO_setDirectionMode(DEVICE_GPIO_PIN_LED2, GPIO_DIR_MODE_OUT);
+
+    uint32_t led1Pin;
+    uint32_t led2Pin;
+
+    if (IsTeslaM3Inverter())
+    {
+        led1Pin = DEVICE_TESLAM3_GPIO_PIN_LED1;
+        led2Pin = DEVICE_TESLAM3_GPIO_PIN_LED2;
+    }
+    else
+    {
+        led1Pin = DEVICE_LAUNCHXL_GPIO_PIN_LED1;
+        led2Pin = DEVICE_LAUNCHXL_GPIO_PIN_LED2;
+    }
+    GPIO_setPadConfig(led1Pin, GPIO_PIN_TYPE_STD);
+    GPIO_setDirectionMode(led1Pin, GPIO_DIR_MODE_OUT);
+    GPIO_setPadConfig(led2Pin, GPIO_PIN_TYPE_STD);
+    GPIO_setDirectionMode(led2Pin, GPIO_DIR_MODE_OUT);
+
 
     //
     // Initialize PIE and clear PIE registers. Disables CPU interrupts.
@@ -107,24 +122,24 @@ void main(void)
         //
         // Turn on LED
         //
-        GPIO_writePin(DEVICE_GPIO_PIN_LED1, 0);
-        GPIO_writePin(DEVICE_GPIO_PIN_LED2, 1);
+        GPIO_writePin(led1Pin, 0);
+        GPIO_writePin(led2Pin, 1);
 
         //
         // Delay for a bit.
         //
-        DEVICE_DELAY_US(500000);
+        DEVICE_DELAY_US(300000);
 
         //
         // Turn off LED
         //
-        GPIO_writePin(DEVICE_GPIO_PIN_LED1, 1);
-        GPIO_writePin(DEVICE_GPIO_PIN_LED2, 0);
+        GPIO_writePin(led1Pin, 1);
+        GPIO_writePin(led2Pin, 0);
 
         //
         // Delay for a bit.
         //
-        DEVICE_DELAY_US(500000);
+        DEVICE_DELAY_US(300000);
     }
 }
 
