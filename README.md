@@ -29,7 +29,7 @@ The current hardware targets are:
 * [x] Hardware independent, statically virtualised Field Oriented Control / Sine PWM generation
 * [x] Port and update existing unit tests and extend to verify FOC PWM generation
 * [x] Fix integer overflows affecting C2000 in PWM generation, SineCore and libopeninv
-* [ ] Support operation on Tesla M3 rear drive unit hardware
+* [x] Support operation on Tesla M3 rear drive unit hardware
 * [ ] Tesla M3 gate driver integration
 * [ ] Tesla M3 safety PSU/PMIC integration
 * [ ] Functional PWM generation on Tesla M3 hardware
