@@ -51,6 +51,11 @@ public:
     static void    SetChargeCurrent(int16_t dc);
     static int32_t GetCpuLoad();
     static void    ResetCpuLoad();
+
+private:
+    static uint32_t sm_phaseAEpwmBase;
+    static uint32_t sm_phaseBEpwmBase;
+    static uint32_t sm_phaseCEpwmBase;
 };
 
 } // namespace c2000
