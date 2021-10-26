@@ -5,10 +5,10 @@
 // TITLE:  C28x I2C driver.
 //
 //###########################################################################
-// $TI Release: F2837xD Support Library v3.12.00.00 $
-// $Release Date: Fri Feb 12 19:03:23 IST 2021 $
+//
+//
 // $Copyright:
-// Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
+// Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.co/
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -536,6 +536,32 @@ I2C_getRxFIFOStatus(uint32_t base)
               I2C_FFRX_RXFFST_S);
 
     return((I2C_RxFIFOLevel)level);
+}
+
+//*****************************************************************************
+//
+//! Reads I2C Module clock prescaler value.
+//!
+//! \param base is the base address of the I2C instance used.
+//!
+//! This function reads the I2C prescaler value which configures the I2C module
+//! clock by dividing down the SYSCLK. I2C_MODULE_CLK = SYSCLK / (I2CPSC + )
+//!
+//! \return Returns the I2C prescaler(I2CPSC) cast as an uint16_t.
+//
+//*****************************************************************************
+static inline uint16_t
+I2C_getPreScaler(uint32_t base)
+{
+    //
+    // Check the arguments.
+    //
+    ASSERT(I2C_isBaseValid(base));
+
+    //
+    // Return the contents of the Prescaler register.
+    //
+    return(HWREGH(base + I2C_O_PSC));
 }
 
 //*****************************************************************************
@@ -1251,6 +1277,26 @@ I2C_getInterruptStatus(uint32_t base);
 //*****************************************************************************
 extern void
 I2C_clearInterruptStatus(uint32_t base, uint32_t intFlags);
+
+//*****************************************************************************
+//
+//! Configures I2C Module Clock Frequency
+//!
+//! \param base is the base address of the I2C instance used.
+//! \param sysclkHz is the rate of the clock supplied to the I2C module
+//! (SYSCLK) in Hz.
+//!
+//! This function configures I2C module clock frequency by initializing 
+//! prescale register based on SYSCLK frequency.
+//! Note that the I2C module \b must be put into
+//! reset before calling this function. You can do this with the function
+//! I2C_disableModule().
+//!
+//! \return None.
+//
+//*****************************************************************************
+extern void
+I2C_configureModuleFrequency(uint32_t base, uint32_t sysclkHz);
 
 //*****************************************************************************
 //

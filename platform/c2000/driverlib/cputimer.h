@@ -5,10 +5,8 @@
 // TITLE:   C28x CPU timer Driver
 //
 //#############################################################################
-// $TI Release: F2837xD Support Library v3.12.00.00 $
-// $Release Date: Fri Feb 12 19:03:23 IST 2021 $
 // $Copyright:
-// Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
+// Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.co/
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -203,12 +201,14 @@ static inline void CPUTimer_disableInterrupt(uint32_t base)
 //*****************************************************************************
 static inline void CPUTimer_enableInterrupt(uint32_t base)
 {
+    uint16_t tcrValue = 0;
     ASSERT(CPUTimer_isBaseValid(base));
 
     //
     // Set TIE bit of TCR register
     //
-    HWREGH(base + CPUTIMER_O_TCR) |= CPUTIMER_TCR_TIE;
+    tcrValue = HWREGH(base + CPUTIMER_O_TCR) & (~CPUTIMER_TCR_TIF);
+    HWREGH(base + CPUTIMER_O_TCR) = tcrValue | CPUTIMER_TCR_TIE;
 }
 
 //*****************************************************************************
@@ -225,12 +225,14 @@ static inline void CPUTimer_enableInterrupt(uint32_t base)
 //*****************************************************************************
 static inline void CPUTimer_reloadTimerCounter(uint32_t base)
 {
+    uint16_t tcrValue = 0;
     ASSERT(CPUTimer_isBaseValid(base));
 
     //
     // Set TRB bit of register TCR
     //
-    HWREGH(base + CPUTIMER_O_TCR) |= CPUTIMER_TCR_TRB;
+    tcrValue = HWREGH(base + CPUTIMER_O_TCR) & (~CPUTIMER_TCR_TIF);
+    HWREGH(base + CPUTIMER_O_TCR) = tcrValue | CPUTIMER_TCR_TRB;
 }
 
 //*****************************************************************************
@@ -246,12 +248,14 @@ static inline void CPUTimer_reloadTimerCounter(uint32_t base)
 //*****************************************************************************
 static inline void CPUTimer_stopTimer(uint32_t base)
 {
+    uint16_t tcrValue = 0;
     ASSERT(CPUTimer_isBaseValid(base));
 
     //
     // Set TSS bit of register TCR
     //
-    HWREGH(base + CPUTIMER_O_TCR) |= CPUTIMER_TCR_TSS;
+    tcrValue = HWREGH(base + CPUTIMER_O_TCR) & (~CPUTIMER_TCR_TIF);
+    HWREGH(base + CPUTIMER_O_TCR) = tcrValue | CPUTIMER_TCR_TSS;
 }
 
 //*****************************************************************************
@@ -292,12 +296,14 @@ static inline void CPUTimer_resumeTimer(uint32_t base)
 //*****************************************************************************
 static inline void CPUTimer_startTimer(uint32_t base)
 {
+    uint16_t tcrValue = 0;
     ASSERT(CPUTimer_isBaseValid(base));
 
     //
     // Reload the timer counter
     //
-    HWREGH(base + CPUTIMER_O_TCR) |= CPUTIMER_TCR_TRB;
+    tcrValue = HWREGH(base + CPUTIMER_O_TCR) & (~CPUTIMER_TCR_TIF);
+    HWREGH(base + CPUTIMER_O_TCR) = tcrValue | CPUTIMER_TCR_TRB;
 
     //
     // Clear TSS bit of register TCR

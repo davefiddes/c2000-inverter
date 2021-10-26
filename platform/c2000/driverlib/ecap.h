@@ -5,10 +5,8 @@
 // TITLE: C28x ECAP driver
 //
 //#############################################################################
-// $TI Release: F2837xD Support Library v3.12.00.00 $
-// $Release Date: Fri Feb 12 19:03:23 IST 2021 $
 // $Copyright:
-// Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
+// Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.co/
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -233,8 +231,7 @@ static inline bool ECAP_isBaseValid(uint32_t base)
 //! This function divides the ECAP input scaler. The pre scale value is
 //! doubled inside the module. For example a preScalerValue of 5 will divide
 //! the scaler by 10. Use a value of 1 to divide the pre scaler by 1.
-//! The value of preScalerValue should be less than
-//! \b ECAP_MAX_PRESCALER_VALUE.
+//! The \e preScalerValue should be less than \b ECAP_MAX_PRESCALER_VALUE.
 //!
 //! \return None.
 //

@@ -5,10 +5,8 @@
 // TITLE:  C28x Flash driver.
 //
 //###########################################################################
-// $TI Release: F2837xD Support Library v3.12.00.00 $
-// $Release Date: Fri Feb 12 19:03:23 IST 2021 $
 // $Copyright:
-// Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
+// Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.co/
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -1623,6 +1621,20 @@ Flash_initModule(uint32_t ctrlBase, uint32_t eccBase, uint16_t waitstates);
 extern void
 Flash_powerDown(uint32_t ctrlBase);
 
+//*****************************************************************************
+//
+//! Wakes the flash from low power mode.
+//!
+//! \param ctrlBase is the base address of the flash wrapper control registers.
+//!
+//! This function will power up Flash bank and pump and set the
+//! fallback mode of flash and pump as active.
+//!
+//! \return None.
+//
+//*****************************************************************************
+extern void
+Flash_wakeFromLPM(uint32_t ctrlBase);
 
 //*****************************************************************************
 //

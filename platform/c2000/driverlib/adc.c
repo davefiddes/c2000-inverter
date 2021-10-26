@@ -5,10 +5,8 @@
 // TITLE:  C28x ADC driver.
 //
 //###########################################################################
-// $TI Release: F2837xD Support Library v3.12.00.00 $
-// $Release Date: Fri Feb 12 19:03:23 IST 2021 $
 // $Copyright:
-// Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
+// Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.co/
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -63,6 +61,7 @@
 //
 #define ADC_getOffsetTrim       0x0703ACU
 
+
 //*****************************************************************************
 //
 // ADC_setMode
@@ -72,9 +71,6 @@ void
 ADC_setMode(uint32_t base, ADC_Resolution resolution,
             ADC_SignalMode signalMode)
 {
-    uint16_t offsetIndex = 0U;
-    uint16_t offsetTrim = 0U;
-
     //
     // Check the arguments.
     //
@@ -94,11 +90,45 @@ ADC_setMode(uint32_t base, ADC_Resolution resolution,
         ASSERT(resolution == ADC_RESOLUTION_16BIT);
     }
 
+
+    //
+    // Apply the resolution and signalMode to the specified ADC.
+    //
+    EALLOW;
+    HWREGH(base + ADC_O_CTL2) = (HWREGH(base + ADC_O_CTL2) &
+                                 ~(ADC_CTL2_RESOLUTION | ADC_CTL2_SIGNALMODE)) |
+                                ((uint16_t)resolution | (uint16_t)signalMode);
+    EDIS;
+
+    //
+    // Apply INL and offset trims
+    //
+    ADC_setINLTrim(base);
+    ADC_setOffsetTrim(base);
+}
+
+//*****************************************************************************
+//
+// ADC_setINLTrim
+//
+//*****************************************************************************
+void
+ADC_setINLTrim(uint32_t base)
+{
+    ADC_Resolution resolution;
+
+    //
+    // Check the arguments.
+    //
+    ASSERT(ADC_isBaseValid(base));
+
+    resolution = (ADC_Resolution)
+                 (HWREGH(base + ADC_O_CTL2) & ADC_CTL2_RESOLUTION);
+
     EALLOW;
     switch(base)
     {
         case ADCA_BASE:
-            offsetIndex = (uint16_t)(0U * 4U);
             if(HWREGH(ADC_calADCAINL) != 0xFFFFU)
             {
                 //
@@ -114,7 +144,6 @@ ADC_setMode(uint32_t base, ADC_Resolution resolution,
             }
             break;
         case ADCB_BASE:
-            offsetIndex = (uint16_t)(1U * 4U);
             if(HWREGH(ADC_calADCBINL) != 0xFFFFU)
             {
                 //
@@ -130,7 +159,6 @@ ADC_setMode(uint32_t base, ADC_Resolution resolution,
             }
             break;
         case ADCC_BASE:
-            offsetIndex = (uint16_t)(2U * 4U);
             if(HWREGH(ADC_calADCCINL) != 0xFFFFU)
             {
                 //
@@ -146,7 +174,6 @@ ADC_setMode(uint32_t base, ADC_Resolution resolution,
             }
             break;
         case ADCD_BASE:
-            offsetIndex = (uint16_t)(3U * 4U);
             if(HWREGH(ADC_calADCDINL) != 0xFFFFU)
             {
                 //
@@ -160,6 +187,66 @@ ADC_setMode(uint32_t base, ADC_Resolution resolution,
                 // Do nothing, no INL trim function populated
                 //
             }
+            break;
+        default:
+            //
+            // Invalid base address! Do nothing!
+            //
+            break;
+    }
+
+    //
+    // Apply linearity trim workaround for 12-bit resolution
+    //
+    if(resolution == ADC_RESOLUTION_12BIT)
+    {
+        //
+        // 12-bit linearity trim workaround
+        //
+        HWREG(base + ADC_O_INLTRIM1) &= 0xFFFF0000U;
+        HWREG(base + ADC_O_INLTRIM2) &= 0xFFFF0000U;
+        HWREG(base + ADC_O_INLTRIM4) &= 0xFFFF0000U;
+        HWREG(base + ADC_O_INLTRIM5) &= 0xFFFF0000U;
+    }
+    EDIS;
+}
+
+//*****************************************************************************
+//
+// ADC_setOffsetTrim
+//
+//*****************************************************************************
+void
+ADC_setOffsetTrim(uint32_t base)
+{
+    uint16_t offsetIndex = 0U;
+    uint16_t offsetTrim  = 0U;
+    ADC_Resolution resolution;
+    ADC_SignalMode signalMode;
+
+    //
+    // Check the arguments.
+    //
+    ASSERT(ADC_isBaseValid(base));
+
+    resolution = (ADC_Resolution)
+                 (HWREGH(base + ADC_O_CTL2) & ADC_CTL2_RESOLUTION);
+    signalMode = (ADC_SignalMode)
+                 (HWREGH(base + ADC_O_CTL2) & ADC_CTL2_SIGNALMODE);
+
+    switch(base)
+    {
+        case ADCA_BASE:
+            offsetIndex = (uint16_t)(0U * 4U);
+            break;
+        case ADCB_BASE:
+            offsetIndex = (uint16_t)(1U * 4U);
+            break;
+        case ADCC_BASE:
+            offsetIndex = (uint16_t)(2U * 4U);
+            break;
+        case ADCD_BASE:
+            offsetIndex = (uint16_t)(3U * 4U);
             break;
         default:
             //
@@ -193,36 +280,18 @@ ADC_setMode(uint32_t base, ADC_Resolution resolution,
     }
 
     //
-    // Apply the resolution and signalMode to the specified ADC.
-    //
-    HWREGH(base + ADC_O_CTL2) = (HWREGH(base + ADC_O_CTL2) &
-                                 ~(ADC_CTL2_RESOLUTION | ADC_CTL2_SIGNALMODE)) |
-                                ((uint16_t)resolution | (uint16_t)signalMode);
-
-    //
-    // Also apply the offset trim and, if needed, linearity trim correction.
-    // Offset Trim is not updated here in case of TMX or untrimmed devices.
-    // The default trims for TMX devices should be handled in Device_init().
-    // Refer to Device_init() and Device_configureTMXAnalogTrim() APIs for
-    // more details.
+    // Apply the offset trim. Offset Trim is not updated here in case of TMX or
+    // untrimmed devices. The default trims for TMX devices should be handled in
+    // Device_init(). Refer to Device_init() and Device_configureTMXAnalogTrim()
+    // APIs for more details.
     //
     if(offsetTrim > 0x0U)
     {
+        EALLOW;
         HWREGH(base + ADC_O_OFFTRIM) = offsetTrim;
+        EDIS;
     }
-    if(resolution == ADC_RESOLUTION_12BIT)
-    {
-        //
-        // 12-bit linearity trim workaround
-        //
-        HWREG(base + ADC_O_INLTRIM1) &= 0xFFFF0000U;
-        HWREG(base + ADC_O_INLTRIM2) &= 0xFFFF0000U;
-        HWREG(base + ADC_O_INLTRIM4) &= 0xFFFF0000U;
-        HWREG(base + ADC_O_INLTRIM5) &= 0xFFFF0000U;
-    }
-    EDIS;
 }
-
 //*****************************************************************************
 //
 // ADC_setPPBTripLimits

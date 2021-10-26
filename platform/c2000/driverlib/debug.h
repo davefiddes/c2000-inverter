@@ -5,10 +5,8 @@
 // TITLE:  Assert definition macro for debug.
 //
 //###########################################################################
-// $TI Release: F2837xD Support Library v3.12.00.00 $
-// $Release Date: Fri Feb 12 19:03:23 IST 2021 $
 // $Copyright:
-// Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
+// Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.co/
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -59,6 +57,10 @@ extern void __error__(const char *filename, uint32_t line);
 //
 //*****************************************************************************
 #ifdef DEBUG
+#ifdef __TMS320C28XX__
+//
+// When called from C28x application
+//
 #define ASSERT(expr) do                                                       \
                      {                                                        \
                          if(!(expr))                                          \
@@ -67,6 +69,19 @@ extern void __error__(const char *filename, uint32_t line);
                          }                                                    \
                      }                                                        \
                      while(0)
+#else
+//
+// When called from CLA application. Update as needed.
+//
+#define ASSERT(expr) do                                                       \
+                     {                                                        \
+                         if(!(expr))                                          \
+                         {                                                    \
+                             __mdebugstop();                                  \
+                         }                                                    \
+                     }                                                        \
+                     while(0)
+#endif
 #else
 #define ASSERT(expr)
 #endif

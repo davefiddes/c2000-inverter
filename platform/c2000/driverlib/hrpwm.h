@@ -5,10 +5,8 @@
 // TITLE:   C28x HRPWM Driver
 //
 //#############################################################################
-// $TI Release: F2837xD Support Library v3.12.00.00 $
-// $Release Date: Fri Feb 12 19:03:23 IST 2021 $
 // $Copyright:
-// Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
+// Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.co/
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -921,6 +919,11 @@ HRPWM_setChannelBOutputPath(uint32_t base, HRPWM_ChannelBOutput outputOnB)
 //!
 //! This function enables the MEP (Micro Edge Positioner) to automatically
 //! scale HRMSTEP.
+//!
+//! The SFO library will calculate required MEP steps per coarse steps and
+//! feed it to HRMSTEP register. The MEP calibration module will use the value
+//! in HRMSTEP to determine appropriate number of MEP steps represented by
+//! fractional duty cycle.
 //!
 //! \return None.
 //

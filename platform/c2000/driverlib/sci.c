@@ -5,10 +5,10 @@
 // TITLE:  C28x SCI driver.
 //
 //###########################################################################
-// $TI Release: F2837xD Support Library v3.12.00.00 $
-// $Release Date: Fri Feb 12 19:03:23 IST 2021 $
+//
+//
 // $Copyright:
-// Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
+// Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.co/
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -399,4 +399,23 @@ void SCI_setBaud(uint32_t base, uint32_t lspclkHz, uint32_t baud)
     //
     HWREGH(base + SCI_O_HBAUD) = (divider & 0xFF00U) >> 8U;
     HWREGH(base + SCI_O_LBAUD) = divider & 0x00FFU;
+}
+
+//*****************************************************************************
+//
+// SCI_setWakeFlag
+//
+//*****************************************************************************
+void SCI_setWakeFlag(uint32_t base)
+{
+    //
+    // Check the arguments.
+    //
+    ASSERT(SCI_isBaseValid(base));
+
+    //
+    // Set the TX wake flag bit to indicate
+    // that the next frame is an address frame.
+    //
+    HWREGH(base + SCI_O_CTL1) |= SCI_CTL1_TXWAKE;
 }

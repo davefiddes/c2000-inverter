@@ -5,10 +5,8 @@
 // TITLE:  C28x eQEP driver.
 //
 //###########################################################################
-// $TI Release: F2837xD Support Library v3.12.00.00 $
-// $Release Date: Fri Feb 12 19:03:23 IST 2021 $
 // $Copyright:
-// Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
+// Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.co/
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -95,6 +93,12 @@ extern "C"
 //
 #define EQEP_CONFIG_NO_SWAP         0x0000U //!< Do not swap QEPA and QEPB
 #define EQEP_CONFIG_SWAP            0x0400U //!< Swap QEPA and QEPB
+
+//
+// Index pulse gating option
+//
+#define EQEP_CONFIG_IGATE_DISABLE  0x0000U //!< Disable gating of Index pulse
+#define EQEP_CONFIG_IGATE_ENABLE   0x0200U //!< Gate the index pin with strobe
 
 //*****************************************************************************
 
@@ -388,6 +392,8 @@ EQEP_disableModule(uint32_t base)
 //! - \b EQEP_CONFIG_NO_SWAP or \b EQEP_CONFIG_SWAP to specify if the
 //!   signals provided on QEPA and QEPB should be swapped before being
 //!   processed.
+//! - \b EQEP_CONFIG_IGATE_DISABLE or \b EQEP_CONFIG_IGATE_ENABLE to specify
+//!   if the gating of the index pulse should be enabled or disabled
 //!
 //! \return None.
 //
@@ -406,7 +412,8 @@ EQEP_setDecoderConfig(uint32_t base, uint16_t config)
     HWREGH(base + EQEP_O_QDECCTL) = (HWREGH(base + EQEP_O_QDECCTL) &
                                      ~(EQEP_QDECCTL_SWAP |
                                        EQEP_QDECCTL_XCR |
-                                       EQEP_QDECCTL_QSRC_M)) | config;
+                                       EQEP_QDECCTL_QSRC_M |
+                                       EQEP_QDECCTL_IGATE)) | config;
 }
 
 //*****************************************************************************

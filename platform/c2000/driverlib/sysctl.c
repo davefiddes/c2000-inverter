@@ -5,10 +5,8 @@
 // TITLE:  C28x system control driver.
 //
 //###########################################################################
-// $TI Release: F2837xD Support Library v3.12.00.00 $
-// $Release Date: Fri Feb 12 19:03:23 IST 2021 $
 // $Copyright:
-// Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
+// Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.co/
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -102,7 +100,7 @@ SysCtl_pollCpuTimer(void)
         //
         // Wait for cpu timer 2 to overflow
         //
-        while(CPUTimer_getTimerOverflowStatus(CPUTIMER2_BASE)==false);
+        while(CPUTimer_getTimerOverflowStatus(CPUTIMER2_BASE) == false);
         {
             //
             // If your application is stuck in this loop, please check if the
@@ -1077,7 +1075,7 @@ SysCtl_selectXTAL(void)
     uint16_t t2TCR, t2TPR, t2TPRH, t2CLKCTL;
     uint32_t t2PRD;
 
-	//
+    //
     // Backup CPU timer2 settings
     //
     t2CLKCTL = HWREGH(CPUSYS_BASE + SYSCTL_O_TMR2CLKCTL);
@@ -1087,14 +1085,14 @@ SysCtl_selectXTAL(void)
     t2TPRH = HWREGH(CPUTIMER2_BASE + CPUTIMER_O_TPRH);
 
 
-	//
-	// Disable cpu timer 2 interrupt
-	//
-	CPUTimer_disableInterrupt(CPUTIMER2_BASE);
+    //
+    // Disable cpu timer 2 interrupt
+    //
+    CPUTimer_disableInterrupt(CPUTIMER2_BASE);
 
-	//
-	// Stop cpu timer 2 if running
-	//
+    //
+    // Stop cpu timer 2 if running
+    //
     CPUTimer_stopTimer(CPUTIMER2_BASE);
 
     //

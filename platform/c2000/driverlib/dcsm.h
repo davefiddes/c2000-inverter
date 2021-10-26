@@ -5,10 +5,8 @@
 // TITLE:  C28x Driver for the DCSM security module.
 //
 //#############################################################################
-// $TI Release: F2837xD Support Library v3.12.00.00 $
-// $Release Date: Fri Feb 12 19:03:23 IST 2021 $
 // $Copyright:
-// Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
+// Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.co/
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -417,7 +415,6 @@ DCSM_getRAMZone(DCSM_RAMModule module)
     //
     return((DCSM_MemoryStatus)((HWREG(DCSMCOMMON_BASE + DCSM_O_RAMSTAT) >>
                                 shift) & 0x03U));
-
 }
 
 //*****************************************************************************

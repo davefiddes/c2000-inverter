@@ -5,10 +5,8 @@
 // TITLE:  C28x CAN driver.
 //
 //###########################################################################
-// $TI Release: F2837xD Support Library v3.12.00.00 $
-// $Release Date: Fri Feb 12 19:03:23 IST 2021 $
 // $Copyright:
-// Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
+// Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.co/
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -310,10 +308,10 @@ typedef enum
 static inline bool
 CAN_isBaseValid(uint32_t base)
 {
-	return(
+    return(
            (base == CANA_BASE) ||
            (base == CANB_BASE)
-		  );
+          );
 }
 #endif
 
@@ -350,7 +348,7 @@ CAN_writeDataReg(const uint16_t *const data, uint32_t address,
     // Check the dataReg.
     //
     ASSERT(dataReg != 0U);
-    
+
     //
     // Loop always copies 1 byte per iteration.
     //
@@ -1435,8 +1433,8 @@ CAN_initModule(uint32_t base);
 //! CAN_setBitTiming() function is available for full customization of all of
 //! the CAN bit timing values.
 //!
-//! \note Not all bit-rate and bit-time combinations are valid. 
-//!       For combinations that would yield the correct bit-rate, 
+//! \note Not all bit-rate and bit-time combinations are valid.
+//!       For combinations that would yield the correct bit-rate,
 //!       refer to the DCAN_CANBTR_values.xlsx file in the "docs" directory.
 //!       The CANBTR register values calculated by the function CAN_setBitRate
 //!       may not be suitable for your network parameters. If this is the case
@@ -1580,6 +1578,25 @@ CAN_sendMessage(uint32_t base, uint32_t objID, uint16_t msgLen,
 
 //*****************************************************************************
 //
+//! Sends a Remote Request Message Object
+//!
+//! \param base is the base address of the CAN controller.
+//! \param objID is the object number to configure (1-32).
+//!
+//! This function is used to transmit a remote request message object.
+//!
+//! \note The message object requested by the \e objID must first be setup
+//! using the CAN_setupMessageObject() function with CAN_MSG_OBJ_TYPE_TX_REMOTE
+//! as msgType flag.
+//!
+//! \return None.
+//
+//*****************************************************************************
+extern void
+CAN_sendRemoteRequestMessage(uint32_t base, uint32_t objID);
+
+//*****************************************************************************
+//
 //! Reads the data in a Message Object
 //!
 //! \param base is the base address of the CAN controller.
@@ -1610,8 +1627,8 @@ CAN_readMessage(uint32_t base, uint32_t objID,
 //!
 //! \param base is the base address of the CAN controller.
 //! \param objID is the object number to read (1-32).
-//! \param frameType is a pointer to the CAN_MsgFrameType to store the message 
-//!        type that has been received in the mailbox 
+//! \param frameType is a pointer to the CAN_MsgFrameType to store the message
+//!        type that has been received in the mailbox
 //! The \e frameType parameter shall be filled as of the following values:
 //! - \b CAN_MSG_FRAME_STD - Standard 11 bit identifier
 //! - \b CAN_MSG_FRAME_EXT - Extended 29 bit identifier
@@ -1621,8 +1638,8 @@ CAN_readMessage(uint32_t base, uint32_t objID,
 //! \param msgData is a pointer to the array to store the message data
 //! Filled with read Data when the return value is true for this function.
 //!
-//! This function is used to read the data contents and the Message ID 
-//! of the specified message object in the CAN controller.The Message returned 
+//! This function is used to read the data contents and the Message ID
+//! of the specified message object in the CAN controller.The Message returned
 //! is stored in the \e msgID parameter and its type in \e frameType parameter.
 //! The data returned is stored in the \e msgData parameter.
 //!
@@ -1650,7 +1667,7 @@ extern bool CAN_readMessageWithID(uint32_t base,
 //! \param interface is the interface to use for the transfer. Valid value are
 //!        1 or 2.
 //! \param objID is the object number to transfer (1-32).
-//! \param direction is the direction of data transfer. False is Message RAM 
+//! \param direction is the direction of data transfer. False is Message RAM
 //!        to IF, True is IF to Message RAM.
 //!
 //! This function transfers the contents of the interface registers to message
@@ -1679,6 +1696,24 @@ CAN_transferMessage(uint32_t base, uint16_t interface, uint32_t objID,
 //*****************************************************************************
 extern void
 CAN_clearMessage(uint32_t base, uint32_t objID);
+
+//*****************************************************************************
+//
+//! Disables all message objects
+//!
+//! \param base is the base address of the CAN controller.
+//!
+//! This function disables all message objects. Once a message object
+//! has been disabled it will be ignored by the message handler until it
+//! is configured again. All message objects are disabled automatically on
+//! reset, however this function can be used to restart CAN operations
+//! without an external reset.
+//!
+//! \return None.
+//
+//*****************************************************************************
+extern void
+CAN_disableAllMessageObjects(uint32_t base);
 
 //*****************************************************************************
 //

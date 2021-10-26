@@ -5,10 +5,8 @@
 // TITLE:  C28x ADC driver.
 //
 //###########################################################################
-// $TI Release: F2837xD Support Library v3.12.00.00 $
-// $Release Date: Fri Feb 12 19:03:23 IST 2021 $
 // $Copyright:
-// Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
+// Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.co/
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -426,8 +424,12 @@ typedef enum
 static inline bool
 ADC_isBaseValid(uint32_t base)
 {
-    return((base == ADCA_BASE) || (base == ADCB_BASE) ||
-           (base == ADCC_BASE) || (base == ADCD_BASE));
+    return(
+           (base == ADCA_BASE) ||
+           (base == ADCB_BASE) ||
+           (base == ADCC_BASE) ||
+           (base == ADCD_BASE)
+          );
 }
 #endif
 
@@ -895,11 +897,12 @@ ADC_readResult(uint32_t resultBase, ADC_SOCNumber socNumber)
     //
     // Check the arguments.
     //
-    ASSERT((resultBase == ADCARESULT_BASE) ||
+    ASSERT(
+           (resultBase == ADCARESULT_BASE) ||
            (resultBase == ADCBRESULT_BASE) ||
            (resultBase == ADCCRESULT_BASE) ||
-           (resultBase == ADCDRESULT_BASE));
-
+           (resultBase == ADCDRESULT_BASE)
+          );
     //
     // Return the ADC result for the selected SOC.
     //
@@ -1380,11 +1383,12 @@ ADC_readPPBResult(uint32_t resultBase, ADC_PPBNumber ppbNumber)
     //
     // Check the arguments.
     //
-    ASSERT((resultBase == ADCARESULT_BASE) ||
+    ASSERT(
+           (resultBase == ADCARESULT_BASE) ||
            (resultBase == ADCBRESULT_BASE) ||
            (resultBase == ADCCRESULT_BASE) ||
-           (resultBase == ADCDRESULT_BASE));
-
+           (resultBase == ADCDRESULT_BASE)
+          );
     //
     // Return the result of selected PPB.
     //
@@ -1982,6 +1986,34 @@ ADC_getTemperatureK(uint16_t tempResult, float32_t vref)
 extern void
 ADC_setMode(uint32_t base, ADC_Resolution resolution,
             ADC_SignalMode signalMode);
+
+//*****************************************************************************
+//
+//! Configures the offset trim for the desired ADC instance
+//!
+//! \param base is the base address of the ADC module.
+//!
+//! This function loads the offset trims for the desired ADC instance.
+//!
+//! \return None.
+//
+//*****************************************************************************
+extern void
+ADC_setOffsetTrim(uint32_t base);
+
+//*****************************************************************************
+//
+//! Configures the INL trim for the desired ADC instance
+//!
+//! \param base is the base address of the ADC module.
+//!
+//! This function loads the INL trims for the desired ADC instance.
+//!
+//! \return None.
+//
+//*****************************************************************************
+extern void
+ADC_setINLTrim(uint32_t base);
 
 //*****************************************************************************
 //

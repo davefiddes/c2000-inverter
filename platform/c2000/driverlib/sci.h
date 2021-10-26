@@ -5,10 +5,10 @@
 // TITLE:  C28x SCI driver.
 //
 //###########################################################################
-// $TI Release: F2837xD Support Library v3.12.00.00 $
-// $Release Date: Fri Feb 12 19:03:23 IST 2021 $
+//
+//
 // $Copyright:
-// Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
+// Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.co/
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -280,6 +280,56 @@ SCI_getParityMode(uint32_t base)
     parity = (HWREGH(base + SCI_O_CCR) & (SCI_CONFIG_PAR_MASK));
 
     return((SCI_ParityType)parity);
+}
+
+//*****************************************************************************
+//
+//! Sets the multiprocessor protocol to address-bit mode.
+//!
+//! \param base is the base address of the SCI port.
+//!
+//! This function sets the multi-processor protocol to address-bit mode.
+//!
+//! \return None.
+//
+//*****************************************************************************
+static inline void
+SCI_setAddrMultiProcessorMode(uint32_t base)
+{
+    //
+    // Check the arguments.
+    //
+    ASSERT(SCI_isBaseValid(base));
+
+    //
+    // Enable the address-bit mode protocol
+    //
+    HWREGH(base + SCI_O_CCR) |= SCI_CCR_ADDRIDLE_MODE;
+}
+
+//*****************************************************************************
+//
+//! Sets the multiprocessor protocol to idle-line mode.
+//!
+//! \param base is the base address of the SCI port.
+//!
+//! This function sets the multi-processor protocol to idle-line protocol.
+//!
+//! \return None.
+//
+//*****************************************************************************
+static inline void
+SCI_setIdleMultiProcessorMode(uint32_t base)
+{
+    //
+    // Check the arguments.
+    //
+    ASSERT(SCI_isBaseValid(base));
+
+    //
+    // Disable the address-bit mode protocol
+    //
+    HWREGH(base + SCI_O_CCR) &= ~SCI_CCR_ADDRIDLE_MODE;
 }
 
 //*****************************************************************************
@@ -863,7 +913,7 @@ SCI_writeCharBlockingFIFO(uint32_t base, uint16_t data)
     //
     // Wait until space is available in the transmit FIFO.
     //
-    while(SCI_getTxFIFOStatus(base) == SCI_FIFO_TX15)
+    while(SCI_getTxFIFOStatus(base) == SCI_FIFO_TX16)
     {
     }
 
@@ -1012,14 +1062,14 @@ SCI_readCharBlockingFIFO(uint32_t base)
         //
         if((SCI_getRxStatus(base) & SCI_RXSTATUS_ERROR) != 0U)
         {
-            return 0U;
+            return(0U);
         }
     }
 
     //
     // Return the character from the receive buffer.
     //
-    return(uint16_t)(HWREGH(base + SCI_O_RXBUF) & SCI_RXBUF_SAR_M);
+    return((uint16_t)(HWREGH(base + SCI_O_RXBUF) & SCI_RXBUF_SAR_M));
 }
 
 //*****************************************************************************
@@ -1054,7 +1104,7 @@ SCI_readCharBlockingNonFIFO(uint32_t base)
     //
     // Return the character from the receive buffer.
     //
-    return(uint16_t)(HWREGH(base + SCI_O_RXBUF) & SCI_RXBUF_SAR_M);
+    return((uint16_t)(HWREGH(base + SCI_O_RXBUF) & SCI_RXBUF_SAR_M));
 }
 
 //*****************************************************************************
@@ -1086,7 +1136,7 @@ SCI_readCharNonBlocking(uint32_t base)
     //
     // Return the character from the receive buffer.
     //
-    return(uint16_t)(HWREGH(base + SCI_O_RXBUF) & SCI_RXBUF_SAR_M);
+    return((uint16_t)(HWREGH(base + SCI_O_RXBUF) & SCI_RXBUF_SAR_M));
 }
 
 //*****************************************************************************
@@ -1252,6 +1302,13 @@ SCI_clearOverflowStatus(uint32_t base)
 //! hard coded if it is constant and known (to save the code/execution overhead
 //! of a call to SysCtl_getLowSpeedClock()).
 //!
+//! A baud rate divider (BRR) is used in this function to calculate the
+//! baud rate. The value of BRR is calculated in float and type casted as int
+//! to be fed in the \b SCIHBAUD and  \b SCILBAUD registers. This conversion
+//! brings an error in the calculated baud rate and the requested. Error will
+//! be significant when operating at higher baud rates. The error is due to
+//! lower BRR integer value granularity at higher baud rates.
+//!
 //! \return None.
 //
 //*****************************************************************************
@@ -1406,6 +1463,23 @@ SCI_clearInterruptStatus(uint32_t base, uint32_t intFlags);
 //*****************************************************************************
 extern void
 SCI_setBaud(uint32_t base, uint32_t lspclkHz, uint32_t baud);
+
+//*****************************************************************************
+//
+//! Sets the SCI TXWAKE flag
+//!
+//! \param base is the base address of the SCI port.
+//!
+//! This function sets the TXWAKE flag bit to indicate that the next frame
+//! is an address frame.
+//! TXWAKE bit controls selection of data-transmit feature based on
+//! which mode is selected from idle-line and address-bit.
+//!
+//! \return None.
+//
+//*****************************************************************************
+extern void
+SCI_setWakeFlag(uint32_t base);
 
 //*****************************************************************************
 //
