@@ -105,6 +105,9 @@ a single CPU should be defined."
 #define DEVICE_GPIO_CFG_SDAB GPIO_40_SDAB
 #define DEVICE_GPIO_CFG_SCLB GPIO_41_SCLB
 
+// M3 Inverter GPIO
+#define DEVICE_GPIO_PIN_GATE_PSU_ENABLE 82
+
 //*****************************************************************************
 //
 // Defines related to clock configuration
