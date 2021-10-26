@@ -5,10 +5,8 @@
 // TITLE:  C28x CAN driver.
 //
 //###########################################################################
-// $TI Release: F2837xD Support Library v3.12.00.00 $
-// $Release Date: Fri Feb 12 19:03:23 IST 2021 $
 // $Copyright:
-// Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
+// Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.co/
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -70,10 +68,8 @@ CAN_initModule(uint32_t base)
     //
     // Force module to reset state
     //
-    EALLOW;
 
     HWREGH(base + CAN_O_CTL) |=  CAN_CTL_SWR;
-    EDIS;
 
     //
     // Delay for 14 cycles
@@ -398,7 +394,7 @@ CAN_setupMessageObject(uint32_t base, uint32_t objID, uint32_t msgID,
     // Set the data length for the transfers. This is applicable only for
     // Tx mailboxes. For Rx mailboxes, dlc is updated on receving a frame.
     //
-    if((msgType == CAN_MSG_OBJ_TYPE_TX) || 
+    if((msgType == CAN_MSG_OBJ_TYPE_TX) ||
         (msgType == CAN_MSG_OBJ_TYPE_RXTX_REMOTE))
     {
         msgCtrl |= ((uint32_t)msgLen & CAN_IF1MCTL_DLC_M);
@@ -523,6 +519,61 @@ CAN_sendMessage(uint32_t base, uint32_t objID, uint16_t msgLen,
 
 //*****************************************************************************
 //
+// CAN_sendRemoteRequestMessage
+//
+//*****************************************************************************
+void
+CAN_sendRemoteRequestMessage(uint32_t base, uint32_t objID)
+{
+    uint32_t msgCtrl = 0U;
+
+    //
+    // Check the arguments.
+    //
+    ASSERT(CAN_isBaseValid(base));
+    ASSERT((objID <= 32U) && (objID > 0U));
+
+    //
+    // Set IF command to read message object control value
+    //
+    // Set up the request for data from the message object.
+    // Transfer the message object to the IF register.
+    //
+    HWREG_BP(base + CAN_O_IF1CMD) = ((uint32_t)CAN_IF1CMD_CONTROL |
+                                     (objID & CAN_IF1CMD_MSG_NUM_M));
+
+    //
+    // Wait for busy bit to clear
+    //
+    while((HWREGH(base + CAN_O_IF1CMD) & CAN_IF1CMD_BUSY) == CAN_IF1CMD_BUSY)
+    {
+    }
+
+    //
+    // Read IF message control
+    //
+    msgCtrl = HWREGH(base + CAN_O_IF1MCTL);
+
+    //
+    // Check configured DLC size with 0 as this is a remote frame
+    //
+    ASSERT((msgCtrl & CAN_IF1MCTL_DLC_M) == 0U);
+
+    //
+    // Set Direction to write
+    //
+    // Set Tx Request Bit for this remote frame
+    //
+    // Transfer the message object to the message object specified by
+    // objID.
+    //
+    HWREG_BP(base + CAN_O_IF1CMD) = (msgCtrl | (uint32_t)CAN_IF1CMD_DIR |
+                                     (uint32_t)CAN_IF1CMD_TXRQST |
+                                     (objID & CAN_IF1CMD_MSG_NUM_M));
+}
+
+//*****************************************************************************
+//
 // CAN_readMessage
 //
 //*****************************************************************************
@@ -548,7 +599,7 @@ CAN_readMessage(uint32_t base, uint32_t objID,
     HWREG_BP(base + CAN_O_IF2CMD) =
     ((uint32_t)CAN_IF2CMD_DATA_A | (uint32_t)CAN_IF2CMD_DATA_B |
      (uint32_t)CAN_IF2CMD_CONTROL | (objID & CAN_IF2CMD_MSG_NUM_M) |
-	 (uint32_t)CAN_IF2CMD_ARB);
+     (uint32_t)CAN_IF2CMD_ARB);
 
     //
     // Wait for busy bit to clear
@@ -721,3 +772,46 @@ CAN_clearMessage(uint32_t base, uint32_t objID)
     (((uint32_t)CAN_IF1CMD_DIR | (uint32_t)CAN_IF1CMD_ARB) |
      (objID & CAN_IF1CMD_MSG_NUM_M));
 }
+
+//*****************************************************************************
+//
+// CAN_disableAllMessageObjects
+//
+//*****************************************************************************
+void
+CAN_disableAllMessageObjects(uint32_t base)
+{
+    uint32_t objID;
+
+    //
+    // Check the arguments.
+    //
+    ASSERT(CAN_isBaseValid(base));
+
+    //
+    // Loop to disable all valid message objects
+    //
+    for(objID = 0x01; objID <= 0x20; objID++)
+    {
+      //
+      // Wait for busy bit to clear
+      //
+      while((HWREGH(base + CAN_O_IF1CMD) & CAN_IF1CMD_BUSY) == CAN_IF1CMD_BUSY)
+      {
+      }
+
+      //
+      // Clear the message valid bit in the arbitration register. This disables
+      // the mailbox.
+      //
+      HWREG_BP(base + CAN_O_IF1ARB) = 0U;
+
+      //
+      // Initiate programming the message object
+      //
+      HWREG_BP(base + CAN_O_IF1CMD) =
+      (((uint32_t)CAN_IF1CMD_DIR | (uint32_t)CAN_IF1CMD_ARB) |
+       (objID & CAN_IF1CMD_MSG_NUM_M));
+    }
+}
+

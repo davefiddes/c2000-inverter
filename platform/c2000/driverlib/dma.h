@@ -5,10 +5,8 @@
 // TITLE:  C28x DMA driver.
 //
 //###########################################################################
-// $TI Release: F2837xD Support Library v3.12.00.00 $
-// $Release Date: Fri Feb 12 19:03:23 IST 2021 $
 // $Copyright:
-// Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
+// Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.co/
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -266,6 +264,32 @@ DMA_initController(void)
 
     EDIS;
 }
+
+//*****************************************************************************
+//
+//! Channel Soft Reset
+//!
+//! \param base is the base address of the DMA channel control registers.
+//!
+//! This function does a soft reset to place the channel into its default state
+//!
+//! \return None.
+//
+//*****************************************************************************
+static inline void
+DMA_triggerSoftReset(uint32_t base)
+{
+    EALLOW;
+
+    //
+    // Set the soft reset bit. One NOP is required after SOFTRESET.
+    //
+    HWREGH(base + DMA_O_CONTROL) |= DMA_CONTROL_SOFTRESET;
+    NOP;
+
+    EDIS;
+}
+
 //*****************************************************************************
 //
 //! Sets DMA emulation mode.
@@ -416,6 +440,124 @@ DMA_clearTriggerFlag(uint32_t base)
     EALLOW;
     HWREGH(base + DMA_O_CONTROL) |= DMA_CONTROL_PERINTCLR;
     EDIS;
+}
+
+//*****************************************************************************
+//
+//! Gets the status of a DMA channel's Transfer Status Flag.
+//!
+//! \param base is the base address of the DMA channel control registers.
+//!
+//! This function returns \b true if the Transfer Status Flag is set, which
+//! means a DMA transfer has begun.
+//! This flag is cleared when TRANSFER_COUNT reaches zero, or when the
+//! HARDRESET or SOFTRESET bit is set.
+//!
+//! \return Returns \b true if the Transfer Status Flag is set. Returns \b false
+//! otherwise.
+//
+//*****************************************************************************
+static inline bool
+DMA_getTransferStatusFlag(uint32_t base)
+{
+    //
+    // Check the arguments.
+    //
+    ASSERT(DMA_isBaseValid(base));
+
+    //
+    // Read the Transfer Status Flag and return appropriately.
+    //
+    return((HWREGH(base + DMA_O_CONTROL) & DMA_CONTROL_TRANSFERSTS) != 0U);
+}
+
+//*****************************************************************************
+//
+//! Gets the status of a DMA channel's Burst Status Flag.
+//!
+//! \param base is the base address of the DMA channel control registers.
+//!
+//! This function returns \b true if the Burst Status Flag is set, which
+//! means a DMA burst has begun.
+//! This flag is cleared when BURST_COUNT reaches zero, or when the
+//! HARDRESET or SOFTRESET bit is set.
+//!
+//! \return Returns \b true if the Burst Status Flag is set. Returns \b false
+//! otherwise.
+//
+//*****************************************************************************
+static inline bool
+DMA_getBurstStatusFlag(uint32_t base)
+{
+    //
+    // Check the arguments.
+    //
+    ASSERT(DMA_isBaseValid(base));
+
+    //
+    // Read the Burst Status Flag and return appropriately.
+    //
+    return((HWREGH(base + DMA_O_CONTROL) & DMA_CONTROL_BURSTSTS) != 0U);
+}
+
+//*****************************************************************************
+//
+//! Gets the status of a DMA channel's Run Status Flag.
+//!
+//! \param base is the base address of the DMA channel control registers.
+//!
+//! This function returns \b true if the Run Status Flag is set, which
+//! means the DMA channel is enabled.
+//! This flag is cleared when a transfer completes (TRANSFER_COUNT = 0) and
+//! continuous mode is disabled, or when the HARDRESET, SOFTRESET, or HALT bit
+//! is set.
+//!
+//! \return Returns \b true if the channel is enabled. Returns \b false
+//! otherwise.
+//
+//*****************************************************************************
+static inline bool
+DMA_getRunStatusFlag(uint32_t base)
+{
+    //
+    // Check the arguments.
+    //
+    ASSERT(DMA_isBaseValid(base));
+
+    //
+    // Read the Run Status Flag and return appropriately.
+    //
+    return((HWREGH(base + DMA_O_CONTROL) & DMA_CONTROL_RUNSTS) != 0U);
+}
+
+//*****************************************************************************
+//
+//! Gets the status of a DMA channel's Overflow Flag.
+//!
+//! \param base is the base address of the DMA channel control registers.
+//!
+//! This function returns \b true if the Overflow Flag is set, which
+//! means peripheral event trigger was received while Peripheral Event Trigger
+//! Flag was already set.
+//! This flag can be cleared by writing to ERRCLR bit, using the function
+//! DMA_clearErrorFlag().
+//!
+//! \return Returns \b true if the channel is enabled. Returns \b false
+//! otherwise.
+//
+//*****************************************************************************
+static inline bool
+DMA_getOverflowFlag(uint32_t base)
+{
+    //
+    // Check the arguments.
+    //
+    ASSERT(DMA_isBaseValid(base));
+
+    //
+    // Read the Overflow Flag and return appropriately.
+    //
+    return((HWREGH(base + DMA_O_CONTROL) & DMA_CONTROL_OVRFLG) != 0U);
 }
 
 //*****************************************************************************

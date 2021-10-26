@@ -5,10 +5,10 @@
 // TITLE:  C28x I2C driver.
 //
 //###########################################################################
-// $TI Release: F2837xD Support Library v3.12.00.00 $
-// $Release Date: Fri Feb 12 19:03:23 IST 2021 $
+//
+//
 // $Copyright:
-// Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
+// Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.co/
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -249,4 +249,27 @@ I2C_clearInterruptStatus(uint32_t base, uint32_t intFlags)
     {
         HWREGH(base + I2C_O_FFRX) |= I2C_FFRX_RXFFINTCLR;
     }
+}
+//*****************************************************************************
+//
+// I2C_configureModuleFrequency
+//
+//*****************************************************************************
+void
+I2C_configureModuleFrequency(uint32_t base, uint32_t sysclkHz)
+{
+    uint32_t modPrescale;
+    uint32_t divider;
+    uint32_t dValue;
+
+    //
+    // Check the arguments.
+    //
+    ASSERT(I2C_isBaseValid(base));
+
+    //
+    // Set the prescaler for the module clock.
+    //
+    modPrescale = (sysclkHz / 10000000U) - 1U;
+    HWREGH(base + I2C_O_PSC) = I2C_PSC_IPSC_M & modPrescale;
 }

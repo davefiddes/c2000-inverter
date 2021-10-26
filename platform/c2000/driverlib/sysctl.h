@@ -5,10 +5,8 @@
 // TITLE:  C28x system control driver.
 //
 //###########################################################################
-// $TI Release: F2837xD Support Library v3.12.00.00 $
-// $Release Date: Fri Feb 12 19:03:23 IST 2021 $
 // $Copyright:
-// Copyright (C) 2013-2021 Texas Instruments Incorporated - http://www.ti.com/
+// Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.co/
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -160,6 +158,8 @@ extern "C"
 //
 // System clock divider (SYSDIV)
 //
+
+
 #define SYSCTL_SYSDIV_M     0x00001F80U // Mask for SYSDIV value in config
 #define SYSCTL_SYSDIV_S     7U          // Shift for SYSDIV value in config
 
@@ -768,7 +768,8 @@ typedef enum
 //! \param None
 //!
 //! This is a wrapper function for the Device_cal function available in the OTP
-//! memory. The function saves and restores the core registers which are being
+//! memory.
+//! The function saves and restores the core registers which are being
 //! used by the Device_cal function
 //!
 //! \return None.
@@ -3071,6 +3072,9 @@ SysCtl_isPresentUSBPHY(void)
 //!
 //! \note If count is equal to zero, the loop will underflow and run for a
 //! very long time.
+//!
+//! \note Refer to the macro DEVICE_DELAY_US(x) in device.h which can be used to
+//! insert a delay in microseconds.
 //!
 //! \return None.
 //
