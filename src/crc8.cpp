@@ -29,7 +29,7 @@
  * Just change this define to whatever polynomial is in use
  * A polynomial of 0x07 corresponds to x^8 + x^2 + x + 1
  */
-#define CRC1B(b) ((uint8_t)((b) << 1) ^ ((b)&0x80 ? 0x07 : 0)) // MS first
+#define CRC1B(b) ((uint16_t)(((b) << 1) ^ ((b)&0x80 ? 0x07 : 0)) & 0xFF) // MS first
 
 /*
  * 8+1 entry enum lookup table define
@@ -71,4 +71,4 @@ enum
  * This is the final lookup table. It is rough on the compiler, but generates
  * the required lookup table automagically at compile time.
  */
-const uint8_t crc_table[256] = { 0, CRCTAB6() CRC(0x80), CRCTAB6(^CRC(0x80)) };
+const uint16_t crc_table[256] = { 0, CRCTAB6() CRC(0x80), CRCTAB6(^CRC(0x80)) };

@@ -24,7 +24,7 @@
 /*
  * Precalculated look up table for CRC calculation
  */
-extern const uint8_t crc_table[256];
+extern const uint16_t crc_table[256];
 
 /**
  *  \brief Calculate 8-bit CRC
@@ -39,7 +39,7 @@ extern const uint8_t crc_table[256];
  *
  * \return Calculated CRC value
  */
-inline uint8_t crc8(uint8_t* p, uint8_t len, uint8_t crc)
+inline uint16_t crc8(uint16_t* p, uint16_t len, uint16_t crc)
 {
     while (len--)
     {
@@ -60,11 +60,9 @@ inline uint8_t crc8(uint8_t* p, uint8_t len, uint8_t crc)
  *
  * \return Calculated CRC value
  */
-inline uint8_t crc8(uint8_t input, uint8_t crc)
+inline uint16_t crc8(uint16_t input, uint16_t crc)
 {
-    crc = crc_table[crc ^ input];
-
-    return crc;
+    return crc_table[(crc & 0xFF) ^ (input & 0xFF)];
 }
 
 #endif /* __CRC8_H_ */

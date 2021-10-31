@@ -8,7 +8,8 @@ add_library(
   src/params.cpp
   src/picontroller.cpp
   src/printf.cpp
-  src/sine_core.cpp)
+  src/sine_core.cpp
+  src/crc8.cpp)
 target_link_libraries(libopeninv global_options)
 target_include_directories(libopeninv
                            PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
