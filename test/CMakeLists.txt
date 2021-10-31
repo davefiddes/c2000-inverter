@@ -18,6 +18,7 @@ file(
   test_fp.cpp
   test_fu.cpp
   test_throttle.cpp
+  testcrc8.cpp
   testfoccalc.cpp
   testfocpwmgeneration.cpp
   testsinecore.cpp
