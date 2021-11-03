@@ -3,9 +3,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/include",
-                "${workspaceFolder}/libopeninv/include",
-                "${workspaceFolder}/libopencm3/include",
+                "${workspaceFolder}/**",
                 "${workspaceFolder}/build/_deps/googletest-src/googlemock/include/",
                 "${workspaceFolder}/build/_deps/googletest-src/googletest/include/"
             ],
