@@ -12,3 +12,6 @@ add_subdirectory(inverter)
 
 # Tesla M3 Gate Driver and PSU test application
 add_subdirectory(gatedrivertest)
+
+# Dump Tesla M3 EEPROM
+add_subdirectory(dumpeeprom)

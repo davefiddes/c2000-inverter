@@ -108,6 +108,15 @@ a single CPU should be defined."
 // M3 Inverter GPIO
 #define DEVICE_GPIO_PIN_GATE_PSU_ENABLE 82
 
+// M3 Inverter EEPROM
+#define DEVICE_TESLAM3_GPIO_PIN_EEPROM1_CS 23
+
+#define DEVICE_TESLAM3_GPIO_CFG_EEPROM_CLK  GPIO_22_SPICLKB
+#define DEVICE_TESLAM3_GPIO_CFG_EEPROM_MOSI GPIO_24_SPISIMOB
+#define DEVICE_TESLAM3_GPIO_CFG_EEPROM_MISO GPIO_25_SPISOMIB
+
+#define DEVICE_TESLAM3_EEPROM_SPI SPIB_BASE
+
 //*****************************************************************************
 //
 // Defines related to clock configuration
