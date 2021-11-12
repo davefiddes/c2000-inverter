@@ -19,8 +19,8 @@
 
 #include "device.h"
 #include "driverlib.h"
-#include "eeprom.h"
-#include "spihelper.h"
+#include "c2000/eeprom.h"
+#include "c2000/spihelper.h"
 #include <stdio.h>
 
 using namespace c2000;

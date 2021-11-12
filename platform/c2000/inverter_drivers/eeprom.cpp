@@ -16,10 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "eeprom.h"
+#include "c2000/eeprom.h"
 #include "device.h"
 #include "driverlib.h"
-#include "spihelper.h"
+#include "c2000/spihelper.h"
 
 namespace c2000 {
 
