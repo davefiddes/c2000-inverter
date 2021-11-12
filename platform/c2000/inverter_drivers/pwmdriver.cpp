@@ -18,13 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "c2000pwmdriver.h"
-#include "c2000pwmgeneration.h"
+#include "c2000/pwmdriver.h"
+#include "c2000/pwmgeneration.h"
 #include "device.h"
 #include "driverlib.h"
 #include "errormessage.h"
 #include "params.h"
-#include "performancecounter.h"
+#include "c2000/performancecounter.h"
 
 namespace c2000 {
 

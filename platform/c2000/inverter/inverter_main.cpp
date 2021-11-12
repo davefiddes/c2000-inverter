@@ -17,15 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "c2000current.h"
-#include "c2000encoder.h"
-#include "c2000pwmdriver.h"
-#include "c2000pwmgeneration.h"
+#include "c2000/current.h"
+#include "c2000/encoder.h"
+#include "c2000/pwmdriver.h"
+#include "c2000/pwmgeneration.h"
 #include "device.h"
 #include "driverlib.h"
 #include "errormessage.h"
 #include "focpwmgeneration.h"
-#include "performancecounter.h"
+#include "c2000/performancecounter.h"
 #include <stdio.h>
 
 // Pull in the whole C2000 namespace as this is platform specific code obviously

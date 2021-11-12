@@ -17,9 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "c2000current.h"
-#include "c2000encoder.h"
-#include "c2000pwmdriver.h"
+#include "c2000/current.h"
+#include "c2000/encoder.h"
+#include "c2000/pwmdriver.h"
 #include "focpwmgeneration.h"
 
 // Global declaration of our PWM generation class - we only support Field
