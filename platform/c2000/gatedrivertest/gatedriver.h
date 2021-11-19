@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TESLAM3GATEDRIVER_H
-#define TESLAM3GATEDRIVER_H
+#ifndef GATEDRIVER_H
+#define GATEDRIVER_H
 
 #include <stdint.h>
 
@@ -26,6 +26,11 @@ class TeslaM3GateDriver
 public:
     static bool Init();
     static bool IsFaulty();
+    static void Enable();
+    static void Disable();
+#ifdef DEBUG_STATE
+    static void DumpStatus();
+#endif
 
 private:
     enum ChipMask
@@ -36,27 +41,29 @@ private:
     };
     struct Register
     {
-        uint8_t  reg;
-        uint8_t  value;
+        uint16_t reg;
+        uint16_t value;
         ChipMask mask;
     };
 
 private:
-    static const uint8_t  NumDriverChips = 6;
+    static const uint16_t NumDriverChips = 6;
     static const Register GateDriverRegisterSetup[];
-    static const uint8_t  RegisterSetupSize;
+    static const uint16_t RegisterSetupSize;
     static const Register NullGateDriverRegister;
+
+private:
+    typedef uint16_t DataBuffer[NumDriverChips];
 
 private:
     static void InitSPIPort();
     static void SetupGateDrivers();
     static bool VerifyGateDriverConfig();
 
-    static void SendCommand(uint8_t cmd);
+    static void SendCommand(uint16_t cmd);
     static void WriteRegister(const Register& reg);
-    static bool VerifyRegister(
-        const Register& readReg,
-        const Register& verifyValue);
+    static void ReadRegister(uint16_t regNum, uint16_t* values);
+    static bool VerifyRegister(uint16_t regNum, uint16_t value);
 };
 
-#endif // TESLAM3GATEDRIVER_H
+#endif // GATEDRIVER_H

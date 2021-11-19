@@ -117,6 +117,28 @@ a single CPU should be defined."
 
 #define DEVICE_TESLAM3_EEPROM_SPI SPIB_BASE
 
+// LAUNCHXL logic analyser friendly Gate Driver pins
+#define DEVICE_LAUNCHXL_GPIO_PIN_GATE_SHUTDOWN   124 
+
+#define DEVICE_LAUNCHXL_GPIO_PIN_GATE_CS         61
+
+#define DEVICE_LAUNCHXL_GPIO_CFG_GATE_CLK        GPIO_60_SPICLKA
+#define DEVICE_LAUNCHXL_GPIO_CFG_GATE_MOSI       GPIO_58_SPISIMOA
+#define DEVICE_LAUNCHXL_GPIO_CFG_GATE_MISO       GPIO_59_SPISOMIA
+
+#define DEVICE_LAUNCHXL_GATE_SPI                 SPIA_BASE
+
+// Tesla Model 3 Inverter Gate Driver Pins
+#define DEVICE_TESLAM3_GPIO_PIN_GATE_SHUTDOWN   38
+
+#define DEVICE_TESLAM3_GPIO_PIN_GATE_CS         53
+
+#define DEVICE_TESLAM3_GPIO_CFG_GATE_CLK        GPIO_52_SPICLKC
+#define DEVICE_TESLAM3_GPIO_CFG_GATE_MOSI       GPIO_50_SPISIMOC
+#define DEVICE_TESLAM3_GPIO_CFG_GATE_MISO       GPIO_51_SPISOMIC
+
+#define DEVICE_TESLAM3_GATE_SPI                 SPIC_BASE
+
 //*****************************************************************************
 //
 // Defines related to clock configuration

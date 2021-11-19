@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "gatedriver.h"
 #include "device.h"
 #include "driverlib.h"
 #include <stdio.h>
@@ -40,7 +41,9 @@ void main(void)
 
     printf("Tesla M3 inverter gate driver test application\n\n");
 
-    printf("Running on: %s\n", IsTeslaM3Inverter() ? "Tesla M3 Inverter" : "TI Launchpad");
+    printf(
+        "Running on: %s\n",
+        IsTeslaM3Inverter() ? "Tesla M3 Inverter" : "TI Launchpad");
 
     //
     // Set up the LEDs
@@ -73,6 +76,7 @@ void main(void)
     GPIO_setDirectionMode(DEVICE_GPIO_PIN_GATE_PSU_ENABLE, GPIO_DIR_MODE_OUT);
     printf("Gate Drive PSU OFF\n");
 
+#if 0
     // Wait for 1 second
     DEVICE_DELAY_US(1000000);
 
@@ -80,6 +84,14 @@ void main(void)
     GPIO_writePin(DEVICE_GPIO_PIN_GATE_PSU_ENABLE, 0);
     printf("Gate Drive PSU ON\n");
     GPIO_writePin(redLedPin, 0);
+
+    // Wait for 1 second
+    DEVICE_DELAY_US(1000000);
+#endif
+
+    printf(
+        "Gate Drive initialisation:%s\n",
+        TeslaM3GateDriver::Init() ? "Successful" : "Failed");
 
     //
     // Initialize PIE and clear PIE registers. Disables CPU interrupts.
@@ -103,5 +115,8 @@ void main(void)
     //
     for (;;)
     {
+        printf(
+            "Gate Drive: %s\n", TeslaM3GateDriver::IsFaulty() ? "FAULT" : "OK");
+        DEVICE_DELAY_US(1000000);
     }
 }
