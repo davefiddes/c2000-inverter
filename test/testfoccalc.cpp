@@ -61,64 +61,64 @@ TEST(TestFocCalc, ParkClarkeTransform)
     // No current, zero angle therefore no Id and Iq
     FOC::SetAngle(0);
     FOC::ParkClarke(FP_FROMFLT(0.0), FP_FROMFLT(0.0));
-    EXPECT_THAT(FP_TOFLT(FOC::id), FloatNear(0.0, Tolerance));
-    EXPECT_THAT(FP_TOFLT(FOC::iq), FloatNear(0.0, Tolerance));
+    EXPECT_THAT(FP_TOFLOAT(FOC::id), FloatNear(0.0, Tolerance));
+    EXPECT_THAT(FP_TOFLOAT(FOC::iq), FloatNear(0.0, Tolerance));
 
     // Phase 1 current only, zero angle
     FOC::SetAngle(0);
     FOC::ParkClarke(FP_FROMFLT(1.0), FP_FROMFLT(0.0));
     auto result = FloatParkClark(1.0, 0.0, 0);
-    EXPECT_THAT(FP_TOFLT(FOC::id), FloatNear(result.first, Tolerance));
-    EXPECT_THAT(FP_TOFLT(FOC::iq), FloatNear(result.second, Tolerance));
+    EXPECT_THAT(FP_TOFLOAT(FOC::id), FloatNear(result.first, Tolerance));
+    EXPECT_THAT(FP_TOFLOAT(FOC::iq), FloatNear(result.second, Tolerance));
 
     // Phase 1 and Phase 2 current, zero angle
     FOC::SetAngle(0);
     FOC::ParkClarke(FP_FROMFLT(100.0), FP_FROMFLT(100.0));
     result = FloatParkClark(100.0, 100.0, 0);
-    EXPECT_THAT(FP_TOFLT(FOC::id), FloatNear(result.first, Tolerance));
-    EXPECT_THAT(FP_TOFLT(FOC::iq), FloatNear(result.second, Tolerance));
+    EXPECT_THAT(FP_TOFLOAT(FOC::id), FloatNear(result.first, Tolerance));
+    EXPECT_THAT(FP_TOFLOAT(FOC::iq), FloatNear(result.second, Tolerance));
 
     // In first quadrant
     FOC::SetAngle(RadToRev(pi / 3));
     FOC::ParkClarke(FP_FROMFLT(100.0), FP_FROMFLT(100.0));
     result = FloatParkClark(100.0, 100.0, pi / 3);
-    EXPECT_THAT(FP_TOFLT(FOC::id), FloatNear(result.first, Tolerance));
-    EXPECT_THAT(FP_TOFLT(FOC::iq), FloatNear(result.second, Tolerance));
+    EXPECT_THAT(FP_TOFLOAT(FOC::id), FloatNear(result.first, Tolerance));
+    EXPECT_THAT(FP_TOFLOAT(FOC::iq), FloatNear(result.second, Tolerance));
 
     // 90 degrees
     FOC::SetAngle(RadToRev(pi / 2));
     FOC::ParkClarke(FP_FROMFLT(100.0), FP_FROMFLT(100.0));
     result = FloatParkClark(100.0, 100.0, pi / 2);
-    EXPECT_THAT(FP_TOFLT(FOC::id), FloatNear(result.first, Tolerance));
-    EXPECT_THAT(FP_TOFLT(FOC::iq), FloatNear(result.second, Tolerance));
+    EXPECT_THAT(FP_TOFLOAT(FOC::id), FloatNear(result.first, Tolerance));
+    EXPECT_THAT(FP_TOFLOAT(FOC::iq), FloatNear(result.second, Tolerance));
 
     // 180 degrees
     FOC::SetAngle(RadToRev(pi));
     FOC::ParkClarke(FP_FROMFLT(100.0), FP_FROMFLT(100.0));
     result = FloatParkClark(100.0, 100.0, pi);
-    EXPECT_THAT(FP_TOFLT(FOC::id), FloatNear(result.first, Tolerance));
-    EXPECT_THAT(FP_TOFLT(FOC::iq), FloatNear(result.second, Tolerance));
+    EXPECT_THAT(FP_TOFLOAT(FOC::id), FloatNear(result.first, Tolerance));
+    EXPECT_THAT(FP_TOFLOAT(FOC::iq), FloatNear(result.second, Tolerance));
 
     // In third quadrant
     FOC::SetAngle(RadToRev(pi + pi / 4));
     FOC::ParkClarke(FP_FROMFLT(100.0), FP_FROMFLT(100.0));
     result = FloatParkClark(100.0, 100.0, pi + pi / 4);
-    EXPECT_THAT(FP_TOFLT(FOC::id), FloatNear(result.first, Tolerance));
-    EXPECT_THAT(FP_TOFLT(FOC::iq), FloatNear(result.second, Tolerance));
+    EXPECT_THAT(FP_TOFLOAT(FOC::id), FloatNear(result.first, Tolerance));
+    EXPECT_THAT(FP_TOFLOAT(FOC::iq), FloatNear(result.second, Tolerance));
 
     // In fourth quadrant
     FOC::SetAngle(RadToRev(2 * pi - pi / 5));
     FOC::ParkClarke(FP_FROMFLT(100.0), FP_FROMFLT(100.0));
     result = FloatParkClark(100.0, 100.0, 2 * pi - pi / 5);
-    EXPECT_THAT(FP_TOFLT(FOC::id), FloatNear(result.first, Tolerance));
-    EXPECT_THAT(FP_TOFLT(FOC::iq), FloatNear(result.second, Tolerance));
+    EXPECT_THAT(FP_TOFLOAT(FOC::id), FloatNear(result.first, Tolerance));
+    EXPECT_THAT(FP_TOFLOAT(FOC::iq), FloatNear(result.second, Tolerance));
 
     // Different phase currents at 90 degrees
     FOC::SetAngle(RadToRev(pi / 2));
     FOC::ParkClarke(FP_FROMFLT(123.4), FP_FROMFLT(567.8));
     result = FloatParkClark(123.4, 567.8, pi / 2);
-    EXPECT_THAT(FP_TOFLT(FOC::id), FloatNear(result.first, Tolerance));
-    EXPECT_THAT(FP_TOFLT(FOC::iq), FloatNear(result.second, Tolerance));
+    EXPECT_THAT(FP_TOFLOAT(FOC::id), FloatNear(result.first, Tolerance));
+    EXPECT_THAT(FP_TOFLOAT(FOC::iq), FloatNear(result.second, Tolerance));
 }
 
 float FloatGetQLimit(float maxVd)

@@ -37,7 +37,7 @@ using ::testing::Ne;
 using ::testing::Return;
 using ::testing::Test;
 
-void parm_Change([[maybe_unused]] Param::PARAM_NUM paramNum)
+void Param::Change([[maybe_unused]] Param::PARAM_NUM paramNum)
 {
 }
 

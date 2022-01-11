@@ -40,7 +40,7 @@ TEST(FixedPoint, TestMacros)
         FP_DIV(FP_FROMFLT(5.5), FP_FROMFLT(2.03125)),
         FP_FROMFLT(5.5 / 2.03125));
     EXPECT_EQ(FP_TOINT(FP_FROMFLT(12345.6)), 12345);
-    EXPECT_THAT(FP_TOFLT(FP_FROMFLT(12345.6)), FloatNear(12345.6, 0.01));
+    EXPECT_THAT(FP_TOFLOAT(FP_FROMFLT(12345.6)), FloatNear(12345.6, 0.01));
 }
 
 TEST(FixedPoint, TestItoa)
@@ -79,17 +79,17 @@ TEST(FixedPoint, TestAtan2)
 TEST(FixedPoint, TestLn)
 {
     EXPECT_EQ(fp_ln(1), 0);
-    EXPECT_THAT(FP_TOFLT(fp_ln(5389)), FloatNear(8.592115118, 0.1));
-    EXPECT_THAT(FP_TOFLT(fp_ln(8290)), FloatNear(9.022805248, 0.1));
+    EXPECT_THAT(FP_TOFLOAT(fp_ln(5389)), FloatNear(8.592115118, 0.1));
+    EXPECT_THAT(FP_TOFLOAT(fp_ln(8290)), FloatNear(9.022805248, 0.1));
     EXPECT_EQ(fp_ln(0), -1);
 }
 
 TEST(FixedPoint, TestSqrt)
 {
-    EXPECT_THAT(FP_TOFLT(fp_sqrt(FP_FROMFLT(9.0))), FloatNear(3.0, 0.1));
-    EXPECT_THAT(FP_TOFLT(fp_sqrt(FP_FROMFLT(100.0))), FloatNear(10.0, 0.1));
+    EXPECT_THAT(FP_TOFLOAT(fp_sqrt(FP_FROMFLT(9.0))), FloatNear(3.0, 0.1));
+    EXPECT_THAT(FP_TOFLOAT(fp_sqrt(FP_FROMFLT(100.0))), FloatNear(10.0, 0.1));
     EXPECT_THAT(
-        FP_TOFLT(fp_sqrt(FP_FROMFLT(0.3))), FloatNear(0.547722558, 0.1));
+        FP_TOFLOAT(fp_sqrt(FP_FROMFLT(0.3))), FloatNear(0.547722558, 0.1));
     EXPECT_THAT(
-        FP_TOFLT(fp_sqrt(FP_FROMFLT(12345.67))), FloatNear(111.111070556, 0.1));
+        FP_TOFLOAT(fp_sqrt(FP_FROMFLT(12345.67))), FloatNear(111.111070556, 0.1));
 }

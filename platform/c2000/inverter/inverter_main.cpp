@@ -31,7 +31,7 @@
 // Pull in the whole C2000 namespace as this is platform specific code obviously
 using namespace c2000;
 
-void parm_Change(Param::PARAM_NUM paramNum)
+void Param::Change(Param::PARAM_NUM paramNum)
 {
 }
 

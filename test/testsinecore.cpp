@@ -46,33 +46,33 @@ TEST(TestSineCore, Sine)
 {
     // zero angle
     EXPECT_THAT(
-        FP_TOFLT(SineCore::Sine(RadToRev(0))),
+        FP_TOFLOAT(SineCore::Sine(RadToRev(0))),
         FloatNear(SineAmp * std::sin(0), Tolerance));
 
     // In first quadrant
     EXPECT_THAT(
-        FP_TOFLT(SineCore::Sine(RadToRev(pi / 3))),
+        FP_TOFLOAT(SineCore::Sine(RadToRev(pi / 3))),
         FloatNear(SineAmp * std::sin(pi / 3), Tolerance));
 
     // 90 degrees
     EXPECT_THAT(
-        FP_TOFLT(SineCore::Sine(RadToRev(pi / 2))),
+        FP_TOFLOAT(SineCore::Sine(RadToRev(pi / 2))),
         FloatNear(SineAmp * std::sin(pi / 2), Tolerance));
 
     // 180 degrees
     EXPECT_THAT(
-        FP_TOFLT(SineCore::Sine(RadToRev(pi))),
+        FP_TOFLOAT(SineCore::Sine(RadToRev(pi))),
         FloatNear(SineAmp * std::sin(pi), Tolerance));
 
     // In third quadrant - extra tolerant because there's an off-by-one
     // niggle/buglet where it gets the wrong bucket but only in this quadrant
     EXPECT_THAT(
-        FP_TOFLT(SineCore::Sine(RadToRev(pi + pi / 4))),
+        FP_TOFLOAT(SineCore::Sine(RadToRev(pi + pi / 4))),
         FloatNear(SineAmp * std::sin(pi + pi / 4), 3 * Tolerance));
 
     // In fourth quadrant
     EXPECT_THAT(
-        FP_TOFLT(SineCore::Sine(RadToRev(2 * pi - pi / 5))),
+        FP_TOFLOAT(SineCore::Sine(RadToRev(2 * pi - pi / 5))),
         FloatNear(SineAmp * std::sin(2 * pi - pi / 5), Tolerance));
 }
 
@@ -81,32 +81,32 @@ TEST(TestCosineCore, Cosine)
 {
     // zero angle
     EXPECT_THAT(
-        FP_TOFLT(SineCore::Cosine(RadToRev(0))),
+        FP_TOFLOAT(SineCore::Cosine(RadToRev(0))),
         FloatNear(SineAmp * std::cos(0), Tolerance));
 
     // In first quadrant
     EXPECT_THAT(
-        FP_TOFLT(SineCore::Cosine(RadToRev(pi / 3))),
+        FP_TOFLOAT(SineCore::Cosine(RadToRev(pi / 3))),
         FloatNear(SineAmp * std::cos(pi / 3), Tolerance));
 
     // 90 degrees
     EXPECT_THAT(
-        FP_TOFLT(SineCore::Cosine(RadToRev(pi / 2))),
+        FP_TOFLOAT(SineCore::Cosine(RadToRev(pi / 2))),
         FloatNear(SineAmp * std::cos(pi / 2), Tolerance));
 
     // 180 degrees
     EXPECT_THAT(
-        FP_TOFLT(SineCore::Cosine(RadToRev(pi))),
+        FP_TOFLOAT(SineCore::Cosine(RadToRev(pi))),
         FloatNear(SineAmp * std::cos(pi), Tolerance));
 
     // In third quadrant - extra tolerant because there's an off-by-one
     // niggle/buglet where it gets the wrong bucket but only in this quadrant
     EXPECT_THAT(
-        FP_TOFLT(SineCore::Cosine(RadToRev(pi + pi / 4))),
+        FP_TOFLOAT(SineCore::Cosine(RadToRev(pi + pi / 4))),
         FloatNear(SineAmp * std::cos(pi + pi / 4), 3 * Tolerance));
 
     // In fourth quadrant
     EXPECT_THAT(
-        FP_TOFLT(SineCore::Cosine(RadToRev(2 * pi - pi / 5))),
+        FP_TOFLOAT(SineCore::Cosine(RadToRev(2 * pi - pi / 5))),
         FloatNear(SineAmp * std::cos(2 * pi - pi / 5), Tolerance));
 }

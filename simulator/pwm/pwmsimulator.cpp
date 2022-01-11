@@ -27,7 +27,7 @@
 // Pull in the whole C2000 namespace as this is platform specific code obviously
 using namespace simulator;
 
-void parm_Change(__attribute__((__unused__)) Param::PARAM_NUM paramNum)
+void Param::Change(__attribute__((__unused__)) Param::PARAM_NUM paramNum)
 {
 }
 
