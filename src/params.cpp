@@ -65,7 +65,7 @@ int Set(PARAM_NUM ParamNum, s32fp ParamVal)
     if (ParamVal >= attribs[ParamNum].min && ParamVal <= attribs[ParamNum].max)
     {
         values[ParamNum] = ParamVal;
-        parm_Change(ParamNum);
+        Change(ParamNum);
         res = 0;
     }
     return res;
@@ -101,7 +101,7 @@ int32_t GetInt(PARAM_NUM ParamNum)
 */
 float GetFloat(PARAM_NUM ParamNum)
 {
-    return ((float)values[ParamNum]) / FRAC_FAC;
+    return FP_TOFLOAT(values[ParamNum]);
 }
 
 /**
@@ -145,7 +145,7 @@ void SetFixed(PARAM_NUM ParamNum, s32fp ParamVal)
 */
 void SetFloat(PARAM_NUM ParamNum, float ParamVal)
 {
-   values[ParamNum] = (s32fp)(ParamVal * FRAC_FAC);
+   values[ParamNum] = FP_FROMFLT(ParamVal);
 }
 
 /**

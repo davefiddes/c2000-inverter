@@ -92,9 +92,9 @@ namespace Param
    void SetFlag(PARAM_NUM param, PARAM_FLAG flag);
    void ClearFlag(PARAM_NUM param, PARAM_FLAG flag);
    PARAM_FLAG GetFlag(PARAM_NUM param);
-}
 
-//User defined callback
-extern void parm_Change(Param::PARAM_NUM ParamNum);
+   //User defined callback
+   void Change(Param::PARAM_NUM ParamNum);
+}
 
 #endif //PARAM_H_INCLUDED

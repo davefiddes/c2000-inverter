@@ -19,7 +19,7 @@
 #ifndef MY_MATH_H_INCLUDED
 #define MY_MATH_H_INCLUDED
 
-#define ABS(a)   ((a) < 0?(-a) : (a))
+#define ABS(a)   ((a) < 0?(-(a)) : (a))
 #define MIN(a,b) ((a) < (b)?(a):(b))
 #define MAX(a,b) ((a) > (b)?(a):(b))
 #define CLAMP(a,low,high) ((a) > (high)?(high):((a) < (low)? (low):(a)))
