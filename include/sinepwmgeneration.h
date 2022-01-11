@@ -95,8 +95,8 @@ public:
     static void SetTorquePercent(float torque)
     {
         const int   filterConst = 4;
-        const float roundingError =
-            ((float)((1 << filterConst) - 1)) / FRAC_FAC;
+        const float roundingError = FP_TOFLOAT((float)((1 << filterConst) - 1));
+        ;
         float fslipmin = Param::GetFloat(Param::fslipmin);
         float ampmin = Param::GetFloat(Param::ampmin);
         float slipstart = Param::GetFloat(Param::slipstart);
@@ -141,14 +141,14 @@ public:
         else
         {
             float brkrampstr = Param::GetFloat(Param::brkrampstr);
+            float rotorFrq = FP_TOFLOAT(EncoderT::GetRotorFrequency());
 
             ampnomLocal = -torque;
 
             fslipspnt = -fslipmin;
-            if (EncoderT::GetRotorFrequency() < brkrampstr)
+            if (rotorFrq < brkrampstr)
             {
-                ampnomLocal =
-                    EncoderT::GetRotorFrequency() / brkrampstr * ampnomLocal;
+                ampnomLocal = rotorFrq / brkrampstr * ampnomLocal;
             }
         }
 

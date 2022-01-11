@@ -157,7 +157,7 @@ float VehicleControl::ProcessThrottle()
    if ((int)Encoder::GetSpeed() < Param::GetInt(Param::throtramprpm))
       Throttle::throttleRamp = Param::GetFloat(Param::throtramp);
    else
-      Throttle::throttleRamp = Param::GetAttrib(Param::throtramp)->max / FRAC_FAC;
+      Throttle::throttleRamp = FP_TOFLOAT(Param::GetAttrib(Param::throtramp)->max);
 
    throtSpnt = GetUserThrottleCommand();
    GetCruiseCreepCommand(finalSpnt, throtSpnt);
@@ -317,9 +317,8 @@ float VehicleControl::ProcessUdc()
    udcFiltered = IIRFILTER(udcFiltered, udcRaw, 2);
    udcfp = (udcFiltered - udcofs) / udcgain;
 
-   //On M3 pin is used for gate drive enable
    //On i3 pin is used as SPI_MOSI
-   if (hwRev != HW_TESLAM3 && snshs != TempMeas::TEMP_BMWI3HS)
+   if (snshs != TempMeas::TEMP_BMWI3HS)
    {
       if (udcfp < udcmin || udcfp > udcmax)
          DigIo::vtg_out.Set();
@@ -550,7 +549,7 @@ float VehicleControl::GetUserThrottleCommand()
          return 0;
       }
 
-      potnom2 = FP_FROMINT(100); //No regen attenuation
+      potnom2 = 100.0f; //No regen attenuation
    }
    else if (!inRange1)
    {

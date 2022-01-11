@@ -56,7 +56,7 @@ public:
     {
         if (BaseT::opmode == MANUAL || BaseT::opmode == RUN)
         {
-            static s32fp frqFiltered = 0, idcFiltered = 0;
+            static s32fp idcFiltered = 0;
             int32_t      dir = Param::GetInt(Param::dir);
             int          moddedfwkp;
             int32_t      kifrqgain = Param::GetInt(Param::curkifrqgain);
@@ -67,8 +67,8 @@ public:
             CalcNextAngleSync(dir);
             FOC::SetAngle(BaseT::angle);
 
-            frqFiltered = IIRFILTER(frqFiltered, BaseT::frq, 8);
-            int32_t moddedKi = curki + kifrqgain * FP_TOINT(frqFiltered);
+            BaseT::frqFiltered = IIRFILTER(BaseT::frqFiltered, BaseT::frq, 8);
+            int32_t moddedKi = curki + kifrqgain * FP_TOINT(BaseT::frqFiltered);
 
             if (BaseT::frq < Param::Get(Param::ffwstart))
             {
@@ -157,7 +157,7 @@ public:
     static void SetTorquePercent(float torquePercent)
     {
         float brkrampstr = Param::GetFloat(Param::brkrampstr);
-        float rotorfreq = (float)BaseT::frq / FRAC_FAC;
+        float rotorfreq = FP_TOFLOAT(BaseT::frq);
         int   direction = Param::GetInt(Param::dir);
 
         if (rotorfreq < brkrampstr && torquePercent < 0)
@@ -198,7 +198,7 @@ protected:
         qController.SetMinMaxY(-maxVd, maxVd);
         dController.ResetIntegrator();
         dController.SetCallingFrequency(BaseT::pwmfrq);
-        dController.SetMinMaxY(-maxVd, maxVd / 2);
+        dController.SetMinMaxY(-maxVd, maxVd);
         fwController.ResetIntegrator();
         fwController.SetCallingFrequency(BaseT::pwmfrq);
         fwController.SetMinMaxY(
@@ -246,8 +246,7 @@ private:
         {
             uint16_t syncOfs = Param::GetInt(Param::syncofs);
             uint16_t rotorAngle = EncoderT::GetRotorAngle();
-            int      syncadv =
-                (BaseT::frq - FP_FROMINT(20)) * Param::GetInt(Param::syncadv);
+            int syncadv = BaseT::frqFiltered * Param::GetInt(Param::syncadv);
             syncadv = MAX(0, syncadv);
 
             // Compensate rotor movement that happened between sampling and

@@ -237,12 +237,14 @@ protected:
     }
 
 protected:
-    static uint16_t      pwmfrq;
-    static uint16_t      angle;
-    static s32fp         ampnom;
-    static uint16_t      slipIncr;
-    static s32fp         fslip;
-    static s32fp         frq;
+    static uint16_t pwmfrq;
+    static uint16_t angle;
+    static s32fp    ampnom;
+    static uint16_t slipIncr;
+    static s32fp    fslip;
+    static s32fp    frq;
+    static s32fp    frqFiltered;
+
     static uint_least8_t shiftForTimer;
     static Modes         opmode;
     static s32fp         ilofs[2];
@@ -270,6 +272,9 @@ s32fp PwmGenerationBase<PwmModeT, CurrentT, PwmDriverT>::fslip;
 
 template <typename PwmModeT, typename CurrentT, typename PwmDriverT>
 s32fp PwmGenerationBase<PwmModeT, CurrentT, PwmDriverT>::frq;
+
+template <typename PwmModeT, typename CurrentT, typename PwmDriverT>
+s32fp PwmGenerationBase<PwmModeT, CurrentT, PwmDriverT>::frqFiltered;
 
 template <typename PwmModeT, typename CurrentT, typename PwmDriverT>
 uint_least8_t PwmGenerationBase<PwmModeT, CurrentT, PwmDriverT>::shiftForTimer;
