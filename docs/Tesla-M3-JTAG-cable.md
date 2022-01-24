@@ -6,7 +6,7 @@ It is possible to erase, reprogram and debug software running on a Tesla Model 3
 
 ## Off The Shelf Solution
 
-An easy to use JTAG adapter is being built by Damien Maguire. Details of this can be found [here](https://openinverter.org/forum/viewtopic.php?p=32184).
+An easy to use JTAG adapter specifically designed to fit the Tesla M3 inverter has been built by Damien Maguire. This can be purchased from his [shop](https://www.evbmw.com/index.php/evbmw-webshop/tesla-boards/m3du-jtag).
 
 ## DIY adapter
 
