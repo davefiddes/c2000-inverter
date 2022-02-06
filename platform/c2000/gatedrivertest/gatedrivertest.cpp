@@ -76,7 +76,7 @@ void main(void)
     GPIO_setDirectionMode(DEVICE_GPIO_PIN_GATE_PSU_ENABLE, GPIO_DIR_MODE_OUT);
     printf("Gate Drive PSU OFF\n");
 
-#if 0
+#if 1
     // Wait for 1 second
     DEVICE_DELAY_US(1000000);
 
@@ -90,7 +90,7 @@ void main(void)
 #endif
 
     printf(
-        "Gate Drive initialisation:%s\n",
+        "Gate Drive initialisation: %s\n",
         TeslaM3GateDriver::Init() ? "Successful" : "Failed");
 
     //

@@ -60,7 +60,7 @@
 
 #define STGAP1AS_CMD_READ_REG_VALUE			    (0b10100000)
 #define STGAP1AS_CMD_READ_REG_MASK			    0x1F
-/** Write register */
+/** Read register */
 #define STGAP1AS_CMD_READ_REG(x)                (STGAP1AS_CMD_READ_REG_VALUE | (x & STGAP1AS_CMD_READ_REG_MASK))
 
 /** Reset all the status registers */

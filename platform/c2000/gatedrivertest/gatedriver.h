@@ -20,6 +20,7 @@
 #define GATEDRIVER_H
 
 #include <stdint.h>
+#include "gatedriverspi.h"
 
 class TeslaM3GateDriver
 {
@@ -44,6 +45,7 @@ private:
         uint16_t reg;
         uint16_t value;
         ChipMask mask;
+        uint16_t validBitMask;
     };
 
 private:
@@ -56,7 +58,6 @@ private:
     typedef uint16_t DataBuffer[NumDriverChips];
 
 private:
-    static void InitSPIPort();
     static void SetupGateDrivers();
     static bool VerifyGateDriverConfig();
 
@@ -64,6 +65,9 @@ private:
     static void WriteRegister(const Register& reg);
     static void ReadRegister(uint16_t regNum, uint16_t* values);
     static bool VerifyRegister(uint16_t regNum, uint16_t value);
+
+private:
+    static c2000::teslam3::GateDriverSpiInterface sm_interface;
 };
 
 #endif // GATEDRIVER_H
