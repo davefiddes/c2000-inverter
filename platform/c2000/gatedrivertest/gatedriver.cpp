@@ -285,9 +285,7 @@ void TeslaM3GateDriver::WriteRegister(const Register& reg)
 
     cmd = cmd << 8 | cmdCrc;
 
-    const uint16_t nop =
-        STGAP1AS_CMD_NOP << 8 |
-        invert_byte(crc8(STGAP1AS_CMD_NOP, STGAP1AS_SPI_CRC_INIT_VALUE));
+    const uint16_t nop = BuildCommand(STGAP1AS_CMD_NOP);
 
     // Send the register write command ignoring any response (which is
     // undefined)
@@ -366,15 +364,12 @@ void TeslaM3GateDriver::DumpStatus()
  */
 void TeslaM3GateDriver::ReadRegister(uint16_t regNum, uint16_t* values)
 {
-    const uint16_t cmd =
-        STGAP1AS_CMD_READ_REG(regNum) << 8 |
-        invert_byte(
-            crc8(STGAP1AS_CMD_READ_REG(regNum), STGAP1AS_SPI_CRC_INIT_VALUE));
-
     // Send the register read command ignoring any response (which is
     // undefined)
+    // const uint16_t cmd = ;
     uint16_t cmdBuffer[NumDriverChips];
-    memset(cmdBuffer, cmd, NumDriverChips);
+    memset(
+        cmdBuffer, BuildCommand(STGAP1AS_CMD_READ_REG(regNum)), NumDriverChips);
     sm_interface.SendData(cmdBuffer, NULL);
 
     // Pessimistic for local reg reads but we'll assume that's not performance
@@ -382,12 +377,8 @@ void TeslaM3GateDriver::ReadRegister(uint16_t regNum, uint16_t* values)
     DEVICE_DELAY_US(RemoteRegReadDelay);
 
     // Send a NOP while reading the data back from the register
-    const uint16_t nop =
-        STGAP1AS_CMD_NOP << 8 |
-        invert_byte(crc8(STGAP1AS_CMD_NOP, STGAP1AS_SPI_CRC_INIT_VALUE));
-
     uint16_t nopBuffer[NumDriverChips];
-    memset(nopBuffer, nop, NumDriverChips);
+    memset(nopBuffer, BuildCommand(STGAP1AS_CMD_NOP), NumDriverChips);
     sm_interface.SendData(nopBuffer, values);
 }
 
