@@ -1,6 +1,6 @@
 # C2000 openinverter
 
-[![Build status](https://github.com/davefiddes/stm32-sine/actions/workflows/CI-build.yml/badge.svg)](https://github.com/davefiddes/stm32-sine/actions/workflows/CI-build.yml)
+[![Build status](actions/workflows/CI-build.yml/badge.svg)](actions/workflows/CI-build.yml)
 
 A port of the Huebner inverter project to the [TI C2000](https://www.ti.com/microcontrollers-mcus-processors/microcontrollers/c2000-real-time-control-mcus/overview.html) family of micro-controllers. Specifically this targets the MCU found in the Tesla Model 3 / Y inverter allowing. Eventually this will allow a completely Open Source solution to running Tesla Model 3 / Y drive units in non-Tesla vehicles. For other Tesla drive units, inverters from other manufacturers and DIY inverters have a look at the [openinverter project](https://openinverter.org).
 
@@ -30,7 +30,7 @@ The current hardware targets are:
 * [x] Port and update existing unit tests and extend to verify FOC PWM generation
 * [x] Fix integer overflows affecting C2000 in PWM generation, SineCore and libopeninv
 * [x] Support operation on Tesla M3 rear drive unit hardware
-* [ ] Tesla M3 gate driver integration
+* [x] Tesla M3 gate driver integration
 * [ ] Tesla M3 safety PSU/PMIC integration
 * [ ] Functional PWM generation on Tesla M3 hardware
 * [ ] Cross-platform resolver to digital conversion and Tesla M3 integration
