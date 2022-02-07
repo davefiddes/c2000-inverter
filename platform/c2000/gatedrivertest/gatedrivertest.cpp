@@ -22,6 +22,8 @@
 #include "driverlib.h"
 #include <stdio.h>
 
+using namespace c2000;
+
 void main(void)
 {
     //
@@ -88,10 +90,10 @@ void main(void)
     DEVICE_DELAY_US(1000000);
 
     printf("Gate Drive initialisation: ");
-    if (TeslaM3GateDriver::Init())
+    if (GateDriver::Init())
     {
         printf("Successful\n");
-        TeslaM3GateDriver::Enable();
+        GateDriver::Enable();
     }
     else
     {
@@ -120,8 +122,7 @@ void main(void)
     //
     for (int i = 0; i < 5; i++)
     {
-        printf(
-            "Gate Drive: %s\n", TeslaM3GateDriver::IsFaulty() ? "FAULT" : "OK");
+        printf("Gate Drive: %s\n", GateDriver::IsFaulty() ? "FAULT" : "OK");
         DEVICE_DELAY_US(1000000);
     }
 
@@ -135,8 +136,7 @@ void main(void)
     //
     for (;;)
     {
-        printf(
-            "Gate Drive: %s\n", TeslaM3GateDriver::IsFaulty() ? "FAULT" : "OK");
+        printf("Gate Drive: %s\n", GateDriver::IsFaulty() ? "FAULT" : "OK");
         DEVICE_DELAY_US(1000000);
     }
 }

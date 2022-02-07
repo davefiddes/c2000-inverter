@@ -19,10 +19,15 @@
 #ifndef GATEDRIVER_H
 #define GATEDRIVER_H
 
-#include "gatedriverspi.h"
+#include "gatedriverinterface.h"
 #include <stdint.h>
 
-class TeslaM3GateDriver
+namespace c2000 {
+
+/**
+ * \brief Control the STGAP1AS gate driver chain on the Tesla M3 inverter
+ */
+class GateDriver
 {
 public:
     static bool Init();
@@ -67,7 +72,9 @@ private:
         uint16_t value);
 
 private:
-    static c2000::teslam3::GateDriverSpiInterface sm_interface;
+    static GateDriverInterface sm_interface;
 };
+
+} // namespace c2000
 
 #endif // GATEDRIVER_H

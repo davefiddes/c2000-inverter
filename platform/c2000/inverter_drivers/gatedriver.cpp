@@ -23,6 +23,8 @@
 #include "hw/stgap1as_gate_driver.h"
 #include <string.h>
 
+namespace c2000 {
+
 /**
  * \brief STGAP1AS gate driver register set up sequence
  *
@@ -30,47 +32,45 @@
  * Inverter. Settings are applied to all chips or high/low-side drivers as
  * required
  */
-const TeslaM3GateDriver::Register
-    TeslaM3GateDriver::GateDriverRegisterSetup[] = {
-        { STGAP1AS_REG_CFG1,
-          STGAP1AS_REG_CFG1_CRC_SPI | STGAP1AS_REG_CFG1_SD_FLAG |
-              STGAP1AS_REG_CFG1_DT_800NS | STGAP1AS_REG_CFG1_IN_FILTER_500NS,
-          All,
-          STGAP1AS_REG_CFG1_MASK },
-        { STGAP1AS_REG_CFG2,
-          STGAP1AS_REG_CFG2_DESAT_CUR_500UA | STGAP1AS_REG_CFG2_DESAT_TH_8V,
-          All,
-          STGAP1AS_REG_CFG2_MASK },
-        { STGAP1AS_REG_CFG3,
-          STGAP1AS_REG_CFG3_2LTO_TH_10V | STGAP1AS_REG_CFG3_2LTO_TIME_DISABLED,
-          All,
-          STGAP1AS_REG_CFG3_MASK },
-        { STGAP1AS_REG_CFG4,
-          STGAP1AS_REG_CFG4_UVLO_LATCHED | STGAP1AS_REG_CFG4_VLON_TH_NEG_3V |
-              STGAP1AS_REG_CFG4_VHON_TH_12V,
-          Odd,
-          STGAP1AS_REG_CFG4_MASK },
-        { STGAP1AS_REG_CFG4,
-          STGAP1AS_REG_CFG4_UVLO_LATCHED | STGAP1AS_REG_CFG4_VLON_TH_DISABLED |
-              STGAP1AS_REG_CFG4_VHON_TH_12V,
-          Even,
-          STGAP1AS_REG_CFG4_MASK },
-        { STGAP1AS_REG_CFG5,
-          STGAP1AS_REG_CFG5_2LTO_EN | STGAP1AS_REG_CFG5_DESAT_EN,
-          All,
-          STGAP1AS_REG_CFG5_MASK },
-        { STGAP1AS_REG_DIAG1CFG,
-          STGAP1AS_REG_DIAG1CFG_UVLOD_OVLOD |
-              STGAP1AS_REG_DIAG1CFG_UVLOH_UVLOL |
-              STGAP1AS_REG_DIAG1CFG_OVLOH_OVLOL |
-              STGAP1AS_REG_DIAG1CFG_DESAT_SENSE | STGAP1AS_REG_DIAG1CFG_TSD,
-          All,
-          STGAP1AS_REG_DIAG1CFG_MASK },
-        { STGAP1AS_REG_DIAG2CFG, 0, All, STGAP1AS_REG_DIAG2CFG }
-    };
+const GateDriver::Register GateDriver::GateDriverRegisterSetup[] = {
+    { STGAP1AS_REG_CFG1,
+      STGAP1AS_REG_CFG1_CRC_SPI | STGAP1AS_REG_CFG1_SD_FLAG |
+          STGAP1AS_REG_CFG1_DT_800NS | STGAP1AS_REG_CFG1_IN_FILTER_500NS,
+      All,
+      STGAP1AS_REG_CFG1_MASK },
+    { STGAP1AS_REG_CFG2,
+      STGAP1AS_REG_CFG2_DESAT_CUR_500UA | STGAP1AS_REG_CFG2_DESAT_TH_8V,
+      All,
+      STGAP1AS_REG_CFG2_MASK },
+    { STGAP1AS_REG_CFG3,
+      STGAP1AS_REG_CFG3_2LTO_TH_10V | STGAP1AS_REG_CFG3_2LTO_TIME_DISABLED,
+      All,
+      STGAP1AS_REG_CFG3_MASK },
+    { STGAP1AS_REG_CFG4,
+      STGAP1AS_REG_CFG4_UVLO_LATCHED | STGAP1AS_REG_CFG4_VLON_TH_NEG_3V |
+          STGAP1AS_REG_CFG4_VHON_TH_12V,
+      Odd,
+      STGAP1AS_REG_CFG4_MASK },
+    { STGAP1AS_REG_CFG4,
+      STGAP1AS_REG_CFG4_UVLO_LATCHED | STGAP1AS_REG_CFG4_VLON_TH_DISABLED |
+          STGAP1AS_REG_CFG4_VHON_TH_12V,
+      Even,
+      STGAP1AS_REG_CFG4_MASK },
+    { STGAP1AS_REG_CFG5,
+      STGAP1AS_REG_CFG5_2LTO_EN | STGAP1AS_REG_CFG5_DESAT_EN,
+      All,
+      STGAP1AS_REG_CFG5_MASK },
+    { STGAP1AS_REG_DIAG1CFG,
+      STGAP1AS_REG_DIAG1CFG_UVLOD_OVLOD | STGAP1AS_REG_DIAG1CFG_UVLOH_UVLOL |
+          STGAP1AS_REG_DIAG1CFG_OVLOH_OVLOL |
+          STGAP1AS_REG_DIAG1CFG_DESAT_SENSE | STGAP1AS_REG_DIAG1CFG_TSD,
+      All,
+      STGAP1AS_REG_DIAG1CFG_MASK },
+    { STGAP1AS_REG_DIAG2CFG, 0, All, STGAP1AS_REG_DIAG2CFG }
+};
 
-const uint16_t TeslaM3GateDriver::RegisterSetupSize =
-    sizeof(TeslaM3GateDriver::GateDriverRegisterSetup) /
+const uint16_t GateDriver::RegisterSetupSize =
+    sizeof(GateDriver::GateDriverRegisterSetup) /
     sizeof(GateDriverRegisterSetup[0]);
 
 // Delays from STGAP1AS datasheet Table 6. DC operation electrical
@@ -105,14 +105,14 @@ static uint16_t BuildCommand(uint16_t cmd)
 /**
  * \brief Hardware interface to the STGAP1AS gate drivers
  */
-c2000::teslam3::GateDriverSpiInterface TeslaM3GateDriver::sm_interface;
+GateDriverInterface GateDriver::sm_interface;
 
 /**
  * \brief Set up the isolated gate drivers
  *
  * \return bool - True if gate drivers successfully initialised and verified
  */
-bool TeslaM3GateDriver::Init()
+bool GateDriver::Init()
 {
     sm_interface.Init();
     SetupGateDrivers();
@@ -131,7 +131,7 @@ bool TeslaM3GateDriver::Init()
  *
  * \return bool - There is a fault on one or more gate drivers
  */
-bool TeslaM3GateDriver::IsFaulty()
+bool GateDriver::IsFaulty()
 {
     bool status1 =
         VerifyRegister(STGAP1AS_REG_STATUS1, STGAP1AS_REG_STATUS1_MASK, 0);
@@ -148,7 +148,7 @@ bool TeslaM3GateDriver::IsFaulty()
 /**
  * \brief Enable the gate drivers
  */
-void TeslaM3GateDriver::Enable()
+void GateDriver::Enable()
 {
     // De-assert the gate driver shutdown line
     sm_interface.Resume();
@@ -157,7 +157,7 @@ void TeslaM3GateDriver::Enable()
 /**
  * \brief Disable the gate drivers
  */
-void TeslaM3GateDriver::Disable()
+void GateDriver::Disable()
 {
     // Assert the gate driver shutdown line
     sm_interface.Shutdown();
@@ -166,7 +166,7 @@ void TeslaM3GateDriver::Disable()
 /**
  * \brief Run through the set up sequence for all gate driver chips
  */
-void TeslaM3GateDriver::SetupGateDrivers()
+void GateDriver::SetupGateDrivers()
 {
     SendCommand(STGAP1AS_CMD_RESET_STATUS);
     DEVICE_DELAY_US(ResetStatusDelay);
@@ -189,7 +189,7 @@ void TeslaM3GateDriver::SetupGateDrivers()
  *
  * \return bool - true if the configuration has been verified
  */
-bool TeslaM3GateDriver::VerifyGateDriverConfig()
+bool GateDriver::VerifyGateDriverConfig()
 {
     uint16_t regValues[NumDriverChips];
     bool     result = true;
@@ -230,7 +230,7 @@ bool TeslaM3GateDriver::VerifyGateDriverConfig()
  *
  * \param cmd STGAP1AS_CMD_xx command to send
  */
-void TeslaM3GateDriver::SendCommand(uint16_t cmd)
+void GateDriver::SendCommand(uint16_t cmd)
 {
     DataBuffer cmdBuffer;
     memset(cmdBuffer, BuildCommand(cmd), NumDriverChips);
@@ -244,7 +244,7 @@ void TeslaM3GateDriver::SendCommand(uint16_t cmd)
  * \param reg Register structure detailing the register, value and required
  * chips
  */
-void TeslaM3GateDriver::WriteRegister(const Register& reg)
+void GateDriver::WriteRegister(const Register& reg)
 {
     uint16_t cmd = STGAP1AS_CMD_WRITE_REG(reg.reg);
     uint16_t cmdCrc = crc8(cmd, STGAP1AS_SPI_CRC_INIT_VALUE);
@@ -295,7 +295,7 @@ void TeslaM3GateDriver::WriteRegister(const Register& reg)
  * \param regNum Register number to read
  * \param values Register values array retrieved from all chips
  */
-void TeslaM3GateDriver::ReadRegister(uint16_t regNum, uint16_t* values)
+void GateDriver::ReadRegister(uint16_t regNum, uint16_t* values)
 {
     // Send the register read command ignoring any response (which is
     // undefined)
@@ -322,7 +322,7 @@ void TeslaM3GateDriver::ReadRegister(uint16_t regNum, uint16_t* values)
  * \param value  Desired register value
  * \return True if the status matches the expected value
  */
-bool TeslaM3GateDriver::VerifyRegister(
+bool GateDriver::VerifyRegister(
     uint16_t regNum,
     uint16_t validBits,
     uint16_t value)
@@ -346,3 +346,5 @@ bool TeslaM3GateDriver::VerifyRegister(
 
     return result;
 }
+
+} // namespace c2000

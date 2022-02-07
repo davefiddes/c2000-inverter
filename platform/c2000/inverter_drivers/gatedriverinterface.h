@@ -16,16 +16,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef GATEDRIVERSPIINTERFACE_H
-#define GATEDRIVERSPIINTERFACE_H
+#ifndef GATEDRIVERINTERFACE_H
+#define GATEDRIVERINTERFACE_H
 
 #include <stdint.h>
 
 namespace c2000 {
 
-namespace teslam3 {
-
-class GateDriverSpiInterface
+/**
+ * \brief Low level hardware interface to the STGAP1AS gate driver chain in the
+ * Tesla M3 inverter
+ */
+class GateDriverInterface
 {
 public:
     static const uint16_t NumDriverChips = 6;
@@ -51,8 +53,6 @@ private:
     uint32_t m_gateSpiBase;
 };
 
-} // namespace teslam3
-
 } // namespace c2000
 
-#endif // GATEDRIVERSPIINTERFACE_H
+#endif // GATEDRIVERINTERFACE_H

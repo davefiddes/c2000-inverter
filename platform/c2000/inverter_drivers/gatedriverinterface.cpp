@@ -17,19 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "gatedriverspi.h"
+#include "gatedriverinterface.h"
 #include "device.h"
 #include "driverlib.h"
 #include "hw/stgap1as_gate_driver.h"
 
 namespace c2000 {
 
-namespace teslam3 {
-
 /**
  * \brief Set up the SPI bus connected to the STGAP1AS gate drivers
  */
-void GateDriverSpiInterface::Init()
+void GateDriverInterface::Init()
 {
     // Set up the hardware mapping depending on the platform we are running on
     // The Launchpad uses different IO because it is easier to attach a logic
@@ -96,7 +94,7 @@ void GateDriverSpiInterface::Init()
  * \param readData Data buffer for data read from the chips. May be NULL if the
  * received data is not required
  */
-void GateDriverSpiInterface::SendData(DataBuffer writeData, DataBuffer readData)
+void GateDriverInterface::SendData(DataBuffer writeData, DataBuffer readData)
 {
     // Manually assert the ~CS pin and add a delay to allow it to settle and
     // match the required set-up time for the STGAP1AS
@@ -117,7 +115,7 @@ void GateDriverSpiInterface::SendData(DataBuffer writeData, DataBuffer readData)
  * \brief Assert the ~SD line on the STGAP1AS gate drivers allowing them to be
  * configured
  */
-void GateDriverSpiInterface::Shutdown()
+void GateDriverInterface::Shutdown()
 {
     GPIO_writePin(m_gateShutdownPin, 0);
 }
@@ -126,7 +124,7 @@ void GateDriverSpiInterface::Shutdown()
  * \brief De-assert the ~SD line on the STGAP1AS gate drivers to allow them to
  * run normally
  */
-void GateDriverSpiInterface::Resume()
+void GateDriverInterface::Resume()
 {
     GPIO_writePin(m_gateShutdownPin, 1);
 }
@@ -134,11 +132,9 @@ void GateDriverSpiInterface::Resume()
 /**
  * \brief Return whether the STGAP1AS gate drivers are enabled
  */
-bool GateDriverSpiInterface::IsShutdown()
+bool GateDriverInterface::IsShutdown()
 {
     return GPIO_readPin(m_gateShutdownPin) == 0;
 }
-
-} // namespace teslam3
 
 } // namespace c2000
