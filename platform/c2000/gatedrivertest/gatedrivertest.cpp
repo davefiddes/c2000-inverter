@@ -76,7 +76,6 @@ void main(void)
     GPIO_setDirectionMode(DEVICE_GPIO_PIN_GATE_PSU_ENABLE, GPIO_DIR_MODE_OUT);
     printf("Gate Drive PSU OFF\n");
 
-#if 1
     // Wait for 1 second
     DEVICE_DELAY_US(1000000);
 
@@ -87,11 +86,17 @@ void main(void)
 
     // Wait for 1 second
     DEVICE_DELAY_US(1000000);
-#endif
 
-    printf(
-        "Gate Drive initialisation: %s\n",
-        TeslaM3GateDriver::Init() ? "Successful" : "Failed");
+    printf("Gate Drive initialisation: ");
+    if (TeslaM3GateDriver::Init())
+    {
+        printf("Successful\n");
+        TeslaM3GateDriver::Enable();
+    }
+    else
+    {
+        printf("Failed\n");
+    }
 
     //
     // Initialize PIE and clear PIE registers. Disables CPU interrupts.
@@ -109,6 +114,21 @@ void main(void)
     //
     EINT;
     ERTM;
+
+    //
+    // Run for a few seconds
+    //
+    for (int i = 0; i < 5; i++)
+    {
+        printf(
+            "Gate Drive: %s\n", TeslaM3GateDriver::IsFaulty() ? "FAULT" : "OK");
+        DEVICE_DELAY_US(1000000);
+    }
+
+    // Turn off the gate drive PSU
+    GPIO_writePin(DEVICE_GPIO_PIN_GATE_PSU_ENABLE, 1);
+    printf("Gate Drive PSU OFF\n");
+    GPIO_writePin(redLedPin, 1);
 
     //
     // Loop Forever

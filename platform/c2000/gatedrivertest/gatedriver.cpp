@@ -16,16 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define DEBUG_STATE
-
 #include "gatedriver.h"
 #include "crc8.h"
 #include "device.h"
 #include "driverlib.h"
 #include "hw/stgap1as_gate_driver.h"
-#ifdef DEBUG_STATE
-#include <stdio.h>
-#endif
 #include <string.h>
 
 /**
@@ -78,12 +73,6 @@ const uint16_t TeslaM3GateDriver::RegisterSetupSize =
     sizeof(TeslaM3GateDriver::GateDriverRegisterSetup) /
     sizeof(GateDriverRegisterSetup[0]);
 
-const TeslaM3GateDriver::Register TeslaM3GateDriver::NullGateDriverRegister = {
-    0,
-    0,
-    All
-};
-
 // Delays from STGAP1AS datasheet Table 6. DC operation electrical
 // characteristics - SPI Section
 static const __attribute__((__unused__)) int ResetStatusDelay = 50;   // uSec
@@ -125,16 +114,16 @@ c2000::teslam3::GateDriverSpiInterface TeslaM3GateDriver::sm_interface;
  */
 bool TeslaM3GateDriver::Init()
 {
-    printf("Initialise interface\n");
     sm_interface.Init();
-    // printf("Dump initial status\n");
-    // DumpStatus();
-    // printf("Set up config\n");
     SetupGateDrivers();
-    // printf("Dump final status\n");
-    // DumpStatus();
-
-    return VerifyGateDriverConfig();
+    if (VerifyGateDriverConfig())
+    {
+        return !IsFaulty();
+    }
+    else
+    {
+        return false;
+    }
 }
 
 /**
@@ -144,12 +133,16 @@ bool TeslaM3GateDriver::Init()
  */
 bool TeslaM3GateDriver::IsFaulty()
 {
-    bool result = !VerifyRegister(STGAP1AS_REG_STATUS1, 0);
+    bool status1 =
+        VerifyRegister(STGAP1AS_REG_STATUS1, STGAP1AS_REG_STATUS1_MASK, 0);
+    DEVICE_DELAY_US(LocalRegReadDelay);
+    bool status2 =
+        VerifyRegister(STGAP1AS_REG_STATUS2, STGAP1AS_REG_STATUS2_MASK, 0);
+    DEVICE_DELAY_US(LocalRegReadDelay);
+    bool status3 =
+        VerifyRegister(STGAP1AS_REG_STATUS3, STGAP1AS_REG_STATUS3_MASK, 0);
 
-    result = result && !VerifyRegister(STGAP1AS_REG_STATUS2, 0);
-    result = result && !VerifyRegister(STGAP1AS_REG_STATUS3, 0);
-
-    return result;
+    return !(status1 && status2 && status3);
 }
 
 /**
@@ -202,14 +195,11 @@ bool TeslaM3GateDriver::VerifyGateDriverConfig()
     bool     result = true;
     for (uint8_t i = 0; i < RegisterSetupSize; i++)
     {
-
-        printf("Verifying register %d ", i);
         const Register& reg = GateDriverRegisterSetup[i];
         ReadRegister(reg.reg, regValues);
         DEVICE_DELAY_US(RemoteRegReadDelay);
 
         uint16_t mask = 1;
-        bool     tempResult = true;
         for (int chip = 0; chip < NumDriverChips; chip++)
         {
             if (reg.mask & mask)
@@ -222,33 +212,14 @@ bool TeslaM3GateDriver::VerifyGateDriverConfig()
 
                 uint16_t computedCrc = crc8(value, STGAP1AS_SPI_CRC_INIT_VALUE);
 
-                if (computedCrc != crc)
-                {
-                    printf(
-                        "actual crc = %x, computed crc = %x\n",
-                        crc,
-                        computedCrc);
-                }
-
-                // Mask of the "don't care" bits from the value before comparing
+                // Mask off the "don't care" bits from the value before
+                // comparing
                 value = value & reg.validBitMask;
 
-                if (value != reg.value)
-                {
-                    printf(
-                        "actual value = %x, expected value = %x\n",
-                        value,
-                        reg.value);
-                }
-
-                tempResult =
-                    tempResult && (computedCrc == crc) && (value == reg.value);
+                result = result && (crc == computedCrc) && (value == reg.value);
             }
             mask = mask << 1;
         }
-        printf("Result = %s\n", tempResult ? "OK" : "Fail");
-
-        result = result && tempResult;
     }
 
     return result;
@@ -287,26 +258,18 @@ void TeslaM3GateDriver::WriteRegister(const Register& reg)
 
     const uint16_t nop = BuildCommand(STGAP1AS_CMD_NOP);
 
-    // Send the register write command ignoring any response (which is
-    // undefined)
-    DataBuffer cmdBuffer;
-
     // Assemble a command buffer with all the commands or nops required for
     // each chip
-    uint16_t mask = 1;
+    DataBuffer cmdBuffer;
+    uint16_t   mask = 1;
     for (int chip = 0; chip < NumDriverChips; chip++)
     {
-        if (reg.mask & mask)
-        {
-            cmdBuffer[chip] = cmd;
-        }
-        else
-        {
-            cmdBuffer[chip] = nop;
-        }
+        cmdBuffer[chip] = reg.mask & mask ? cmd : nop;
         mask = mask << 1;
     }
 
+    // Send the register write command ignoring any response (which is
+    // undefined)
     sm_interface.SendData(cmdBuffer, NULL);
 
     DEVICE_DELAY_US(OtherCommandDelay);
@@ -319,42 +282,12 @@ void TeslaM3GateDriver::WriteRegister(const Register& reg)
     mask = 1;
     for (int chip = 0; chip < NumDriverChips; chip++)
     {
-        if (reg.mask & mask)
-        {
-            cmdDataBuffer[chip] = data;
-        }
-        else
-        {
-            cmdDataBuffer[chip] = nop;
-        }
+        cmdDataBuffer[chip] = reg.mask & mask ? data : nop;
         mask = mask << 1;
     }
 
     sm_interface.SendData(cmdDataBuffer, NULL);
 }
-
-#ifdef DEBUG_STATE
-/**
- * \brief Dump the device status to stdio
- *
- */
-void TeslaM3GateDriver::DumpStatus()
-{
-    uint16_t statusValues[NumDriverChips];
-
-    ReadRegister(STGAP1AS_REG_STATUS3, statusValues);
-    for (int chip = 0; chip < NumDriverChips; chip++)
-    {
-        uint16_t crc =
-            crc8(statusValues[chip] >> 8, STGAP1AS_SPI_CRC_INIT_VALUE);
-        printf(
-            "DumpStatus[%d]: %x, crc: %s\n",
-            chip,
-            statusValues[chip],
-            crc == (statusValues[chip] & 0xFF) ? "CRC OK" : "CRC Fail");
-    }
-}
-#endif
 
 /**
  * \brief Read a specific register
@@ -366,8 +299,7 @@ void TeslaM3GateDriver::ReadRegister(uint16_t regNum, uint16_t* values)
 {
     // Send the register read command ignoring any response (which is
     // undefined)
-    // const uint16_t cmd = ;
-    uint16_t cmdBuffer[NumDriverChips];
+    DataBuffer cmdBuffer;
     memset(
         cmdBuffer, BuildCommand(STGAP1AS_CMD_READ_REG(regNum)), NumDriverChips);
     sm_interface.SendData(cmdBuffer, NULL);
@@ -377,7 +309,7 @@ void TeslaM3GateDriver::ReadRegister(uint16_t regNum, uint16_t* values)
     DEVICE_DELAY_US(RemoteRegReadDelay);
 
     // Send a NOP while reading the data back from the register
-    uint16_t nopBuffer[NumDriverChips];
+    DataBuffer nopBuffer;
     memset(nopBuffer, BuildCommand(STGAP1AS_CMD_NOP), NumDriverChips);
     sm_interface.SendData(nopBuffer, values);
 }
@@ -386,21 +318,30 @@ void TeslaM3GateDriver::ReadRegister(uint16_t regNum, uint16_t* values)
  * \brief Verify the status of a given register
  *
  * \param regNum Register number to read
+ * \param validBits Which bits in the register value do we care about
  * \param value  Desired register value
  * \return True if the status matches the expected value
  */
-bool TeslaM3GateDriver::VerifyRegister(uint16_t regNum, uint16_t value)
+bool TeslaM3GateDriver::VerifyRegister(
+    uint16_t regNum,
+    uint16_t validBits,
+    uint16_t value)
 {
-    uint16_t values[NumDriverChips];
-    bool     result = true;
-    uint16_t expectedValue =
-        (value << 8) | crc8(value, STGAP1AS_SPI_CRC_INIT_VALUE);
-
+    DataBuffer values;
     ReadRegister(regNum, values);
 
+    bool result = true;
     for (int chip = 0; chip < NumDriverChips; chip++)
     {
-        result = result && (values[chip] == expectedValue);
+        uint16_t actualValue = values[chip] >> 8;
+        uint16_t actualCrc = values[chip] & 0xFF;
+
+        uint16_t computedCrc = crc8(actualValue, STGAP1AS_SPI_CRC_INIT_VALUE);
+
+        // Mask off the "don't care" bits from the value before comparing
+        actualValue = actualValue & validBits;
+
+        result = result && (computedCrc == actualCrc) && (actualValue == value);
     }
 
     return result;

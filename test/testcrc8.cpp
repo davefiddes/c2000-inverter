@@ -69,3 +69,11 @@ TEST(TestCRC8, crc8ExtraBits)
 {
     EXPECT_EQ(crc8(0xAA00, 0x55FF), 0xF3);
 }
+
+//! Capture of STATUS3 register read return data running on Tesla M3 inverter
+//! hardware
+TEST(TestCRC8, crc8Capture)
+{
+    EXPECT_EQ(crc8(0xE0, 0xFF), 0x5D);
+    EXPECT_EQ(crc8(0xC0, 0xFF), 0xBD);
+}

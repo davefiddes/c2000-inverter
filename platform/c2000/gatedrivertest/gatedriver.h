@@ -19,8 +19,8 @@
 #ifndef GATEDRIVER_H
 #define GATEDRIVER_H
 
-#include <stdint.h>
 #include "gatedriverspi.h"
+#include <stdint.h>
 
 class TeslaM3GateDriver
 {
@@ -29,9 +29,6 @@ public:
     static bool IsFaulty();
     static void Enable();
     static void Disable();
-#ifdef DEBUG_STATE
-    static void DumpStatus();
-#endif
 
 private:
     enum ChipMask
@@ -64,7 +61,10 @@ private:
     static void SendCommand(uint16_t cmd);
     static void WriteRegister(const Register& reg);
     static void ReadRegister(uint16_t regNum, uint16_t* values);
-    static bool VerifyRegister(uint16_t regNum, uint16_t value);
+    static bool VerifyRegister(
+        uint16_t regNum,
+        uint16_t validBits,
+        uint16_t value);
 
 private:
     static c2000::teslam3::GateDriverSpiInterface sm_interface;
