@@ -16,5 +16,8 @@ add_subdirectory(inverter)
 # Tesla M3 Gate Driver and PSU test application
 add_subdirectory(gatedrivertest)
 
+# Tesla M3 PMIC Driver test
+add_subdirectory(pmicdrivertest)
+
 # Dump Tesla M3 EEPROM
 add_subdirectory(dumpeeprom)
