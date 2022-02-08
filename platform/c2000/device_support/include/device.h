@@ -139,6 +139,22 @@ a single CPU should be defined."
 
 #define DEVICE_TESLAM3_GATE_SPI                 SPIC_BASE
 
+
+// Tesla Model 3 Inverter Pmic Driver (TLF35584) 
+// Pins 8, 9, 10, 12
+// GPIOs 16, 17, 18, 19
+#define DEVICE_TESLAM3_GPIO_PIN_PMIC_MOSI       16
+#define DEVICE_TESLAM3_GPIO_PIN_PMIC_MISO       17
+#define DEVICE_TESLAM3_GPIO_PIN_PMIC_CLK        18
+#define DEVICE_TESLAM3_GPIO_PIN_PMIC_CS         19
+
+#define DEVICE_TESLAM3_GPIO_CFG_PMIC_MOSI       GPIO_16_SPISIMOA
+#define DEVICE_TESLAM3_GPIO_CFG_PMIC_MISO       GPIO_17_SPISOMIA
+#define DEVICE_TESLAM3_GPIO_CFG_PMIC_CLK        GPIO_18_SPICLKA
+#define DEVICE_TESLAM3_GPIO_CFG_PMIC_CS         GPIO_19_SPISTEA
+
+#define DEVICE_TESLAM3_PMIC_SPI                 SPIA_BASE
+
 //*****************************************************************************
 //
 // Defines related to clock configuration
