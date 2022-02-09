@@ -22,10 +22,12 @@
 
 #include "stdint.h"
 
-class PmicSpiDriver {
+class PmicSpiDriver
+{
 
 private:
     static uint32_t m_base;
+    static bool     m_readAfterWrite;
 
     static void InitGPIO(uint16_t, uint32_t);
 
@@ -33,9 +35,9 @@ public:
     static void InitGPIOs();
     static void InitSPIPort();
 
-    static void WriteData(uint16_t data);
-    static uint16_t ReadData();
+    static bool ReadDataAfterWrite();
+
+    static uint16_t TransferData(uint16_t data);
 };
 
 #endif // C2000SPIDRIVER_H
-
