@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "gatedriver.h"
+#include "c2000/gatedriver.h"
 #include "crc8.h"
 #include "device.h"
 #include "driverlib.h"
