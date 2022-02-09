@@ -2,7 +2,7 @@
  * This file is part of the stm32-sine project.
  *
  * Copyright (C) 2021 David J. Fiddes <D.J@fiddes.net>
- * Copyright (C) 2022 Bernd Ocklin <bernd@ocklin.de> 
+ * Copyright (C) 2022 Bernd Ocklin <bernd@ocklin.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,11 +35,7 @@ struct Register
  * \brief TLF35584 safety power supply and watchdog register set up sequence
  *
  */
-static const Register RegisterConfig[14] = {
-    { TLF35584_PROTCFG, TLF35584_PROTCFG_UNLOCK_KEY1 },
-    { TLF35584_PROTCFG, TLF35584_PROTCFG_UNLOCK_KEY2 },
-    { TLF35584_PROTCFG, TLF35584_PROTCFG_UNLOCK_KEY3 },
-    { TLF35584_PROTCFG, TLF35584_PROTCFG_UNLOCK_KEY4 },
+static const Register RegisterConfig[6] = {
     { TLF35584_WDCFG1, TLF35584_WDCFG1_WDSLPEN | TLF35584_WDCFG1_FWDETHR(14) },
     { TLF35584_WDCFG0,
       TLF35584_WDCFG0_WWDETHR(14) | TLF35584_WDCFG0_WWDEN |
@@ -49,11 +45,7 @@ static const Register RegisterConfig[14] = {
       TLF35584_SYSPCFG1_SS2DEL_0MS | TLF35584_SYSPCFG1_ERRREC_1MS },
     { TLF35584_FWDCFG, TLF35584_FWDCFG_WDHBTP_CYCLES(250) },
     { TLF35584_WWDCFG0, TLF35584_WWDCFG0_CW_CYCLES(50) },
-    { TLF35584_WWDCFG1, TLF35584_WWDCFG1_OW_CYCLES(100) },
-    { TLF35584_PROTCFG, TLF35584_PROTCFG_LOCK_KEY1 },
-    { TLF35584_PROTCFG, TLF35584_PROTCFG_LOCK_KEY2 },
-    { TLF35584_PROTCFG, TLF35584_PROTCFG_LOCK_KEY3 },
-    { TLF35584_PROTCFG, TLF35584_PROTCFG_LOCK_KEY4 }
+    { TLF35584_WWDCFG1, TLF35584_WWDCFG1_OW_CYCLES(100) }
 };
 
 static const uint16_t RegisterConfigSize =
@@ -100,35 +92,15 @@ static const uint16_t WatchdogResponsesSize =
 
 static const int StateTransitionDelay = 100; // uS
 
-
 /**
  * \brief Verify that function x didn't fail. Return immediately if it did.
  * Assumes a local variable "result" of type TeslaM3PowerWatchdog::Error
  */
 #define CHECK(x)                                                               \
-    if ((result = x) != OK)                                             \
+    if ((result = x) != OK)                                                    \
     {                                                                          \
         return result;                                                         \
     }
-
-/**
- * \brief Define a scoped SPI transaction that manually asserts the ~CS line for
- * the duration of a SPI transaction.
- */
-struct SPITransaction
-{
-    SPITransaction()
-    {
-        // gpio_clear(GPIO_PMIC_CS_BANK, GPIO_PMIC_CS);
-    }
-
-    ~SPITransaction()
-    {
-        // gpio_set(GPIO_PMIC_CS_BANK, GPIO_PMIC_CS);
-    }
-};
-
-
 
 template <typename SpiDriverT>
 class TeslaM3PowerWatchdog
@@ -157,12 +129,14 @@ public:
 
     /**
      * \brief Combined window and functional strobe during normal run
-     *     Alternating functional watchdog between fetching quest and answering it.
+     *     Alternating functional watchdog between fetching quest and answering
+     * it.
      *
      *  Window Watchdog is defined with a 100ms period
      *  Functional Watchdog with 250ms.
      *
-     *  Thus a functional watchdog quest only needs to be answered every second WW period.
+     *  Thus a functional watchdog quest only needs to be answered every second
+     * WW period.
      */
     static Error Strobe()
     {
@@ -170,21 +144,21 @@ public:
 
         CHECK(TeslaM3PowerWatchdog::StrobeWindowWatchdog());
 
-        if(lastFunctionalWatchdogQuest & TLF35584_FWDSTAT0_FWDQUEST_MASK)
+        if (lastFunctionalWatchdogQuest & ~TLF35584_FWDSTAT0_FWDQUEST_MASK)
+        {
+            CHECK(TeslaM3PowerWatchdog::FunctionalWatchdogReadQuest());
+        }
+        else
         {
             CHECK(TeslaM3PowerWatchdog::StrobeFunctionalWatchdog());
-
-        } else {
-
-            CHECK(TeslaM3PowerWatchdog::FunctionalWatchdogReadQuest());
         }
 
         return OK;
     }
 
 private:
-
-    // last quest is kept track of as it is read at a different time than the response
+    // last quest is kept track of as it is read at a different time than the
+    // response
     static uint16_t lastFunctionalWatchdogQuest;
 
     /**
@@ -200,14 +174,11 @@ private:
         CHECK(ReadRegister(TLF35584_WWDSCMD, windowStatus));
 
         // Invert the window watchdog status and write back in the lowest bit
-        CHECK(WriteRegister(
-            TLF35584_WWDSCMD,
-            windowStatus & TLF35584_WWDSCMD_TRIG_STATUS ? 0 :
-                                                          TLF35584_WWDSCMD_TRIG));
+        windowStatus = (~(windowStatus >> 7)) & TLF35584_WWDSCMD_TRIG;
+        CHECK(WriteRegister(TLF35584_WWDSCMD, windowStatus));
 
         return OK;
     }
-
 
     /**
      * \brief Read the quest of functional watchdog
@@ -216,7 +187,8 @@ private:
      *
      * \return Error - Error code if stobe failed otherwise Error::OK
      */
-    static Error FunctionalWatchdogReadQuest() {
+    static Error FunctionalWatchdogReadQuest()
+    {
 
         Error result;
 
@@ -224,14 +196,15 @@ private:
         CHECK(ReadRegister(TLF35584_FWDSTAT0, functionalStatus));
 
         // Determine which response the functional watchdog is expecting from us
-        TeslaM3PowerWatchdog::lastFunctionalWatchdogQuest =
-                functionalStatus & TLF35584_FWDSTAT0_FWDQUEST_MASK;
+        lastFunctionalWatchdogQuest =
+            functionalStatus & TLF35584_FWDSTAT0_FWDQUEST_MASK;
 
         return OK;
     }
 
     /**
-     * \brief Answer the functional watchdog quest - this is on a 200ms cycle typically
+     * \brief Answer the functional watchdog quest - this is on a 200ms cycle
+     * typically
      *
      * \return Error - Error code if stobe failed otherwise Error::OK
      */
@@ -240,14 +213,14 @@ private:
 
         Error result;
 
-        if(lastFunctionalWatchdogQuest & ~TLF35584_FWDSTAT0_FWDQUEST_MASK)
+        if (lastFunctionalWatchdogQuest & ~TLF35584_FWDSTAT0_FWDQUEST_MASK)
         {
             // TODO ERROR
         }
 
         // Determine which response the functional watchdog is expecting from us
-        const WatchdogResponse& response =
-            WatchdogResponses[TeslaM3PowerWatchdog::lastFunctionalWatchdogQuest];
+        const WatchdogResponse& response = WatchdogResponses
+            [TeslaM3PowerWatchdog::lastFunctionalWatchdogQuest];
 
         CHECK(WriteRegister(TLF35584_FWDRSP, response.resp3));
         CHECK(WriteRegister(TLF35584_FWDRSP, response.resp2));
@@ -277,6 +250,29 @@ private:
         return OK;
     }
 
+    static Error UnlockRegister()
+    {
+        Error result;
+
+        CHECK(WriteRegister(TLF35584_PROTCFG, TLF35584_PROTCFG_UNLOCK_KEY1));
+        CHECK(WriteRegister(TLF35584_PROTCFG, TLF35584_PROTCFG_UNLOCK_KEY2));
+        CHECK(WriteRegister(TLF35584_PROTCFG, TLF35584_PROTCFG_UNLOCK_KEY3));
+        CHECK(WriteRegister(TLF35584_PROTCFG, TLF35584_PROTCFG_UNLOCK_KEY4));
+
+        return OK;
+    }
+
+    static Error LockRegister()
+    {
+        Error result;
+
+        CHECK(WriteRegister(TLF35584_PROTCFG, TLF35584_PROTCFG_LOCK_KEY1));
+        CHECK(WriteRegister(TLF35584_PROTCFG, TLF35584_PROTCFG_LOCK_KEY2));
+        CHECK(WriteRegister(TLF35584_PROTCFG, TLF35584_PROTCFG_LOCK_KEY3));
+        CHECK(WriteRegister(TLF35584_PROTCFG, TLF35584_PROTCFG_LOCK_KEY4));
+
+        return OK;
+    }
 
     /**
      * \brief Run through the set up sequence for the power supply and watchdog
@@ -288,24 +284,43 @@ private:
         // Write the initial device configuration
         Register reg;
         uint16_t r = 0;
+
+        CHECK(UnlockRegister())
+        DEVICE_DELAY_US(8);
         for (r = 0; r < RegisterConfigSize; r++)
         {
             reg = RegisterConfig[r];
             CHECK(WriteRegister(reg.reg, reg.value));
         }
+        DEVICE_DELAY_US(8);
+        CHECK(LockRegister())
 
         // Strobe the watchdog so that everything is happy before changing the
-        // initial state. This closes the Long Open Window of the Window Watchdog.
-        // We need to be careful not to strobe for 50ms until the Closed Window
-        // period finishes
+        // initial state. This closes the Long Open Window of the Window
+        // Watchdog. We need to be careful not to strobe for 50ms until the
+        // Closed Window period finishes
         CHECK(InitStrobe());
 
+        // resetting registers
+        CHECK(WriteRegister(TLF35584_INITERR, 0xFF));
+        CHECK(WriteRegister(TLF35584_OTFAIL, 0xFF));
+        CHECK(WriteRegister(TLF35584_OTWRNSF, 0xFF));
+        CHECK(WriteRegister(TLF35584_MONSF0, 0xFF));
+        CHECK(WriteRegister(TLF35584_MONSF1, 0xFF));
+        CHECK(WriteRegister(TLF35584_MONSF2, 0xFF));
+        CHECK(WriteRegister(TLF35584_MONSF3, 0xFF));
+        CHECK(WriteRegister(TLF35584_SPISF, 0xFF));
+        CHECK(WriteRegister(TLF35584_WKSF, 0xFF));
+
         // Move the device into the NORMAL state
-        const uint16_t NewState = TLF35584_DEVCTRL_TRK2EN | TLF35584_DEVCTRL_TRK1EN |
-                                 TLF35584_DEVCTRL_COMEN | TLF35584_DEVCTRL_VREFEN |
-                                 TLF35584_DEVCTRL_STATEREQ_NORMAL;
+        const uint16_t NewState =
+            TLF35584_DEVCTRL_TRK2EN | TLF35584_DEVCTRL_TRK1EN |
+            TLF35584_DEVCTRL_COMEN | TLF35584_DEVCTRL_VREFEN |
+            TLF35584_DEVCTRL_STATEREQ_NORMAL;
+        // DEVCTRLN reg write MUST come directly after DEVCTRL
+        // and it MUST write inverted value of DEVCTRL
         CHECK(WriteRegister(TLF35584_DEVCTRL, NewState));
-        CHECK(WriteRegister(TLF35584_DEVCTRLN, TLF35584_DEVCTRLN_STATEREQ_NORMAL));
+        CHECK(WriteRegister(TLF35584_DEVCTRLN, ~NewState));
 
         // Blocking wait until the state has had time to change
         DEVICE_DELAY_US(StateTransitionDelay);
@@ -364,26 +379,17 @@ private:
             out = out | TLF35584_SPI_PARITY_MASK;
         }
 
-        SPITransaction transaction;
+        // A working TLF35584 will echo back any write commands so we can use
+        // this to verify communication somewhat
+        uint16_t res = SpiDriverT::TransferData(out);
 
-        // A working TLF35584 will echo back any write commands so we can use this
-        // to verify communication somewhat
-
-        SpiDriverT::WriteData(out);
-
-    #if 0
-        if (SpiDriverT::ReadData == out)
-        {
-            return OK;
-        }
-        else
+        // only verify reading the written value echoed if 
+        // there is a device with echo - e.g. handy for launchxl 
+        if (SpiDriverT::ReadDataAfterWrite() && (res != out))
         {
             return WriteFail;
         }
-    #else
-        SpiDriverT::ReadData();
         return OK;
-    #endif
     }
 
     /**
@@ -403,31 +409,32 @@ private:
             request = request | TLF35584_SPI_PARITY_MASK;
         }
 
-        SPITransaction transaction;
-        uint16_t       response = 0;
+        uint16_t response = 0;
 
-        SpiDriverT::WriteData(request);
-        // Block until data is received and then return it
-        response = SpiDriverT::ReadData();
+        response = SpiDriverT::TransferData(request);
 
-        bool parityOk =
-            (response & TLF35584_SPI_PARITY_MASK) == HasOddParity(response >> 1);
-
-        if (parityOk)
+        // only verify result if there is one - testing only
+        if (SpiDriverT::ReadDataAfterWrite())
         {
-            value = (response & TLF35584_SPI_DATA_MASK) >> TLF35584_SPI_DATA_SHIFT;
-            return OK;
+
+            bool parityOk = (response & TLF35584_SPI_PARITY_MASK) ==
+                            HasOddParity(response >> 1);
+
+            if (!parityOk)
+            {
+                return ReadParityFail;
+            }
         }
-        else
-        {
-            return ReadParityFail;
-        }
+        value = (response & TLF35584_SPI_DATA_MASK) >> TLF35584_SPI_DATA_SHIFT;
+
+        return OK;
     }
 };
 
 // quests are &0x000F, set something illegal
 template <typename SpiDriverT>
-uint16_t TeslaM3PowerWatchdog<SpiDriverT>::lastFunctionalWatchdogQuest = ~TLF35584_FWDSTAT0_FWDQUEST_MASK;
-}
+uint16_t TeslaM3PowerWatchdog<SpiDriverT>::lastFunctionalWatchdogQuest =
+    ~TLF35584_FWDSTAT0_FWDQUEST_MASK;
+} // namespace c2000
 
 #endif // TESLAM3PMIC_H

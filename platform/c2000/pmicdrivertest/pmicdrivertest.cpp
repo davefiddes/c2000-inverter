@@ -29,7 +29,8 @@
 using namespace c2000;
 
 // task added to scheduler to strobe the powerwatchdog
-static void taskStrobePowerWatchdoc() {
+static void taskStrobePowerWatchdoc()
+{
     TeslaM3PowerWatchdog<PmicSpiDriver>::Strobe();
 }
 
@@ -94,9 +95,6 @@ void main(void)
 
     Scheduler::Init();
 
-    // add a task to strobe the power watchdog every 100ms
-    Scheduler::AddTask(taskStrobePowerWatchdoc, 100);
-
     //
     // Enable Global Interrupt (INTM) and realtime interrupt (DBGM)
     //
@@ -106,11 +104,10 @@ void main(void)
     printf("Pmic driver initialisation: ");
     TeslaM3PowerWatchdog<PmicSpiDriver>::Init();
 
-    // Wait for 1 second
-    DEVICE_DELAY_US(1000000);
+    // add a task to strobe the power watchdog every 100ms
+    Scheduler::AddTask(taskStrobePowerWatchdoc, 100);
 
-
-    for(;;)
+    for (;;)
     {
 
         GPIO_writePin(redLedPin, 0);
