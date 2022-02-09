@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "gatedriverinterface.h"
+#include "c2000/gatedriverinterface.h"
 #include "device.h"
 #include "driverlib.h"
 #include "hw/stgap1as_gate_driver.h"

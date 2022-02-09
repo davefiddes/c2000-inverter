@@ -19,7 +19,7 @@
 #ifndef GATEDRIVER_H
 #define GATEDRIVER_H
 
-#include "gatedriverinterface.h"
+#include "c2000/gatedriverinterface.h"
 #include <stdint.h>
 
 namespace c2000 {

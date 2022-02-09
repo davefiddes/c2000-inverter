@@ -17,15 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "c2000/current.h"
-#include "c2000/encoder.h"
-#include "c2000/pwmdriver.h"
-#include "c2000/pwmgeneration.h"
 #include "device.h"
 #include "driverlib.h"
 #include "errormessage.h"
 #include "focpwmgeneration.h"
+#include "c2000/current.h"
+#include "c2000/encoder.h"
+#include "c2000/gatedriver.h"
 #include "c2000/performancecounter.h"
+#include "c2000/pwmdriver.h"
+#include "c2000/pwmgeneration.h"
 #include <stdio.h>
 
 // Pull in the whole C2000 namespace as this is platform specific code obviously
@@ -67,6 +68,45 @@ void main(void)
         GPIO_setPinConfig(GPIO_3_EPWM2B);
         GPIO_setPinConfig(GPIO_4_EPWM3A);
         GPIO_setPinConfig(GPIO_5_EPWM3B);
+    }
+
+    //
+    // Set up the heartbeat LED
+    //
+    uint32_t heartbeatLedPin;
+
+    if (IsTeslaM3Inverter())
+    {
+        heartbeatLedPin = DEVICE_TESLAM3_GPIO_PIN_LED1;
+    }
+    else
+    {
+        heartbeatLedPin = DEVICE_LAUNCHXL_GPIO_PIN_LED1;
+    }
+    GPIO_writePin(heartbeatLedPin, 1);
+    GPIO_setPadConfig(heartbeatLedPin, GPIO_PIN_TYPE_STD);
+    GPIO_setDirectionMode(heartbeatLedPin, GPIO_DIR_MODE_OUT);
+
+    //
+    // Turn on the gate drive PSU
+    //
+    GPIO_writePin(DEVICE_GPIO_PIN_GATE_PSU_ENABLE, 0);
+    GPIO_setPadConfig(DEVICE_GPIO_PIN_GATE_PSU_ENABLE, GPIO_PIN_TYPE_STD);
+    GPIO_setDirectionMode(DEVICE_GPIO_PIN_GATE_PSU_ENABLE, GPIO_DIR_MODE_OUT);
+    printf("Gate Drive PSU OFF\n");
+
+    //
+    // Set up the gate drivers for PWM operation
+    //
+    printf("Gate Drive initialisation: ");
+    if (GateDriver::Init())
+    {
+        printf("Successful\n");
+        GateDriver::Enable();
+    }
+    else
+    {
+        printf("Failed\n");
     }
 
     //
@@ -130,8 +170,12 @@ void main(void)
     {
         DEVICE_DELAY_US(500000);
 
+        printf("Gate Drive: %s\n", GateDriver::IsFaulty() ? "FAULT" : "OK");
+
         int32_t currentLoad = PwmGeneration::GetCpuLoad();
         printf("PWM cycles: %ld\n", currentLoad - lastLoad);
         lastLoad = currentLoad;
+
+        GPIO_togglePin(heartbeatLedPin);
     }
 }
