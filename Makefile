@@ -50,8 +50,8 @@ ifeq ($(CONTROL), FOC)
 endif
 
 OBJS     = $(patsubst %.o,obj/%.o, $(OBJSL))
-vpath %.c src/ libopeninv/src
-vpath %.cpp src/ libopeninv/src
+vpath %.c src/ libopeninv/src platform/stm32f1/inverter
+vpath %.cpp src/ libopeninv/src platform/stm32f1/inverter
 
 OPENOCD_BASE	= /usr
 OPENOCD		= $(OPENOCD_BASE)/bin/openocd
