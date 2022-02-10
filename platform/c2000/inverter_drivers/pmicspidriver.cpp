@@ -35,9 +35,9 @@ void PmicSpiDriver::InitGPIO(uint16_t pin, uint32_t cfg)
 /**
  * \brief Initialise the SPI port's GPIO lines
  */
-void PmicSpiDriver::InitGPIOs()
+void PmicSpiDriver::Init()
 {
-
+  
     if (IsTeslaM3Inverter())
     {
 
@@ -86,19 +86,6 @@ void PmicSpiDriver::InitGPIOs()
             DEVICE_LAUNCHXL_GPIO_PIN_PMIC_CLK,
             DEVICE_LAUNCHXL_GPIO_CFG_PMIC_CLK);
     }
-}
-
-/**
- * \brief Initialise the SPI port and associated clocks
- */
-void PmicSpiDriver::InitSPIPort()
-{
-    // TODO
-
-    // Assert the SPI ~CS enable line before we turn off the
-    // pull up to avoid glitches
-
-    SPI_disableModule(m_base);
 
     // Tesla run the device at 2.4MHz so we also run slower than rated 5MHz
     // to be on the safe side.
@@ -108,12 +95,15 @@ void PmicSpiDriver::InitSPIPort()
     // software controlled chip-select control around each transfer. MASTER
     // mode, unidirectional full duplex
 
+    SPI_disableModule(m_base);
+
+    // N.B. TI uses the opposite meaning of PHA1 vs PHA0!
     SPI_setConfig(
         m_base,
         DEVICE_LSPCLK_FREQ,
         SPI_PROT_POL0PHA1,
         SPI_MODE_MASTER,
-        500000,
+        24000000,
         16);
 
     SPI_disableFIFO(m_base);
