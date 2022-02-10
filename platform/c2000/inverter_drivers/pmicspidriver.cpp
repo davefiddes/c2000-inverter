@@ -37,7 +37,7 @@ void PmicSpiDriver::InitGPIO(uint16_t pin, uint32_t cfg)
  */
 void PmicSpiDriver::Init()
 {
-  
+
     if (IsTeslaM3Inverter())
     {
 
@@ -103,7 +103,7 @@ void PmicSpiDriver::Init()
         DEVICE_LSPCLK_FREQ,
         SPI_PROT_POL0PHA1,
         SPI_MODE_MASTER,
-        24000000,
+        2400000,
         16);
 
     SPI_disableFIFO(m_base);
