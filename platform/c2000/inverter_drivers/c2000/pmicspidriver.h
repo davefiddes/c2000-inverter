@@ -32,8 +32,7 @@ private:
     static void InitGPIO(uint16_t, uint32_t);
 
 public:
-    static void InitGPIOs();
-    static void InitSPIPort();
+    static void Init();
 
     static bool ReadDataAfterWrite();
 

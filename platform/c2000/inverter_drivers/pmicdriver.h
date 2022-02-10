@@ -122,8 +122,7 @@ public:
      */
     static Error Init()
     {
-        SpiDriverT::InitGPIOs();
-        SpiDriverT::InitSPIPort();
+        SpiDriverT::Init();
         return SetupPowerManagement();
     }
 
