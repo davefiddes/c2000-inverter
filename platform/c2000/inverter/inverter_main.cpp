@@ -93,7 +93,7 @@ void main(void)
     GPIO_writePin(DEVICE_GPIO_PIN_GATE_PSU_ENABLE, 0);
     GPIO_setPadConfig(DEVICE_GPIO_PIN_GATE_PSU_ENABLE, GPIO_PIN_TYPE_STD);
     GPIO_setDirectionMode(DEVICE_GPIO_PIN_GATE_PSU_ENABLE, GPIO_DIR_MODE_OUT);
-    printf("Gate Drive PSU OFF\n");
+    printf("Gate Drive PSU ON\n");
 
     //
     // Set up the gate drivers for PWM operation
