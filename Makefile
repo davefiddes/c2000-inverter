@@ -30,11 +30,11 @@ OBJCOPY		= $(PREFIX)-objcopy
 OBJDUMP		= $(PREFIX)-objdump
 MKDIR_P     = mkdir -p
 TERMINAL_DEBUG ?= 0
-CFLAGS		= -Os -Wall -Wextra -Iinclude/ -Ilibopeninv/include -Ilibopencm3/include \
+CFLAGS		= -Os -Wall -Wextra -Iinclude/ -Ilibopeninv/include -Iplatform/stm32f1/libopeninv_stm32f1/include  -Ilibopencm3/include \
              -fno-common -fno-builtin -pedantic -DSTM32F1 -DT_DEBUG=$(TERMINAL_DEBUG) \
              -DCONTROL=CTRL_$(CONTROL) -DCTRL_SINE=0 -DCTRL_FOC=1 \
 				 -mcpu=cortex-m3 -mthumb -std=gnu99 -ffunction-sections -fdata-sections -ggdb3
-CPPFLAGS    = -Os -Wall -Wextra -Iinclude/ -Ilibopeninv/include -Ilibopencm3/include \
+CPPFLAGS    = -Os -Wall -Wextra -Iinclude/ -Ilibopeninv/include -Iplatform/stm32f1/libopeninv_stm32f1/include -Ilibopencm3/include \
             -fno-common -std=c++11 -pedantic -DSTM32F1 -DT_DEBUG=$(TERMINAL_DEBUG) \
              -DCONTROL=CTRL_$(CONTROL) -DCTRL_SINE=0 -DCTRL_FOC=1 \
 				-ffunction-sections -fdata-sections -fno-builtin -fno-rtti -fno-exceptions -fno-unwind-tables -mcpu=cortex-m3 -mthumb -ggdb3
@@ -50,8 +50,8 @@ ifeq ($(CONTROL), FOC)
 endif
 
 OBJS     = $(patsubst %.o,obj/%.o, $(OBJSL))
-vpath %.c src/ libopeninv/src platform/stm32f1/inverter
-vpath %.cpp src/ libopeninv/src platform/stm32f1/inverter
+vpath %.c src/ libopeninv/src platform/stm32f1/libopeninv_stm32f1/src platform/stm32f1/inverter
+vpath %.cpp src/ libopeninv/src platform/stm32f1/libopeninv_stm32f1/src platform/stm32f1/inverter
 
 OPENOCD_BASE	= /usr
 OPENOCD		= $(OPENOCD_BASE)/bin/openocd
