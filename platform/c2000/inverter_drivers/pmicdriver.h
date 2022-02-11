@@ -95,7 +95,11 @@ static const int StateTransitionDelay = 100; // uS
 /**
  * \brief Verify that function x didn't fail. Return immediately if it did.
  * Assumes a local variable "result" of type TeslaM3PowerWatchdog::Error
+ * Undefined at the end of the header
  */
+#ifdef CHECK
+#undef CHECK
+#endif
 #define CHECK(x)                                                               \
     if ((result = x) != OK)                                                    \
     {                                                                          \
@@ -434,6 +438,9 @@ private:
 template <typename SpiDriverT>
 uint16_t TeslaM3PowerWatchdog<SpiDriverT>::lastFunctionalWatchdogQuest =
     ~TLF35584_FWDSTAT0_FWDQUEST_MASK;
+
+#undef CHECK
+
 } // namespace c2000
 
 #endif // TESLAM3PMIC_H
