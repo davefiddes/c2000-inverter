@@ -63,7 +63,7 @@ const GateDriver::Register GateDriver::GateDriverRegisterSetup[] = {
     { STGAP1AS_REG_DIAG1CFG,
       STGAP1AS_REG_DIAG1CFG_UVLOD_OVLOD | STGAP1AS_REG_DIAG1CFG_UVLOH_UVLOL |
           STGAP1AS_REG_DIAG1CFG_OVLOH_OVLOL |
-          //TODO: STGAP1AS_REG_DIAG1CFG_DESAT_SENSE needs to be enabled again
+          // TODO: STGAP1AS_REG_DIAG1CFG_DESAT_SENSE needs to be enabled again
           STGAP1AS_REG_DIAG1CFG_TSD,
       All,
       STGAP1AS_REG_DIAG1CFG_MASK },
@@ -73,6 +73,17 @@ const GateDriver::Register GateDriver::GateDriverRegisterSetup[] = {
 const uint16_t GateDriver::RegisterSetupSize =
     sizeof(GateDriver::GateDriverRegisterSetup) /
     sizeof(GateDriverRegisterSetup[0]);
+
+uint16_t GateDriver::LastErrorStatus[GateDriver::NumStatusErrorRegister]
+                                    [GateDriver::NumDriverChips];
+uint16_t GateDriver::LastErrorCrc[GateDriver::NumStatusErrorRegister]
+                                 [GateDriver::NumDriverChips];
+
+uint16_t GateDriver::StatusRegisterNumbers[GateDriver::NumStatusErrorRegister] = {
+    STGAP1AS_REG_STATUS1,
+    STGAP1AS_REG_STATUS2,
+    STGAP1AS_REG_STATUS3
+};
 
 // Delays from STGAP1AS datasheet Table 6. DC operation electrical
 // characteristics - SPI Section
@@ -117,6 +128,8 @@ bool GateDriver::Init()
 {
     sm_interface.Init();
     SetupGateDrivers();
+    ResetLastErrors();
+
     if (VerifyGateDriverConfig())
     {
         return !IsFaulty();
@@ -128,12 +141,75 @@ bool GateDriver::Init()
 }
 
 /**
+ * \brief Reset error status
+ */
+void GateDriver::ResetLastErrors()
+{
+    uint16_t reg = 0;
+    uint16_t chip = 0;
+    for (reg = 0; reg < NumStatusErrorRegister; reg++)
+    {
+        for (chip = 0; chip < NumDriverChips; chip++)
+        {
+            LastErrorStatus[reg][chip] = 0;
+            LastErrorCrc[reg][chip] = 0;
+        }
+    }
+}
+
+/**
+ * \brief Get error status for first \param statusLen  chips of \param regno
+ */
+void GateDriver::GetErrorStatus(
+    uint16_t  regPos,
+    uint16_t* regNo,
+    uint16_t* status,
+    uint16_t  statusLen)
+{
+    if (regPos < NumStatusErrorRegister)
+    {
+        uint16_t chip = 0;
+        uint16_t maxChip =
+            statusLen < NumDriverChips ? statusLen : NumDriverChips;
+        for (chip = 0; chip < maxChip; chip++)
+        {
+            status[chip] = LastErrorStatus[regPos][chip];
+        }
+        *regNo = StatusRegisterNumbers[regPos];
+    }
+}
+
+/**
+ * \brief Get error crc status for first \param statusLen chips of \param regno
+ */
+void GateDriver::GetCrcStatus(
+    uint16_t  regNo,
+    uint16_t* status,
+    uint16_t  statusLen)
+{
+    if (regNo < NumStatusErrorRegister)
+    {
+        uint16_t chip = 0;
+        uint16_t maxChip =
+            statusLen < NumDriverChips ? statusLen : NumDriverChips;
+        for (chip = 0; chip < maxChip; chip++)
+        {
+            status[chip] = LastErrorCrc[regNo][chip];
+        }
+    }
+}
+
+/**
  * \brief Check for a fault on all gate drivers
  *
  * \return bool - There is a fault on one or more gate drivers
  */
 bool GateDriver::IsFaulty()
 {
+    // no resetting of errors done here and before new ones might be recorded
+    // errors are latched and need to explicitly reset with driver disabled
+    // that is the point in time to reset them
+
     bool status1 =
         VerifyRegister(STGAP1AS_REG_STATUS1, STGAP1AS_REG_STATUS1_MASK, 0);
     DEVICE_DELAY_US(LocalRegReadDelay);
@@ -331,7 +407,8 @@ bool GateDriver::VerifyRegister(
     DataBuffer values;
     ReadRegister(regNum, values);
 
-    bool result = true;
+    bool     result = true;
+    uint16_t crcError = 0;
     for (int chip = 0; chip < NumDriverChips; chip++)
     {
         uint16_t actualValue = values[chip] >> 8;
@@ -341,8 +418,30 @@ bool GateDriver::VerifyRegister(
 
         // Mask off the "don't care" bits from the value before comparing
         actualValue = actualValue & validBits;
+        crcError = (computedCrc != actualCrc);
 
-        result = result && (computedCrc == actualCrc) && (actualValue == value);
+        if (crcError || (actualValue != value))
+        {
+            result = false;
+
+            switch (regNum)
+            {
+            case STGAP1AS_REG_STATUS1:
+                LastErrorStatus[0][chip] = actualValue;
+                LastErrorCrc[0][chip] = crcError;
+                break;
+            case STGAP1AS_REG_STATUS2:
+                LastErrorStatus[1][chip] = actualValue;
+                LastErrorCrc[1][chip] = crcError;
+                break;
+            case STGAP1AS_REG_STATUS3:
+                LastErrorStatus[2][chip] = actualValue;
+                LastErrorCrc[2][chip] = crcError;
+                break;
+            default:
+                break;
+            }
+        }
     }
 
     return result;

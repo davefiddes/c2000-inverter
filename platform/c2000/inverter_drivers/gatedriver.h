@@ -35,6 +35,25 @@ public:
     static void Enable();
     static void Disable();
 
+    static void GetErrorStatus(
+        uint16_t  regPos,
+        uint16_t* regNo,
+        uint16_t* status,
+        uint16_t  statusLen);
+    static void GetCrcStatus(
+        uint16_t  regNo,
+        uint16_t* status,
+        uint16_t  statusLen);
+
+    static uint16_t GetMaxStatusRegisters() 
+    {
+        return NumStatusErrorRegister;
+    }
+    static uint16_t GetMaxDriverChips()
+    {
+        return NumDriverChips;
+    }
+
 private:
     enum ChipMask
     {
@@ -51,6 +70,7 @@ private:
     };
 
 private:
+    static const uint16_t NumStatusErrorRegister = 3;
     static const uint16_t NumDriverChips = 6;
     static const Register GateDriverRegisterSetup[];
     static const uint16_t RegisterSetupSize;
@@ -59,9 +79,18 @@ private:
 private:
     typedef uint16_t DataBuffer[NumDriverChips];
 
+    // placing verify STATUSx register errors
+    static uint16_t LastErrorStatus[NumStatusErrorRegister][NumDriverChips];
+    // STATUSx crc failure encountered
+    static uint16_t LastErrorCrc[NumStatusErrorRegister][NumDriverChips];
+    // array with the available status registers and their register code
+    static uint16_t StatusRegisterNumbers[NumStatusErrorRegister];
+
 private:
     static void SetupGateDrivers();
     static bool VerifyGateDriverConfig();
+
+    static void ResetLastErrors();
 
     static void SendCommand(uint16_t cmd);
     static void WriteRegister(const Register& reg);
