@@ -30,7 +30,7 @@ namespace c2000 {
 class PerformanceCounter
 {
 public:
-    static const uint32_t perfTimer = CPUTIMER0_BASE;
+    static const uint32_t perfTimer = CPUTIMER2_BASE;
 
 public:
     static void Init()
