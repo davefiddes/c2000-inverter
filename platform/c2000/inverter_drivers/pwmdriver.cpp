@@ -222,29 +222,10 @@ static void initEPWM(uint32_t base, uint16_t pwmmax, uint16_t deadBandCount)
     EPWM_setActionQualifierContSWForceShadowMode(
         base, EPWM_AQ_SW_SH_LOAD_ON_CNTR_PERIOD);
 
-    //
-    // Set actions
-    //
-    EPWM_setActionQualifierAction(
-        base,
-        EPWM_AQ_OUTPUT_A,
-        EPWM_AQ_OUTPUT_HIGH,
-        EPWM_AQ_OUTPUT_ON_TIMEBASE_DOWN_CMPA);
-    EPWM_setActionQualifierAction(
-        base,
-        EPWM_AQ_OUTPUT_B,
-        EPWM_AQ_OUTPUT_LOW,
-        EPWM_AQ_OUTPUT_ON_TIMEBASE_DOWN_CMPA);
-    EPWM_setActionQualifierAction(
-        base,
-        EPWM_AQ_OUTPUT_A,
-        EPWM_AQ_OUTPUT_LOW,
-        EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPA);
-    EPWM_setActionQualifierAction(
-        base,
-        EPWM_AQ_OUTPUT_B,
-        EPWM_AQ_OUTPUT_HIGH,
-        EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPA);
+    // Action Qualifier SubModule Registers
+    EPWM_setActionQualifierActionComplete(base, EPWM_AQ_OUTPUT_A,
+            (EPWM_ActionQualifierEventAction)(EPWM_AQ_OUTPUT_LOW_UP_CMPA |
+                                            EPWM_AQ_OUTPUT_HIGH_DOWN_CMPA));
 
     //
     // Use EPWMA as the input for both RED and FED
@@ -262,9 +243,9 @@ static void initEPWM(uint32_t base, uint16_t pwmmax, uint16_t deadBandCount)
     // Invert only the Falling Edge delayed output (AHC)
     //
     EPWM_setDeadBandDelayPolarity(
-        base, EPWM_DB_RED, EPWM_DB_POLARITY_ACTIVE_HIGH);
+        base, EPWM_DB_RED, EPWM_DB_POLARITY_ACTIVE_LOW);
     EPWM_setDeadBandDelayPolarity(
-        base, EPWM_DB_FED, EPWM_DB_POLARITY_ACTIVE_LOW);
+        base, EPWM_DB_FED, EPWM_DB_POLARITY_ACTIVE_HIGH);
 
     //
     // Use the delayed signals instead of the original signals
