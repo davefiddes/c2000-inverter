@@ -126,6 +126,7 @@
 #
 
 include(CMakeParseArguments)
+INCLUDE(CheckCSourceRuns)
 
 option(CODE_COVERAGE_VERBOSE "Verbose information" FALSE)
 
@@ -145,9 +146,17 @@ get_property(LANGUAGES GLOBAL PROPERTY ENABLED_LANGUAGES)
 list(GET LANGUAGES 0 LANG)
 
 if("${CMAKE_${LANG}_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang")
-    if("${CMAKE_${LANG}_COMPILER_VERSION}" VERSION_LESS 3)
-        message(FATAL_ERROR "Clang version must be 3.0.0 or greater! Aborting...")
+
+    # We require at least XCode 9.0
+    CHECK_C_SOURCE_RUNS("
+        int main()
+        {
+          return (__clang_major__ < 9);
+        }" HAVE_SUPPORTED_CLANG_VERSION)
+    if(NOT HAVE_SUPPORTED_CLANG_VERSION)
+        message(FATAL_ERROR "XCode 9.0 or newer required! Aborting...")
     endif()
+
 elseif(NOT CMAKE_COMPILER_IS_GNUCXX)
     if("${CMAKE_Fortran_COMPILER_ID}" MATCHES "[Ff]lang")
         # Do nothing; exit conditional without error if true
