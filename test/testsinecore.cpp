@@ -23,11 +23,14 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <math.h>
-#include <numbers>
 #include <utility>
 
+#include "utils.h"
+
 using ::testing::FloatNear;
+#if HAVE_NUMBERS_H
 using namespace std::numbers;
+#endif
 
 // Numeric tolerance we're trying to measure to. Number is empirical as the
 // fixed point maths is a bit loosey goosey.
