@@ -14,6 +14,8 @@ PAGE 0 :
    RAMLS4           : origin = 0x00A000, length = 0x000800
    RAMGS7           : origin = 0x013000, length = 0x001000
    RAMGS8           : origin = 0x014000, length = 0x001000
+   RAMGS9           : origin = 0x015000, length = 0x001000
+   RAMGS10          : origin = 0x016000, length = 0x001000
 
    RESET            : origin = 0x3FFFC0, length = 0x000002
 
@@ -34,9 +36,9 @@ PAGE 1 :
    RAMGS5      : origin = 0x011000, length = 0x001000
    RAMGS6      : origin = 0x012000, length = 0x001000
 /*    RAMGS7      : origin = 0x013000, length = 0x001000
-   RAMGS8      : origin = 0x014000, length = 0x001000 */
+   RAMGS8      : origin = 0x014000, length = 0x001000 
    RAMGS9      : origin = 0x015000, length = 0x001000
-   RAMGS10     : origin = 0x016000, length = 0x001000
+   RAMGS10     : origin = 0x016000, length = 0x001000 */
 
 //   RAMGS11     : origin = 0x017000, length = 0x000FF8   /* Uncomment for F28374D, F28376D devices */
 
@@ -62,7 +64,7 @@ PAGE 1 :
 SECTIONS
 {
    codestart        : > BEGIN,     PAGE = 0
-   .text            : >> RAMD0 |  RAMLS0 | RAMLS1 | RAMLS2 | RAMLS3 | RAMLS4 | RAMGS7 | RAMGS8,   PAGE = 0
+   .text            : >> RAMD0 |  RAMLS0 | RAMLS1 | RAMLS2 | RAMLS3 | RAMLS4 | RAMGS7 | RAMGS8 | RAMGS9 | RAMGS10,   PAGE = 0
    .cinit           : > RAMM0,     PAGE = 0
    .switch          : > RAMM0,     PAGE = 0
    .reset           : > RESET,     PAGE = 0, TYPE = DSECT /* not used, */
