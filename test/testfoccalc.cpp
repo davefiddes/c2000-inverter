@@ -24,11 +24,14 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <math.h>
-#include <numbers>
 #include <utility>
 
+#include "utils.h"
+
 using ::testing::FloatNear;
+#if HAVE_NUMBERS_H
 using namespace std::numbers;
+#endif
 
 // Numeric tolerance we're trying to measure to. Number is empirical as the
 // fixed point maths is a bit loosey goosey.
@@ -134,7 +137,7 @@ TEST(TestFocCalc, GetQLimit)
 {
     EXPECT_THAT(FOC::GetQLimit(0), IntNear(FloatGetQLimit(0), 2));
     EXPECT_THAT(FOC::GetQLimit(100), IntNear(FloatGetQLimit(100), 2));
-    EXPECT_THAT(FOC::GetQLimit(456.78), IntNear(FloatGetQLimit(456.78), 2));
+    EXPECT_THAT(FOC::GetQLimit((int32_t)456.78), IntNear(FloatGetQLimit(456.78), 2));
 }
 
 float FloatGetVoltage(float ud, float uq)
