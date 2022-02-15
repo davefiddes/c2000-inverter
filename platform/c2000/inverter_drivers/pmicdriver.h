@@ -325,24 +325,7 @@ private:
         CHECK(WriteRegister(TLF35584_DEVCTRL, NewState));
         CHECK(WriteRegister(TLF35584_DEVCTRLN, ~NewState));
 
-        // Blocking wait until the state has had time to change
-        DEVICE_DELAY_US(StateTransitionDelay);
-
-        const uint16_t ExpectedState =
-            TLF35584_DEVSTAT_TRK2EN | TLF35584_DEVSTAT_TRK1EN |
-            TLF35584_DEVSTAT_COMEN | TLF35584_DEVSTAT_VREFEN |
-            TLF35584_DEVSTAT_NORMAL;
-        uint16_t state;
-        CHECK(ReadRegister(TLF35584_DEVSTAT, state));
-
-        if (state == ExpectedState)
-        {
-            return OK;
-        }
-        else
-        {
-            return StateTransitionFail;
-        }
+        return OK;
     }
 
     /**
