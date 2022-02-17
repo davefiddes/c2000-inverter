@@ -1,7 +1,7 @@
 /*
  * This file is part of the stm32-sine project.
  *
- * Copyright (C) 2021 David J. Fiddes <D.J@fiddes.net>
+ * Copyright (C) 2022 Bernd Ocklin <bernd@ocklin.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,33 +16,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TESLAM3PMIC_H
-#define TESLAM3PMIC_H
 
-#include <stdint.h>
+#ifndef C2000SPIDRIVER_H
+#define C2000SPIDRIVER_H
 
-class TeslaM3PowerWatchdog
+#include "stdint.h"
+
+class PmicSpiDriver
 {
-public:
-    enum Error
-    {
-        OK = 0,
-        WriteFail,
-        ReadParityFail,
-        StateTransitionFail
-    };
-
-public:
-    static Error Init();
-
-    static Error Strobe();
 
 private:
-    static void  InitSPIPort();
-    static Error SetupPowerManagement();
+    static uint32_t m_base;
+    static bool     m_readAfterWrite;
 
-    static Error WriteRegister(uint8_t reg, uint8_t value);
-    static Error ReadRegister(uint8_t reg, uint8_t& value);
+    static void InitGPIO(uint16_t, uint32_t);
+
+public:
+    static void Init();
+
+    static bool ReadDataAfterWrite();
+
+    static uint16_t TransferData(uint16_t data);
 };
 
-#endif // TESLAM3PMIC_H
+#endif // C2000SPIDRIVER_H
