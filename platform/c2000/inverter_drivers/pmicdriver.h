@@ -328,14 +328,12 @@ private:
         // Blocking wait until the state has had time to change
         DEVICE_DELAY_US(StateTransitionDelay);
 
-        const uint16_t ExpectedState =
-            TLF35584_DEVSTAT_TRK2EN | TLF35584_DEVSTAT_TRK1EN |
-            TLF35584_DEVSTAT_COMEN | TLF35584_DEVSTAT_VREFEN |
-            TLF35584_DEVSTAT_NORMAL;
         uint16_t state;
         CHECK(ReadRegister(TLF35584_DEVSTAT, state));
 
-        if (state == ExpectedState)
+        // Just check the state transition. The standby LDO has been disabled
+        // but doesn't disable.
+        if ((state & TLF35584_DEVSTAT_STATE_MASK) == TLF35584_DEVSTAT_NORMAL)
         {
             return OK;
         }
@@ -386,8 +384,8 @@ private:
         // this to verify communication somewhat
         uint16_t res = SpiDriverT::TransferData(out);
 
-        // only verify reading the written value echoed if 
-        // there is a device with echo - e.g. handy for launchxl 
+        // only verify reading the written value echoed if
+        // there is a device with echo - e.g. handy for launchxl
         if (SpiDriverT::ReadDataAfterWrite() && (res != out))
         {
             return WriteFail;

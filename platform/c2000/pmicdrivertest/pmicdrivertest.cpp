@@ -28,10 +28,12 @@
 
 using namespace c2000;
 
+typedef TeslaM3PowerWatchdog<PmicSpiDriver> PowerWatchdog;
+
 // task added to scheduler to strobe the powerwatchdog
-static void taskStrobePowerWatchdoc()
+static void taskStrobePowerWatchdog()
 {
-    TeslaM3PowerWatchdog<PmicSpiDriver>::Strobe();
+    PowerWatchdog::Strobe();
 }
 
 void main(void)
@@ -102,14 +104,22 @@ void main(void)
     ERTM;
 
     printf("Pmic driver initialisation: ");
-    TeslaM3PowerWatchdog<PmicSpiDriver>::Init();
+    PowerWatchdog::Error status = PowerWatchdog::Init();
+
+    if (status == 0)
+    {
+        printf("Success\n");
+    }
+    else
+    {
+        printf("Failed with %d\n", status);
+    }
 
     // add a task to strobe the power watchdog every 100ms
-    Scheduler::AddTask(taskStrobePowerWatchdoc, 100);
+    Scheduler::AddTask(taskStrobePowerWatchdog, 100);
 
     for (;;)
     {
-
         GPIO_writePin(redLedPin, 0);
 
         DEVICE_DELAY_US(300000);

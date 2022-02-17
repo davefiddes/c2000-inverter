@@ -907,6 +907,7 @@
 /** Reference voltage enable status */
 #define TLF35584_DEVSTAT_VREFEN                 (1 << 3)
 
+#define TLF35584_DEVSTAT_STATE_MASK             0x7
 /** Device state */
 #define TLF35584_DEVSTAT_RESERVED2              0x7
 #define TLF35584_DEVSTAT_RESERVED1              0x6
