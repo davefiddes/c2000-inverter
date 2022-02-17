@@ -107,6 +107,7 @@ a single CPU should be defined."
 
 // M3 Inverter GPIO
 #define DEVICE_GPIO_PIN_GATE_PSU_ENABLE 82
+#define DEVICE_GPIO_PIN_PWM_ENABLE 78
 
 // M3 Inverter EEPROM
 #define DEVICE_TESLAM3_GPIO_PIN_EEPROM1_CS 23

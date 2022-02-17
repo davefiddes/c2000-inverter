@@ -21,12 +21,15 @@
 #include "driverlib.h"
 #include "errormessage.h"
 #include "focpwmgeneration.h"
+#include "pmicdriver.h"
 #include "c2000/current.h"
 #include "c2000/encoder.h"
 #include "c2000/gatedriver.h"
 #include "c2000/performancecounter.h"
+#include "c2000/pmicspidriver.h"
 #include "c2000/pwmdriver.h"
 #include "c2000/pwmgeneration.h"
+#include "c2000/scheduler.h"
 #include <stdio.h>
 
 // Pull in the whole C2000 namespace as this is platform specific code obviously
@@ -34,6 +37,14 @@ using namespace c2000;
 
 void Param::Change(Param::PARAM_NUM paramNum)
 {
+}
+
+typedef TeslaM3PowerWatchdog<PmicSpiDriver> PowerWatchdog;
+
+// task added to scheduler to strobe the powerwatchdog
+static void taskStrobePowerWatchdog()
+{
+    PowerWatchdog::Strobe();
 }
 
 void main(void)
@@ -101,12 +112,12 @@ void main(void)
     printf("Gate Drive initialisation: ");
     if (GateDriver::Init())
     {
-        printf("Successful\n");
+        printf("OK\n");
         GateDriver::Enable();
     }
     else
     {
-        printf("Failed\n");
+        printf("Fail\n");
     }
 
     //
@@ -119,6 +130,15 @@ void main(void)
     // Service Routines (ISR).
     //
     Interrupt_initVectorTable();
+
+    Scheduler::Init();
+
+    printf(
+        "Pmic driver initialisation: %s\n",
+        PowerWatchdog::Init() == PowerWatchdog::OK ? "OK" : "Fail");
+
+    // add a task to strobe the power watchdog every 100ms
+    Scheduler::AddTask(taskStrobePowerWatchdog, 100);
 
     // Set up the error message log and set operating parameters to default
     ErrorMessage::ResetAll();
@@ -158,6 +178,13 @@ void main(void)
     //
     EINT;
     ERTM;
+
+    //
+    // Turn on the global PWM buffer enable
+    //
+    GPIO_writePin(DEVICE_GPIO_PIN_PWM_ENABLE, 1);
+    GPIO_setPadConfig(DEVICE_GPIO_PIN_PWM_ENABLE, GPIO_PIN_TYPE_STD);
+    GPIO_setDirectionMode(DEVICE_GPIO_PIN_PWM_ENABLE, GPIO_DIR_MODE_OUT);
 
     // Go for manual mode
     PwmGeneration::SetOpmode(MANUAL);
