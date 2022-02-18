@@ -31,8 +31,8 @@ The current hardware targets are:
 * [x] Fix integer overflows affecting C2000 in PWM generation, SineCore and libopeninv
 * [x] Support operation on Tesla M3 rear drive unit hardware
 * [x] Tesla M3 gate driver integration
-* [ ] Tesla M3 safety PSU/PMIC integration
-* [ ] Functional PWM generation on Tesla M3 hardware
+* [x] Tesla M3 safety PSU/PMIC integration
+* [x] Functional HV PWM generation on Tesla M3 hardware
 * [ ] Cross-platform resolver to digital conversion and Tesla M3 integration
 * [ ] Analogue sampling of phase currents for FOC
 * [ ] Analogue capture of other Tesla M3 signals
