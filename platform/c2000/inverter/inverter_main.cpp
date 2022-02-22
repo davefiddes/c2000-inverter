@@ -64,6 +64,7 @@ void main(void)
     //
     if (IsTeslaM3Inverter())
     {
+        GPIO_setPinConfig(GPIO_0_EPWM1A);
         GPIO_setPinConfig(GPIO_8_EPWM5A);
         GPIO_setPinConfig(GPIO_9_EPWM5B);
         GPIO_setPinConfig(GPIO_10_EPWM6A);
@@ -74,11 +75,12 @@ void main(void)
     else
     {
         GPIO_setPinConfig(GPIO_0_EPWM1A);
-        GPIO_setPinConfig(GPIO_1_EPWM1B);
         GPIO_setPinConfig(GPIO_2_EPWM2A);
         GPIO_setPinConfig(GPIO_3_EPWM2B);
         GPIO_setPinConfig(GPIO_4_EPWM3A);
         GPIO_setPinConfig(GPIO_5_EPWM3B);
+        GPIO_setPinConfig(GPIO_6_EPWM4A);
+        GPIO_setPinConfig(GPIO_7_EPWM4B);
     }
 
     //

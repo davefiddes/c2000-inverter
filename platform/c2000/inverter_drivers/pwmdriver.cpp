@@ -19,14 +19,21 @@
  */
 
 #include "c2000/pwmdriver.h"
-#include "c2000/pwmgeneration.h"
 #include "device.h"
 #include "driverlib.h"
 #include "errormessage.h"
 #include "params.h"
 #include "c2000/performancecounter.h"
+#include "c2000/pwmgeneration.h"
 
 namespace c2000 {
+
+/** Phase delay between the resolver exciter square wave and the phase PWM.
+ * Measured as approx32.8 uSec between centre of square wave and peak of sine
+ * wave on Tesla Model 3 980 inverter. Constant below adjusted to align the peak
+ * of the sine wave with the centre of the phase PWM signals on a scope.
+ */
+static const uint16_t resolverPhaseDelay = 3230U;
 
 /** Phase A EPWM Base Address */
 uint32_t PwmDriver::sm_phaseAEpwmBase;
@@ -137,14 +144,14 @@ __interrupt void pwm_timer_isr(void)
         //
         // Clear INT flag for this timer
         //
-        EPWM_clearEventTriggerInterruptFlag(EPWM4_BASE);
+        EPWM_clearEventTriggerInterruptFlag(EPWM5_BASE);
     }
     else
     {
         //
         // Clear INT flag for this timer
         //
-        EPWM_clearEventTriggerInterruptFlag(EPWM1_BASE);
+        EPWM_clearEventTriggerInterruptFlag(EPWM2_BASE);
     }
 
     //
@@ -182,13 +189,14 @@ void PwmDriver::SetOverCurrentLimits(int16_t limNeg, int16_t limPos)
 }
 
 /**
- * Initialise an individual EPMW module
+ * Initialise a EPMW module to act as a resolver exciter
+ *
+ * We are aiming to generate a 50% duty cycle square wave
  *
  * \param[in] base The EPWM module to configure
  * \param[in] pwmmax The PWM period
- * \param[in] deadBandCount The size of the deadband in PWM counts
  */
-static void initEPWM(uint32_t base, uint16_t pwmmax, uint16_t deadBandCount)
+static void initResolverEPWM(uint32_t base, uint16_t pwmmax)
 {
     //
     // Set-up TBCLK
@@ -196,6 +204,85 @@ static void initEPWM(uint32_t base, uint16_t pwmmax, uint16_t deadBandCount)
     EPWM_setTimeBasePeriod(base, pwmmax);
     EPWM_setPhaseShift(base, 0U);
     EPWM_setTimeBaseCounter(base, 0U);
+
+    //
+    // Set Compare values - 50% duty cycle
+    //
+    EPWM_setCounterCompareValue(base, EPWM_COUNTER_COMPARE_A, pwmmax / 2);
+
+    //
+    // Set up counter mode
+    //
+    EPWM_setTimeBaseCounterMode(base, EPWM_COUNTER_MODE_UP_DOWN);
+    EPWM_disablePhaseShiftLoad(base);
+    EPWM_setClockPrescaler(base, EPWM_CLOCK_DIVIDER_1, EPWM_HSCLOCK_DIVIDER_1);
+
+    //
+    // Load shadow action qualifier force at the end of the period to get a
+    // clean on-off transition
+    //
+    EPWM_setActionQualifierContSWForceShadowMode(
+        base, EPWM_AQ_SW_SH_LOAD_ON_CNTR_PERIOD);
+
+    //
+    // Set actions to only use output A
+    //
+    EPWM_setActionQualifierAction(
+        base,
+        EPWM_AQ_OUTPUT_A,
+        EPWM_AQ_OUTPUT_HIGH,
+        EPWM_AQ_OUTPUT_ON_TIMEBASE_DOWN_CMPA);
+    EPWM_setActionQualifierAction(
+        base,
+        EPWM_AQ_OUTPUT_A,
+        EPWM_AQ_OUTPUT_LOW,
+        EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPA);
+}
+
+/**
+ * Initialise an EPMW module just enough to act as a synchronisation source for
+ * an EPWM module chain
+ *
+ * \param[in] base The EPWM module to configure
+ * \param[in] pwmmax The PWM period
+ */
+static void initSyncEPWM(uint32_t base, uint16_t pwmmax)
+{
+    //
+    // Set-up TBCLK
+    //
+    EPWM_setTimeBasePeriod(base, pwmmax);
+    EPWM_setPhaseShift(base, 0U);
+    EPWM_setTimeBaseCounter(base, 0U);
+
+    //
+    // Set up counter mode
+    //
+    EPWM_setTimeBaseCounterMode(base, EPWM_COUNTER_MODE_UP_DOWN);
+    EPWM_disablePhaseShiftLoad(base);
+    EPWM_setClockPrescaler(base, EPWM_CLOCK_DIVIDER_1, EPWM_HSCLOCK_DIVIDER_1);
+}
+
+/**
+ * Initialise an individual EPMW module
+ *
+ * \param[in] base The EPWM module to configure
+ * \param[in] pwmmax The PWM period
+ * \param[in] deadBandCount The size of the deadband in PWM counts
+ * \param[in] phaseDelay The PWM phase delay from the synchonisation source
+ */
+static void initPhaseEPWM(
+    uint32_t base,
+    uint16_t pwmmax,
+    uint16_t deadBandCount,
+    uint16_t phaseDelay)
+{
+    //
+    // Set-up TBCLK
+    //
+    EPWM_setTimeBasePeriod(base, pwmmax);
+    EPWM_setPhaseShift(base, phaseDelay);
+    EPWM_setTimeBaseCounter(base, phaseDelay);
 
     //
     // Set Compare values
@@ -214,6 +301,11 @@ static void initEPWM(uint32_t base, uint16_t pwmmax, uint16_t deadBandCount)
     //
     EPWM_setCounterCompareShadowLoadMode(
         base, EPWM_COUNTER_COMPARE_A, EPWM_COMP_LOAD_ON_CNTR_ZERO);
+
+    //
+    // Load the period in response to synchonisation events only
+    //
+    EPWM_selectPeriodLoadEvent(base, EPWM_SHADOW_LOAD_MODE_SYNC);
 
     //
     // Load shadow action qualifier force at the end of the period to get a
@@ -312,34 +404,43 @@ uint16_t PwmDriver::TimerSetup(
         sm_phaseCEpwmBase = EPWM6_BASE;
 
         //
-        // Initialize EPWM4 as master (only used for clock synchronisation
-        // currently)
+        // Initialize EPWM1 as master clock and resolver exciter output
         //
-        initEPWM(EPWM4_BASE, pwmmax, deadBandCount);
+        initResolverEPWM(EPWM1_BASE, pwmmax);
 
         //
-        // Initialize EPWM5 and sync to EPWM4
+        // Initialize EPWM4 just enough to pass on the synchronisation pulse
+        // This EPWM module is otherwise redundant
         //
-        initEPWM(EPWM5_BASE, pwmmax, deadBandCount);
-        EPWM_selectPeriodLoadEvent(EPWM5_BASE, EPWM_SHADOW_LOAD_MODE_SYNC);
+        initSyncEPWM(EPWM4_BASE, pwmmax);
 
         //
-        // Initialize EPWM6 and sync to EPWM4
+        // Initialize EPWM5, EPWM6 and EPWM7 as phase PWM outputs
         //
-        initEPWM(EPWM6_BASE, pwmmax, deadBandCount);
-        EPWM_selectPeriodLoadEvent(EPWM6_BASE, EPWM_SHADOW_LOAD_MODE_SYNC);
+        initPhaseEPWM(EPWM5_BASE, pwmmax, deadBandCount, resolverPhaseDelay);
+        initPhaseEPWM(EPWM6_BASE, pwmmax, deadBandCount, resolverPhaseDelay);
+        initPhaseEPWM(EPWM7_BASE, pwmmax, deadBandCount, resolverPhaseDelay);
+
+        // According to section 15.4.3.3 of the TMS320F2837xD Technical
+        // Reference Manual no synchonisation chain should exceed 4 units. Our
+        // synchonisation chains are:
+        //   EPWM1 -> EPWM4 -> EPWM5 -> EPWM6
+        //   EPWM1 -> EPWM4 -> EPWM7
 
         //
-        // Initialize EPWM7 and sync to EPWM4
-        //
-        initEPWM(EPWM7_BASE, pwmmax, deadBandCount);
-        EPWM_selectPeriodLoadEvent(EPWM7_BASE, EPWM_SHADOW_LOAD_MODE_SYNC);
-
-        //
-        // EPWM4 SYNCO is generated on CTR=0
+        // EPWM1 SYNCO is generated on CTR=0
         //
         EPWM_setSyncOutPulseMode(
-            EPWM4_BASE, EPWM_SYNC_OUT_PULSE_ON_COUNTER_ZERO);
+            EPWM1_BASE, EPWM_SYNC_OUT_PULSE_ON_COUNTER_ZERO);
+
+        //
+        // EPWM4 uses the EPWM 1 SYNCO as its SYNCIN.
+        // EPWM4 SYNCO is generated from its SYNCIN
+        //
+        SysCtl_setSyncInputConfig(
+            SYSCTL_SYNC_IN_EPWM4, SYSCTL_SYNC_IN_SRC_EPWM1SYNCOUT);
+        EPWM_setSyncOutPulseMode(
+            EPWM4_BASE, EPWM_SYNC_OUT_PULSE_ON_EPWMxSYNCIN);
 
         //
         // EPWM5 uses the EPWM 4 SYNCO as its SYNCIN.
@@ -350,10 +451,8 @@ uint16_t PwmDriver::TimerSetup(
 
         //
         // EPWM6 uses the EPWM 5 SYNCO as its SYNCIN.
-        // EPWM6 SYNCO is generated from its SYNCIN
+        // This is the end of a sync chain so no config required
         //
-        EPWM_setSyncOutPulseMode(
-            EPWM6_BASE, EPWM_SYNC_OUT_PULSE_ON_EPWMxSYNCIN);
 
         //
         // EPWM7 uses EPWM4 SYNCO as its SYNCIN
@@ -364,6 +463,7 @@ uint16_t PwmDriver::TimerSetup(
         //
         // Enable all phase shifts.
         //
+        EPWM_enablePhaseShiftLoad(EPWM4_BASE);
         EPWM_enablePhaseShiftLoad(EPWM5_BASE);
         EPWM_enablePhaseShiftLoad(EPWM6_BASE);
         EPWM_enablePhaseShiftLoad(EPWM7_BASE);
@@ -371,26 +471,27 @@ uint16_t PwmDriver::TimerSetup(
     else
     {
         // Store the EPWM modules used for each phase for normal operation
-        sm_phaseAEpwmBase = EPWM1_BASE;
-        sm_phaseBEpwmBase = EPWM2_BASE;
-        sm_phaseCEpwmBase = EPWM3_BASE;
+        sm_phaseAEpwmBase = EPWM2_BASE;
+        sm_phaseBEpwmBase = EPWM3_BASE;
+        sm_phaseCEpwmBase = EPWM4_BASE;
 
         //
-        // Initialize EPWM1 as master
+        // Initialize EPWM1 as master clock and resolver exciter output
         //
-        initEPWM(EPWM1_BASE, pwmmax, deadBandCount);
+        initResolverEPWM(EPWM1_BASE, pwmmax);
 
         //
-        // Initialize EPWM2 and sync to EPWM1
+        // Initialize EPWM2, EPWM3 and EPWM4 as phase PWM outputs
         //
-        initEPWM(EPWM2_BASE, pwmmax, deadBandCount);
-        EPWM_selectPeriodLoadEvent(EPWM2_BASE, EPWM_SHADOW_LOAD_MODE_SYNC);
+        initPhaseEPWM(EPWM2_BASE, pwmmax, deadBandCount, resolverPhaseDelay);
+        initPhaseEPWM(EPWM3_BASE, pwmmax, deadBandCount, resolverPhaseDelay);
+        initPhaseEPWM(EPWM4_BASE, pwmmax, deadBandCount, resolverPhaseDelay);
 
-        //
-        // Initialize EPWM3 and sync to EPWM1
-        //
-        initEPWM(EPWM3_BASE, pwmmax, deadBandCount);
-        EPWM_selectPeriodLoadEvent(EPWM3_BASE, EPWM_SHADOW_LOAD_MODE_SYNC);
+        // According to section 15.4.3.3 of the TMS320F2837xD Technical
+        // Reference Manual no synchonisation chain should exceed 4 units. Our
+        // synchonisation chains are:
+        //   EPWM1 -> EPWM4
+        //   EPWM1 -> EPWM2 -> EPWM3
 
         //
         // EPWM1 SYNCO is generated on CTR=0
@@ -406,10 +507,22 @@ uint16_t PwmDriver::TimerSetup(
             EPWM2_BASE, EPWM_SYNC_OUT_PULSE_ON_EPWMxSYNCIN);
 
         //
+        // EPWM3 uses the EPWM2 SYNCO as its SYNCIN.
+        //
+        EPWM_setSyncOutPulseMode(
+            EPWM3_BASE, EPWM_SYNC_OUT_PULSE_ON_EPWMxSYNCIN);
+
+        //
+        // EPWM4 uses EPWM1 SYNCO as its SYNCIN
+        //
+        // This is the end of a sync chain so no config required
+
+        //
         // Enable all phase shifts.
         //
         EPWM_enablePhaseShiftLoad(EPWM2_BASE);
         EPWM_enablePhaseShiftLoad(EPWM3_BASE);
+        EPWM_enablePhaseShiftLoad(EPWM4_BASE);
     }
 
     //
@@ -419,15 +532,15 @@ uint16_t PwmDriver::TimerSetup(
     //
     if (IsTeslaM3Inverter())
     {
-        EPWM_setInterruptSource(EPWM4_BASE, EPWM_INT_TBCTR_ZERO);
-        EPWM_enableInterrupt(EPWM4_BASE);
-        EPWM_setInterruptEventCount(EPWM4_BASE, 15U);
+        EPWM_setInterruptSource(EPWM5_BASE, EPWM_INT_TBCTR_ZERO);
+        EPWM_enableInterrupt(EPWM5_BASE);
+        EPWM_setInterruptEventCount(EPWM5_BASE, 15U);
     }
     else
     {
-        EPWM_setInterruptSource(EPWM1_BASE, EPWM_INT_TBCTR_ZERO);
-        EPWM_enableInterrupt(EPWM1_BASE);
-        EPWM_setInterruptEventCount(EPWM1_BASE, 15U);
+        EPWM_setInterruptSource(EPWM2_BASE, EPWM_INT_TBCTR_ZERO);
+        EPWM_enableInterrupt(EPWM2_BASE);
+        EPWM_setInterruptEventCount(EPWM2_BASE, 15U);
     }
 
     //
@@ -444,13 +557,13 @@ uint16_t PwmDriver::TimerSetup(
     //
     if (IsTeslaM3Inverter())
     {
-        Interrupt_register(INT_EPWM4, &pwm_timer_isr);
-        Interrupt_enable(INT_EPWM4);
+        Interrupt_register(INT_EPWM5, &pwm_timer_isr);
+        Interrupt_enable(INT_EPWM5);
     }
     else
     {
-        Interrupt_register(INT_EPWM1, &pwm_timer_isr);
-        Interrupt_enable(INT_EPWM1);
+        Interrupt_register(INT_EPWM2, &pwm_timer_isr);
+        Interrupt_enable(INT_EPWM2);
     }
 
     // Return the pwm frequency. Because we use the up-down count mode divide by
