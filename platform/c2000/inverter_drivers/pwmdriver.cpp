@@ -199,6 +199,11 @@ void PwmDriver::SetOverCurrentLimits(int16_t limNeg, int16_t limPos)
 static void initResolverEPWM(uint32_t base, uint16_t pwmmax)
 {
     //
+    // Allow the PWM to continue when debugging
+    //
+    EPWM_setEmulationMode(base, EPWM_EMULATION_FREE_RUN);
+
+    //
     // Set-up TBCLK
     //
     EPWM_setTimeBasePeriod(base, pwmmax);
@@ -249,6 +254,11 @@ static void initResolverEPWM(uint32_t base, uint16_t pwmmax)
 static void initSyncEPWM(uint32_t base, uint16_t pwmmax)
 {
     //
+    // Allow the PWM to continue when debugging
+    //
+    EPWM_setEmulationMode(base, EPWM_EMULATION_FREE_RUN);
+
+    //
     // Set-up TBCLK
     //
     EPWM_setTimeBasePeriod(base, pwmmax);
@@ -277,6 +287,11 @@ static void initPhaseEPWM(
     uint16_t deadBandCount,
     uint16_t phaseDelay)
 {
+    //
+    // Allow the PWM to continue when debugging
+    //
+    EPWM_setEmulationMode(base, EPWM_EMULATION_FREE_RUN);
+
     //
     // Set-up TBCLK
     //
