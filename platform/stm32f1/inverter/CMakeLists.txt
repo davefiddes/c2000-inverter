@@ -9,3 +9,5 @@ add_executable(
   vehiclecontrol.cpp)
 target_link_libraries(stm32_sine global_options)
 target_link_libraries(stm32_sine libopeninv libopeninv_stm32f1 portablesine)
+target_include_directories(stm32_sine
+                           PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
