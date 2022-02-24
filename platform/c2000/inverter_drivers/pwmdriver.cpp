@@ -23,6 +23,7 @@
 #include "driverlib.h"
 #include "errormessage.h"
 #include "params.h"
+#include "c2000/motoranalogcapture.h"
 #include "c2000/performancecounter.h"
 #include "c2000/pwmgeneration.h"
 
@@ -126,10 +127,11 @@ void PwmDriver::SetPhasePwm(uint32_t phaseA, uint32_t phaseB, uint32_t phaseC)
 static int32_t execTicks;
 
 /**
- * Main PWM timer interrupt. Run the main motor control loop while measuring how
- * long we take
+ * Main motor control ADC data available interrupt. This fires when the PWM
+ * triggered ADC conversion completes and runs the main motor control loop. It
+ * will measuring how long we take
  */
-__interrupt void pwm_timer_isr(void)
+__interrupt void motor_control_adc_isr(void)
 {
     uint32_t startTime = PerformanceCounter::GetCount();
 
@@ -139,26 +141,24 @@ __interrupt void pwm_timer_isr(void)
     uint32_t totalTime = startTime - PerformanceCounter::GetCount();
     execTicks = execTicks + totalTime;
 
-    if (IsTeslaM3Inverter())
+    //
+    // Clear the interrupt flag
+    //
+    ADC_clearInterruptStatus(ADCA_BASE, ADC_INT_NUMBER1);
+
+    //
+    // Check if overflow has occurred
+    //
+    if (ADC_getInterruptOverflowStatus(ADCA_BASE, ADC_INT_NUMBER1))
     {
-        //
-        // Clear INT flag for this timer
-        //
-        EPWM_clearEventTriggerInterruptFlag(EPWM5_BASE);
-    }
-    else
-    {
-        //
-        // Clear INT flag for this timer
-        //
-        EPWM_clearEventTriggerInterruptFlag(EPWM2_BASE);
+        ADC_clearInterruptOverflowStatus(ADCA_BASE, ADC_INT_NUMBER1);
+        ADC_clearInterruptStatus(ADCA_BASE, ADC_INT_NUMBER1);
     }
 
     //
-    // Acknowledge interrupt group (same for both Tesla M3 inverter and
-    // LAUNCHXL-F28379D)
+    // Acknowledge the interrupt group
     //
-    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP3);
+    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP1);
 }
 
 /**
@@ -312,7 +312,7 @@ static void initPhaseEPWM(
     EPWM_setClockPrescaler(base, EPWM_CLOCK_DIVIDER_1, EPWM_HSCLOCK_DIVIDER_1);
 
     //
-    // Load shadow compare in the center (zero)
+    // Load shadow compare in the centre (zero)
     //
     EPWM_setCounterCompareShadowLoadMode(
         base, EPWM_COUNTER_COMPARE_A, EPWM_COMP_LOAD_ON_CNTR_ZERO);
@@ -541,22 +541,23 @@ uint16_t PwmDriver::TimerSetup(
     }
 
     //
-    // Interrupt where we will change the Compare Values
-    // Select INT on Time base counter zero event,
-    // Enable INT, generate INT on 15th event (to allow non-optimised code)
+    // Configure the analog capture of motor control signals to happen at the
+    // centre of the phase PWM. The centre corresponds to the pwm counter
+    // counting up to the configured value.
+    // The MotorAnalogCapture class is responsible for configuring all ADC
+    // channels it requires.
+    // We scale the ADC trigger event prescale to allow operation of unoptimised
+    // code.
     //
-    if (IsTeslaM3Inverter())
-    {
-        EPWM_setInterruptSource(EPWM5_BASE, EPWM_INT_TBCTR_ZERO);
-        EPWM_enableInterrupt(EPWM5_BASE);
-        EPWM_setInterruptEventCount(EPWM5_BASE, 15U);
-    }
-    else
-    {
-        EPWM_setInterruptSource(EPWM2_BASE, EPWM_INT_TBCTR_ZERO);
-        EPWM_enableInterrupt(EPWM2_BASE);
-        EPWM_setInterruptEventCount(EPWM2_BASE, 15U);
-    }
+    MotorAnalogCapture::Init();
+
+    const uint32_t motorAdcPwm = IsTeslaM3Inverter() ? EPWM5_BASE : EPWM2_BASE;
+    EPWM_disableADCTrigger(motorAdcPwm, EPWM_SOC_A);
+    EPWM_setADCTriggerSource(motorAdcPwm, EPWM_SOC_A, EPWM_SOC_TBCTR_U_CMPA);
+    EPWM_setADCTriggerEventPrescale(motorAdcPwm, EPWM_SOC_A, 15U);
+
+    MotorAnalogCapture::ConfigureSoc(
+        IsTeslaM3Inverter() ? ADC_TRIGGER_EPWM5_SOCA : ADC_TRIGGER_EPWM2_SOCA);
 
     //
     // Enable sync and clock to PWM
@@ -568,18 +569,16 @@ uint16_t PwmDriver::TimerSetup(
     PerformanceCounter::Init();
 
     //
-    // Enable EPWM interrupts
+    // Configure interrupts for the main motor control loop to run when the ADC
+    // has new data
     //
-    if (IsTeslaM3Inverter())
-    {
-        Interrupt_register(INT_EPWM5, &pwm_timer_isr);
-        Interrupt_enable(INT_EPWM5);
-    }
-    else
-    {
-        Interrupt_register(INT_EPWM2, &pwm_timer_isr);
-        Interrupt_enable(INT_EPWM2);
-    }
+    Interrupt_register(INT_ADCA1, &motor_control_adc_isr);
+    Interrupt_enable(INT_ADCA1);
+
+    //
+    // Set the ADC event going
+    //
+    EPWM_enableADCTrigger(motorAdcPwm, EPWM_SOC_A);
 
     // Return the pwm frequency. Because we use the up-down count mode divide by
     // 2 * the period

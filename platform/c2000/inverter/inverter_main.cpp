@@ -25,6 +25,7 @@
 #include "c2000/current.h"
 #include "c2000/encoder.h"
 #include "c2000/gatedriver.h"
+#include "c2000/motoranalogcapture.h"
 #include "c2000/performancecounter.h"
 #include "c2000/pmicspidriver.h"
 #include "c2000/pwmdriver.h"
@@ -198,6 +199,14 @@ void main(void)
     while (true)
     {
         DEVICE_DELAY_US(500000);
+
+        printf(
+            "PhaseA Current = %u, PhaseB Current = %u, Resolver Sine = %u, "
+            "Resolver Cosine = %u\n",
+            MotorAnalogCapture::PhaseACurrent(),
+            MotorAnalogCapture::PhaseBCurrent(),
+            MotorAnalogCapture::ResolverSine(),
+            MotorAnalogCapture::ResolverCosine());
 
         printf("Gate Drive: %s\n", GateDriver::IsFaulty() ? "FAULT" : "OK");
 
