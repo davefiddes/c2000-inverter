@@ -30,9 +30,10 @@
 namespace c2000 {
 
 /** Phase delay between the resolver exciter square wave and the phase PWM.
- * Measured as approx 32.8 uSec between centre of square wave and peak of sine
- * wave on Tesla Model 3 980 inverter. Constant below adjusted to align the peak
- * of the sine wave with the centre of the phase PWM signals on a scope.
+ * Measured as approx 32.8 uSec between centre of exciter square wave and peak
+ * of the exciter sine wave output on Tesla Model 3 inverter. Constant below
+ * adjusted to align the peak of the sine wave with the centre of the phase PWM
+ * signals on a scope. The delay value is in EPWMCLK counts.
  */
 static const uint16_t ResolverPhaseDelay = 3230U;
 
