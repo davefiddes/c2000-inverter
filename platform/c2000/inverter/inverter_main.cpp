@@ -80,8 +80,8 @@ void main(void)
         GPIO_setPinConfig(GPIO_3_EPWM2B);
         GPIO_setPinConfig(GPIO_4_EPWM3A);
         GPIO_setPinConfig(GPIO_5_EPWM3B);
-        GPIO_setPinConfig(GPIO_6_EPWM4A);
-        GPIO_setPinConfig(GPIO_7_EPWM4B);
+        GPIO_setPinConfig(GPIO_8_EPWM5A);
+        GPIO_setPinConfig(GPIO_9_EPWM5B);
     }
 
     //

@@ -30,11 +30,11 @@
 namespace c2000 {
 
 /** Phase delay between the resolver exciter square wave and the phase PWM.
- * Measured as approx32.8 uSec between centre of square wave and peak of sine
+ * Measured as approx 32.8 uSec between centre of square wave and peak of sine
  * wave on Tesla Model 3 980 inverter. Constant below adjusted to align the peak
  * of the sine wave with the centre of the phase PWM signals on a scope.
  */
-static const uint16_t resolverPhaseDelay = 3230U;
+static const uint16_t ResolverPhaseDelay = 3230U;
 
 /** Phase A EPWM Base Address */
 uint32_t PwmDriver::sm_phaseAEpwmBase;
@@ -245,13 +245,14 @@ static void initResolverEPWM(uint32_t base, uint16_t pwmmax)
 }
 
 /**
- * Initialise an EPMW module just enough to act as a synchronisation source for
- * an EPWM module chain
+ * Initialise an EPMW module to act as a guaranteed trigger source for the ADC
+ * channels and as a synchronisation source for the phase EPWM chain
  *
  * \param[in] base The EPWM module to configure
  * \param[in] pwmmax The PWM period
+ * \param[in] phaseDelay The PWM phase delay from the synchonisation source
  */
-static void initSyncEPWM(uint32_t base, uint16_t pwmmax)
+static void initAdcEPWM(uint32_t base, uint16_t pwmmax, uint16_t phaseDelay)
 {
     //
     // Allow the PWM to continue when debugging
@@ -262,8 +263,13 @@ static void initSyncEPWM(uint32_t base, uint16_t pwmmax)
     // Set-up TBCLK
     //
     EPWM_setTimeBasePeriod(base, pwmmax);
-    EPWM_setPhaseShift(base, 0U);
-    EPWM_setTimeBaseCounter(base, 0U);
+    EPWM_setPhaseShift(base, phaseDelay);
+    EPWM_setTimeBaseCounter(base, phaseDelay);
+
+    //
+    // Static compare values - 50% duty cycle
+    //
+    EPWM_setCounterCompareValue(base, EPWM_COUNTER_COMPARE_A, pwmmax / 2);
 
     //
     // Set up counter mode
@@ -424,17 +430,17 @@ uint16_t PwmDriver::TimerSetup(
         initResolverEPWM(EPWM1_BASE, pwmmax);
 
         //
-        // Initialize EPWM4 just enough to pass on the synchronisation pulse
-        // This EPWM module is otherwise redundant
+        // Initialize EPWM4 to act as our ADC trigger and to on the
+        // synchronisation pulse
         //
-        initSyncEPWM(EPWM4_BASE, pwmmax);
+        initAdcEPWM(EPWM4_BASE, pwmmax, ResolverPhaseDelay);
 
         //
         // Initialize EPWM5, EPWM6 and EPWM7 as phase PWM outputs
         //
-        initPhaseEPWM(EPWM5_BASE, pwmmax, deadBandCount, resolverPhaseDelay);
-        initPhaseEPWM(EPWM6_BASE, pwmmax, deadBandCount, resolverPhaseDelay);
-        initPhaseEPWM(EPWM7_BASE, pwmmax, deadBandCount, resolverPhaseDelay);
+        initPhaseEPWM(EPWM5_BASE, pwmmax, deadBandCount, ResolverPhaseDelay);
+        initPhaseEPWM(EPWM6_BASE, pwmmax, deadBandCount, ResolverPhaseDelay);
+        initPhaseEPWM(EPWM7_BASE, pwmmax, deadBandCount, ResolverPhaseDelay);
 
         // According to section 15.4.3.3 of the TMS320F2837xD Technical
         // Reference Manual no synchonisation chain should exceed 4 units. Our
@@ -488,7 +494,7 @@ uint16_t PwmDriver::TimerSetup(
         // Store the EPWM modules used for each phase for normal operation
         sm_phaseAEpwmBase = EPWM2_BASE;
         sm_phaseBEpwmBase = EPWM3_BASE;
-        sm_phaseCEpwmBase = EPWM4_BASE;
+        sm_phaseCEpwmBase = EPWM5_BASE;
 
         //
         // Initialize EPWM1 as master clock and resolver exciter output
@@ -496,11 +502,17 @@ uint16_t PwmDriver::TimerSetup(
         initResolverEPWM(EPWM1_BASE, pwmmax);
 
         //
-        // Initialize EPWM2, EPWM3 and EPWM4 as phase PWM outputs
+        // Initialize EPWM4 to act as our ADC trigger and to on the
+        // synchronisation pulse
         //
-        initPhaseEPWM(EPWM2_BASE, pwmmax, deadBandCount, resolverPhaseDelay);
-        initPhaseEPWM(EPWM3_BASE, pwmmax, deadBandCount, resolverPhaseDelay);
-        initPhaseEPWM(EPWM4_BASE, pwmmax, deadBandCount, resolverPhaseDelay);
+        initAdcEPWM(EPWM4_BASE, pwmmax, ResolverPhaseDelay);
+
+        //
+        // Initialize EPWM2, EPWM3 and EPWM5 as phase PWM outputs
+        //
+        initPhaseEPWM(EPWM2_BASE, pwmmax, deadBandCount, ResolverPhaseDelay);
+        initPhaseEPWM(EPWM3_BASE, pwmmax, deadBandCount, ResolverPhaseDelay);
+        initPhaseEPWM(EPWM5_BASE, pwmmax, deadBandCount, ResolverPhaseDelay);
 
         // According to section 15.4.3.3 of the TMS320F2837xD Technical
         // Reference Manual no synchonisation chain should exceed 4 units. Our
@@ -528,9 +540,18 @@ uint16_t PwmDriver::TimerSetup(
             EPWM3_BASE, EPWM_SYNC_OUT_PULSE_ON_EPWMxSYNCIN);
 
         //
-        // EPWM4 uses EPWM1 SYNCO as its SYNCIN
+        // EPWM4 uses the EPWM1 SYNCO as its SYNCIN.
+        // EPWM4 SYNCO is generated from its SYNCIN
         //
+        SysCtl_setSyncInputConfig(
+            SYSCTL_SYNC_IN_EPWM4, SYSCTL_SYNC_IN_SRC_EPWM1SYNCOUT);
+        EPWM_setSyncOutPulseMode(
+            EPWM4_BASE, EPWM_SYNC_OUT_PULSE_ON_EPWMxSYNCIN);
+
+        //
+        // EPWM5 uses the EPWM4 SYNCO as its SYNCIN.
         // This is the end of a sync chain so no config required
+        //
 
         //
         // Enable all phase shifts.
@@ -538,6 +559,7 @@ uint16_t PwmDriver::TimerSetup(
         EPWM_enablePhaseShiftLoad(EPWM2_BASE);
         EPWM_enablePhaseShiftLoad(EPWM3_BASE);
         EPWM_enablePhaseShiftLoad(EPWM4_BASE);
+        EPWM_enablePhaseShiftLoad(EPWM5_BASE);
     }
 
     //
@@ -551,13 +573,12 @@ uint16_t PwmDriver::TimerSetup(
     //
     MotorAnalogCapture::Init();
 
-    const uint32_t motorAdcPwm = IsTeslaM3Inverter() ? EPWM5_BASE : EPWM2_BASE;
+    const uint32_t motorAdcPwm = EPWM4_BASE;
     EPWM_disableADCTrigger(motorAdcPwm, EPWM_SOC_A);
     EPWM_setADCTriggerSource(motorAdcPwm, EPWM_SOC_A, EPWM_SOC_TBCTR_U_CMPA);
     EPWM_setADCTriggerEventPrescale(motorAdcPwm, EPWM_SOC_A, 15U);
 
-    MotorAnalogCapture::ConfigureSoc(
-        IsTeslaM3Inverter() ? ADC_TRIGGER_EPWM5_SOCA : ADC_TRIGGER_EPWM2_SOCA);
+    MotorAnalogCapture::ConfigureSoc(ADC_TRIGGER_EPWM4_SOCA);
 
     //
     // Enable sync and clock to PWM
@@ -595,7 +616,7 @@ void PwmDriver::AcHeatTimerSetup()
 
 /**
  * Enable AC heat
- * \param ampnom    Notminal current to use for AC heat
+ * \param ampnom    Nominal current to use for AC heat
  */
 void PwmDriver::AcHeat(s32fp ampnom)
 {
