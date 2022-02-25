@@ -20,41 +20,27 @@
 #ifndef C2000CURRENT_H
 #define C2000CURRENT_H
 
+#include "motoranalogcapture.h"
 #include <stdint.h>
 
 namespace c2000 {
 
 /**
- * Mock implementation of the Current class used to obtain analog values
- * of the phase currents. Allows each value to be set by test functions
- * as required rather than reading a physical value.
+ * Adapt the MotorAnalogCapture phase current readings into a form that the
+ * PwmGeneration class can use
  */
 class Current
 {
 public:
     static uint16_t Phase1()
     {
-        return m_phase1Value;
-    }
-
-    static void SetPhase1(uint16_t value)
-    {
-        m_phase1Value = value;
+        return MotorAnalogCapture::PhaseACurrent();
     }
 
     static uint16_t Phase2()
     {
-        return m_phase2Value;
+        return MotorAnalogCapture::PhaseBCurrent();
     }
-
-    static void SetPhase2(uint16_t value)
-    {
-        m_phase2Value = value;
-    }
-
-private:
-    static uint16_t m_phase1Value;
-    static uint16_t m_phase2Value;
 };
 
 } // namespace c2000

@@ -32,6 +32,8 @@
 #include "c2000/pwmgeneration.h"
 #include "c2000/scheduler.h"
 #include <stdio.h>
+#include <inttypes.h>
+
 
 // Pull in the whole C2000 namespace as this is platform specific code obviously
 using namespace c2000;
@@ -172,10 +174,6 @@ void main(void)
     // Put in a bit of Q current to get the inverter to do something
     Param::Set(Param::manualiq, FP_FROMFLT(0.6));
 
-    // Provide some neutral values for the phase currents
-    Current::SetPhase1(2048);
-    Current::SetPhase2(2048);
-
     //
     // Enable Global Interrupt (INTM) and realtime interrupt (DBGM)
     //
@@ -201,10 +199,10 @@ void main(void)
         DEVICE_DELAY_US(500000);
 
         printf(
-            "PhaseA Current = %u, PhaseB Current = %u, Resolver Sine = %u, "
+            "PhaseA Current = %" PRId32 ", PhaseB Current = %" PRId32 ", Resolver Sine = %u, "
             "Resolver Cosine = %u\n",
-            MotorAnalogCapture::PhaseACurrent(),
-            MotorAnalogCapture::PhaseBCurrent(),
+            Param::Get(Param::il1),
+            Param::Get(Param::il2),
             MotorAnalogCapture::ResolverSine(),
             MotorAnalogCapture::ResolverCosine());
 

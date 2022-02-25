@@ -1,7 +1,6 @@
 add_library(
   inverter_drivers
   eeprom.cpp
-  current.cpp
   encoder.cpp
   pmicspidriver.cpp
   pwmdriver.cpp
