@@ -22,8 +22,10 @@ file(
   testfoccalc.cpp
   testfocpwmgeneration.cpp
   testsinecore.cpp
+  testresolverencoder.cpp
   mockencoder.cpp
-  mockpwmdriver.cpp)
+  mockpwmdriver.cpp
+  mockresolversample.cpp)
 add_executable(OpenInverterTest ${SRCS})
 
 target_link_libraries(OpenInverterTest PUBLIC global_options libopeninv
