@@ -97,8 +97,8 @@ uint16_t SineCore::Atan2(int32_t x, int32_t y)
    if(y==0)
       return (x>=0 ? 0 : BRAD_PI);
 
-   static const int fixShift = 15;
-   int  phi = 0, t, t2, dphi;
+   static const uint16_t fixShift = 15;
+   int32_t  phi = 0, t, t2, dphi;
 
    if (y < 0)
    {
