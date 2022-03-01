@@ -80,7 +80,7 @@ TEST(TestSineCore, Sine)
 }
 
 //! Test sine at various angles
-TEST(TestCosineCore, Cosine)
+TEST(TestSineCore, Cosine)
 {
     // zero angle
     EXPECT_THAT(
@@ -112,4 +112,25 @@ TEST(TestCosineCore, Cosine)
     EXPECT_THAT(
         FP_TOFLOAT(SineCore::Cosine(RadToRev(2 * pi - pi / 5))),
         FloatNear(SineAmp * std::cos(2 * pi - pi / 5), Tolerance));
+}
+
+//! Test Atan2 at various angles against standard floating point equivalent
+TEST(TestSineCore, TestAtan2)
+{
+    // Note: Arguments of SineCore::Atan2 are reversed compared to math.h
+    // function atan2()
+    EXPECT_THAT(
+        SineCore::Atan2(4096, 0), IntNear(RadToRev(atan2(0, 4096)), 1)); // 0°
+    EXPECT_THAT(
+        SineCore::Atan2(2896, 2896),
+        IntNear(RadToRev(atan2(2896, 2896)), 1)); // 45°
+    EXPECT_THAT(
+        SineCore::Atan2(-4096, 0),
+        IntNear(RadToRev(atan2(0, -4096)), 1)); // 180°
+    EXPECT_THAT(
+        SineCore::Atan2(2048, -3547),
+        IntNear(RadToRev(atan2(-3547, 2048)), 1)); // 300°
+    EXPECT_THAT(
+        SineCore::Atan2(2048, 3547),
+        IntNear(RadToRev(atan2(3547, 2048)), 1)); // 60°
 }
