@@ -4,6 +4,10 @@
 
 A port of the Huebner inverter project to the [TI C2000](https://www.ti.com/microcontrollers-mcus-processors/microcontrollers/c2000-real-time-control-mcus/overview.html) family of micro-controllers. Specifically this targets the MCU found in the Tesla Model 3 / Y inverter allowing. Eventually this will allow a completely Open Source solution to running Tesla Model 3 / Y drive units in non-Tesla vehicles. For other Tesla drive units, inverters from other manufacturers and DIY inverters have a look at the [openinverter project](https://openinverter.org).
 
+**This software is not yet functional and is NOT suitable for use in vehicles at this time.**
+
+**DO NOT attempt to use this code in Tesla Model 3 / Y drive units unless you are an experienced embedded software engineer. When developing this software it is very easy to wipe the existing Tesla software rendering the drive unit largely worthless.**
+
 ## Goals
 
 The main goal of this firmware is to create a usable and safe control system for Tesla Model 3 / Y drive units. A secondary goal is to create a more portable implementation of the openinverter algorithms that can be tested and/or simulated outside of embedded hardware platforms.
